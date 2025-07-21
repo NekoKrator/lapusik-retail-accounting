@@ -6,7 +6,6 @@
 
 generator client {
   provider = "prisma-client-js"
-  output   = "../src/generated/prisma"
 }
 
 datasource db {
@@ -19,4 +18,14 @@ model User {
   username String @unique
   password String
   role     String @default("user") // 'admin' or 'user'
+
+  sessions RefreshToken[]
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid())
+  token     String
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  expiresAt DateTime
 }
