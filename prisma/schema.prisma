@@ -21,6 +21,27 @@ model User {
   DailyCashReport DailyCashReport[]
 }
 
+model Supplier {
+  id        String            @id @default(uuid())
+  name      String            @unique
+  totalDebt Float             @default(0) // total outstanding debt owed to supplier
+  payments  SupplierPayment[]
+}
+
+enum PaymentType {
+  CASH // payment made in cash (from store register)
+  OWNER // payment made by owner personally
+}
+
+model SupplierPayment {
+  id          String      @id @default(uuid())
+  supplierId  String
+  supplier    Supplier    @relation(fields: [supplierId], references: [id])
+  amount      Float // amount paid in this transaction
+  date        DateTime    @default(now())
+  paymentType PaymentType @default(CASH)
+}
+
 model Store {
   id      String            @id @default(uuid())
   name    String
