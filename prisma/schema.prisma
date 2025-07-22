@@ -14,8 +14,47 @@ datasource db {
 }
 
 model User {
-  id       String @id @default(uuid())
-  username String @unique
-  password String
-  role     String @default("user") // 'admin' or 'user'
+  id              String            @id @default(uuid())
+  username        String            @unique
+  password        String
+  role            String            @default("user") // 'admin' or 'user'
+  DailyCashReport DailyCashReport[]
+}
+
+model Store {
+  id      String            @id @default(uuid())
+  name    String
+  reports DailyCashReport[]
+}
+
+model DailyCashReport {
+  id      String   @id @default(uuid())
+  storeId String
+  store   Store    @relation(fields: [storeId], references: [id])
+  userId  String
+  user    User     @relation(fields: [userId], references: [id])
+  date    DateTime
+
+  morningBalance Float // cash in register at the start of the day
+  cashIncome     Float // cash income received during the day
+  cashExpenses   Float // cash expenses paid out during the day
+  reportedTotal  Float // cash amount reported by cashier at end of day
+  actualTotal    Float // actual cash counted in register at end of day
+  eveningBalance Float // final cash balance after closing the register
+
+  breakdown CashReportBreakdown? // optional detailed breakdown of expenses and payments
+}
+
+model CashReportBreakdown {
+  id       String          @id @default(uuid())
+  reportId String          @unique
+  report   DailyCashReport @relation(fields: [reportId], references: [id])
+
+  cardPayments        Float // payments made by card (terminal)
+  rent                Float // rent expenses
+  salaries            Float // salaries paid
+  utilities           Float // utility bills
+  paymentsToSuppliers Float // payments made to suppliers
+  ownerWithdrawal     Float // cash withdrawn by owner
+  cashSetAside        Float // Amount of cash set aside into the piggy bank (considered an expense)
 }
