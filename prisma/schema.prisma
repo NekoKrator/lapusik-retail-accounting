@@ -56,14 +56,19 @@ model DailyCashReport {
   user    User     @relation(fields: [userId], references: [id])
   date    DateTime
 
-  morningBalance Float // cash in register at the start of the day
-  cashIncome     Float // cash income received during the day
-  cashExpenses   Float // cash expenses paid out during the day
-  reportedTotal  Float // cash amount reported by cashier at end of day
-  actualTotal    Float // actual cash counted in register at end of day
-  eveningBalance Float // final cash balance after closing the register
+  morningBalance           Float // cash in register at the start of the day
+  totalCashRegister        Float // total income received during the day (cash + card)
+  totalAvailable           Float // morningBalance + totalCashRegister
+  totalExpenses            Float // total amount of all expenses from breakdown
+  calculatedEveningBalance Float // totalAvailable - totalExpenses (expected balance)
+  actualEveningBalance     Float? // actual cash counted in register at end of day
+  isConfirmed              Boolean @default(false) // whether cashier confirmed actual count
+  difference               Float   @default(0) // calculatedEveningBalance - actualEveningBalance
 
-  breakdown CashReportBreakdown? // optional detailed breakdown of expenses and payments
+  breakdown CashReportBreakdown? // optional detailed breakdown of expenses and payments\
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model CashReportBreakdown {
@@ -71,11 +76,12 @@ model CashReportBreakdown {
   reportId String          @unique
   report   DailyCashReport @relation(fields: [reportId], references: [id])
 
-  cardPayments        Float // payments made by card (terminal)
-  rent                Float // rent expenses
-  salaries            Float // salaries paid
-  utilities           Float // utility bills
-  paymentsToSuppliers Float // payments made to suppliers
-  ownerWithdrawal     Float // cash withdrawn by owner
-  cashSetAside        Float // Amount of cash set aside into the piggy bank (considered an expense)
+  terminalExpenses Float @default(0) // payments made by card (terminal)
+  rent             Float @default(0) // rent expenses
+  salaries         Float @default(0) // salaries paid
+  utilities        Float @default(0) // utility bills
+  supplierPayments Float @default(0) // payments made to suppliers
+  ownerWithdrawal  Float @default(0) // cash withdrawn by owner
+  piggyBank        Float @default(0) // Amount of cash set aside into the piggy bank (considered an expense)
+  otherExpenses    Float @default(0)
 }
