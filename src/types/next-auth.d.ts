@@ -14,4 +14,10 @@ declare module "next-auth" {
     username: string
     role: string
   }
+
+  interface JWT extends DefaultJWT {
+    id?: string;
+    username?: string;
+    role?: string;
+  }
 }
