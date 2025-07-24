@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
+import { LoadingScreen } from '@/components/LoadingScreen';
 
 export default function DashboardClient({ username }: { username: string }) {
   const router = useRouter();
@@ -11,8 +12,10 @@ export default function DashboardClient({ username }: { username: string }) {
       router.push('/sales');
     } else if (username === 'admin') {
       router.push('/admin');
+    } else {
+      router.push('/login');
     }
   }, [username, router]);
 
-  return <div>Redirecting...</div>;
+  return <LoadingScreen message='Перенаправлення, будь ласка, зачекайте...' />;
 }

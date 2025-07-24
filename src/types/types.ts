@@ -20,3 +20,7 @@ export type Supplier = {
   name: string
   totalDebt: number
 }
+
+export interface LoadingScreenProps {
+  message: string;
+}
