@@ -14,3 +14,9 @@ export type Expenses = {
   piggyBank: number;
   otherExpenses: number;
 };
+
+export type Supplier = {
+  id: string
+  name: string
+  totalDebt: number
+}
