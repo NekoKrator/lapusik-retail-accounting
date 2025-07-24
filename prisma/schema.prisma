@@ -42,16 +42,8 @@ model SupplierPayment {
   paymentType PaymentType @default(CASH)
 }
 
-model Store {
-  id      String            @id @default(uuid())
-  name    String
-  reports DailyCashReport[]
-}
-
 model DailyCashReport {
   id      String   @id @default(uuid())
-  storeId String
-  store   Store    @relation(fields: [storeId], references: [id])
   userId  String
   user    User     @relation(fields: [userId], references: [id])
   date    DateTime

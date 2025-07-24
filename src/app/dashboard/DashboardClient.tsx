@@ -1,32 +1,18 @@
 'use client';
 
-import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 
-export default function DashboardClient() {
-  const { data: session, status } = useSession();
+export default function DashboardClient({ username }: { username: string }) {
+  const router = useRouter();
 
-  if (status === 'loading') {
-    return <div>Завантаження...</div>;
-  }
+  useEffect(() => {
+    if (username === 'lapusik1') {
+      router.push('/sales');
+    } else if (username === 'lapusik2') {
+      router.push('/sales2');
+    }
+  }, [username, router]);
 
-  if (!session) {
-    return <div>Вам потрібно увійти</div>;
-  }
-
-  const { username, role } = session.user;
-
-  if (role === 'admin') {
-    // return <AdminPanel />;
-    console.log('test');
-  }
-
-  if (username === 'lapusik1') {
-    // return <Seller1Dashboard />;
-  }
-
-  if (username === 'lapusik2') {
-    // return <Seller2Dashboard />;
-  }
-
-  // return <DefaultDashboard />;
+  return <div>Redirecting...</div>;
 }
