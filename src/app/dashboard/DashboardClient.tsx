@@ -7,10 +7,10 @@ export default function DashboardClient({ username }: { username: string }) {
   const router = useRouter();
 
   useEffect(() => {
-    if (username === 'lapusik1') {
+    if (username === 'lapusik1' || username === 'lapusik2') {
       router.push('/sales');
-    } else if (username === 'lapusik2') {
-      router.push('/sales2');
+    } else if (username === 'admin') {
+      router.push('/admin');
     }
   }, [username, router]);
 
