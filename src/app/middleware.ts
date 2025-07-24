@@ -2,14 +2,12 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { getToken } from 'next-auth/jwt';
 
-const ADMIN_PATH = '/admin';
-
 export async function middleware(req: NextRequest) {
   const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
 
   const { pathname } = req.nextUrl;
 
-  if (!pathname.startsWith(ADMIN_PATH)) {
+  if (!pathname.startsWith('/admin')) {
     return NextResponse.next();
   }
 
@@ -25,4 +23,8 @@ export async function middleware(req: NextRequest) {
   }
 
   return NextResponse.next();
+}
+
+export const config = {
+  matcher: ['/admin/:path*', '/api/admin/:path*']
 }
