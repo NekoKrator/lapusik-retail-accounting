@@ -1,14 +1,11 @@
-import { getServerSession } from 'next-auth/next';
-import { authOptions } from '@/lib/auth';
-import { redirect } from 'next/navigation';
+'use client';
+import RoleGuard from '@/components/RoleGuard';
 import AdminDashboardPage from './AdminDashboard';
 
-export default async function AdminPage() {
-  const session = await getServerSession(authOptions);
-
-  if (!session || session.user.role !== 'admin') {
-    redirect('/'); // redirect('/403');
-  }
-
-  return <AdminDashboardPage />;
+export default function AdminPage() {
+  return (
+    <RoleGuard requiredRole='admin' loadingMessage='Перевірка адмін доступу...'>
+      <AdminDashboardPage />
+    </RoleGuard>
+  );
 }

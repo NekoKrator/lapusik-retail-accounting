@@ -15,7 +15,7 @@ import {
 } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Loader2, User, Lock } from 'lucide-react';
-import { LoadingScreen } from '@/components/LoadingScreen';
+import LoadingScreen from '@/components/LoadingScreen';
 import { signIn, useSession } from 'next-auth/react';
 
 export default function LoginPage() {
@@ -25,7 +25,7 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [mounted, setMounted] = useState(false);
   const router = useRouter();
-  const { data: session, status } = useSession();
+  const { status } = useSession();
 
   useEffect(() => {
     setMounted(true);
@@ -57,9 +57,7 @@ export default function LoginPage() {
     } catch {
       setError("Помилка з'єднання");
     } finally {
-      if (!username || !password) {
-        setLoading(false);
-      }
+      setLoading(false);
     }
   }
 

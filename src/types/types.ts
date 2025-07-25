@@ -24,3 +24,12 @@ export type Supplier = {
 export interface LoadingScreenProps {
   message: string;
 }
+
+export type UserRole = 'admin' | 'user';
+
+export interface RoleGuardProps {
+  requiredRole: UserRole;
+  children: React.ReactNode;
+  loadingMessage?: string;
+  redirectMessage?: string;
+}

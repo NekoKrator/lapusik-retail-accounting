@@ -1,19 +1,29 @@
 'use client';
-
-import DashboardClient from './DashboardClient';
 import { useSession } from 'next-auth/react';
-import { LoadingScreen } from '@/components/LoadingScreen';
+import LoadingScreen from '@/components/LoadingScreen';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 
-export default function DashboardPage() {
+export default function RedirectPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
 
   useEffect(() => {
     if (status !== 'loading') {
-      if (!session?.user?.username) {
+      if (!session?.user?.role) {
         router.push('/login');
+        return;
+      }
+
+      switch (session.user.role) {
+        case 'admin':
+          router.push('/admin');
+          break;
+        case 'user':
+          router.push('/sales');
+          break;
+        default:
+          router.push('/login');
       }
     }
   }, [status, session, router]);
@@ -22,9 +32,5 @@ export default function DashboardPage() {
     return <LoadingScreen message='Перевірка авторизації...' />;
   }
 
-  if (!session?.user?.username) {
-    return <LoadingScreen message='Перенаправлення на вхід...' />;
-  }
-
-  return <DashboardClient username={session.user.username} />;
+  return <LoadingScreen message='Перенаправлення, будь ласка, зачекайте...' />;
 }

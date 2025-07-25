@@ -3,7 +3,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import Image from 'next/image';
 import type { LoadingScreenProps } from '@/types/types';
 
-export function LoadingScreen({ message }: LoadingScreenProps) {
+export default function LoadingScreen({ message }: LoadingScreenProps) {
   return (
     <div className='min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 to-yellow-50'>
       <Card className='w-full max-w-md shadow-xl border-0 bg-white/95 backdrop-blur'>
