@@ -94,6 +94,28 @@ export default function SalesPage() {
     fetchMorningBalance();
   }, [session]);
 
+  useEffect(() => {
+    async function fetchDebtors() {
+      try {
+        const res = await fetch('/api/debtors');
+        if (!res.ok) throw new Error('Failed to fetch debtors');
+        const data = await res.json();
+
+        const mapped = data.map((d: DebtorItem) => ({
+          id: d.id,
+          name: d.name,
+          amount: typeof d.amount === 'number' ? d.amount : 0,
+        }));
+
+        setDebtors(mapped);
+      } catch (error) {
+        console.error(error);
+        handleError('Не вдалося завантажити боржників');
+      }
+    }
+    fetchDebtors();
+  }, []);
+
   // Функция для сохранения отчета с обновлением логики
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -192,16 +214,63 @@ export default function SalesPage() {
   };
 
   // Debtors handlers
-  const addDebtor = (debtor: Omit<DebtorItem, 'id'>) => {
-    const item: DebtorItem = {
-      id: Date.now().toString(),
-      ...debtor,
-    };
-    setDebtors((prev) => [...prev, item]);
+  const addOrUpdateDebtor = (newDebtor: DebtorItem) => {
+    setDebtors((prev) => {
+      const existingIndex = prev.findIndex((d) => d.id === newDebtor.id);
+      if (existingIndex !== -1) {
+        const updated = [...prev];
+        updated[existingIndex] = newDebtor;
+        return updated;
+      }
+      return [...prev, newDebtor];
+    });
   };
 
-  const removeDebtor = (id: string) => {
-    setDebtors((prev) => prev.filter((item) => item.id !== id));
+  const addDebtor = async (debtor: Omit<DebtorItem, 'id'>) => {
+    try {
+      const res = await fetch('/api/debtors', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: debtor.name,
+          amount: debtor.amount,
+          date: new Date().toISOString().split('T')[0],
+        }),
+      });
+
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error || 'Помилка при створенні боржника');
+      }
+
+      const createdOrUpdated = await res.json();
+
+      addOrUpdateDebtor(createdOrUpdated);
+    } catch (error) {
+      handleError(error instanceof Error ? error.message : 'Невідома помилка');
+    }
+  };
+
+  const removeDebtor = async (id: string) => {
+    try {
+      const debtorToRemove = debtors.find((d) => d.id === id);
+      if (!debtorToRemove) {
+        handleError('Должник не найден');
+        return;
+      }
+
+      const res = await fetch(`/api/debtors/${id}`, { method: 'DELETE' });
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error || 'Помилка при видаленні боржника');
+      }
+
+      setBaseMorningBalance((prev) => prev + debtorToRemove.amount);
+
+      setDebtors((prev) => prev.filter((d) => d.id !== id));
+    } catch (error) {
+      handleError(error instanceof Error ? error.message : 'Невідома помилка');
+    }
   };
 
   // Suppliers handlers

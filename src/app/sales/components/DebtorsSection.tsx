@@ -22,10 +22,12 @@ export function DebtorsSection({
       onError('Будь ласка, заповніть всі поля коректно');
       return;
     }
+
     onAddDebtor({
       name: newDebtor.name.trim(),
       amount: Number(newDebtor.amount),
     });
+
     setNewDebtor({ name: '', amount: '' });
   };
 

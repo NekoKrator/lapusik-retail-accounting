@@ -1,0 +1,93 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { PrismaClient } from '@prisma/client';
+import { getToken } from 'next-auth/jwt';
+
+const prisma = new PrismaClient();
+
+export async function DELETE(
+  req: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
+
+  if (!token) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  try {
+    const { id } = params;
+
+    const debtor = await prisma.debtor.findFirst({
+      where: {
+        id: id,
+        userId: token.id as string,
+      },
+    });
+
+    if (!debtor) {
+      return NextResponse.json({ error: 'Debtor not found' }, { status: 404 });
+    }
+
+    await prisma.debtor.delete({
+      where: {
+        id: id,
+      },
+    });
+
+    return NextResponse.json({
+      message: 'Debtor deleted successfully',
+      debtAmount: debtor.amount,
+      debtorName: debtor.name
+    });
+  } catch (error) {
+    console.error('Failed to delete debtor:', error);
+    return NextResponse.json({ error: 'Failed to delete debtor' }, { status: 500 });
+  }
+}
+
+export async function PATCH(
+  req: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
+
+  if (!token) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  try {
+    const { id } = params;
+    const body = await req.json();
+    const { amount } = body;
+
+    if (typeof amount !== 'number' || amount < 0) {
+      return NextResponse.json({ error: 'Invalid debt amount' }, { status: 400 });
+    }
+
+    const existingDebtor = await prisma.debtor.findFirst({
+      where: {
+        id: id,
+        userId: token.id as string,
+      },
+    });
+
+    if (!existingDebtor) {
+      return NextResponse.json({ error: 'Debtor not found' }, { status: 404 });
+    }
+
+    const updatedDebtor = await prisma.debtor.update({
+      where: {
+        id: id,
+      },
+      data: {
+        amount: amount,
+        updatedAt: new Date(),
+      },
+    });
+
+    return NextResponse.json(updatedDebtor);
+  } catch (error) {
+    console.error('Failed to update debtor:', error);
+    return NextResponse.json({ error: 'Failed to update debtor' }, { status: 500 });
+  }
+}
