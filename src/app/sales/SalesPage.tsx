@@ -36,7 +36,7 @@ interface PreviousDayData {
 }
 
 export default function SalesPage() {
-  const { data: session, status } = useSession();
+  const { data: session } = useSession();
 
   const [baseMorningBalance, setBaseMorningBalance] = useState(0);
   const [previousDayData, setPreviousDayData] =
@@ -108,44 +108,52 @@ export default function SalesPage() {
     }
 
     try {
-      // Подготавливаем данные для сохранения
+      // Подготовить данные для отправки
       const reportData = {
         date: new Date().toISOString().split('T')[0],
         userId: session.user.id,
-        morningBalance: {
-          base: baseMorningBalance,
-          additional: additionalBalances,
-          total: totalMorningBalance,
+        morningBalance:
+          baseMorningBalance +
+          additionalBalances.reduce((sum, item) => sum + item.amount, 0),
+        totalCashRegister: totalCashRegister,
+        breakdown: {
+          // здесь нужно заполнить поля расходов, например из твоих state
+          terminalExpenses: 0,
+          ownerWithdrawal: 0,
+          rent: 0,
+          utilities: 0,
+          supplierPayments: 0,
+          salaries: 0,
+          piggyBank: 0,
+          otherExpenses: 0,
         },
-        cashRegister: totalCashRegister,
-        expenses: expenseItems,
-        totalExpenses,
-        calculatedEveningBalance,
         actualEveningBalance: actualEveningBalance
           ? Number(actualEveningBalance)
           : null,
-        debtors,
-        suppliers,
-        // Информация о предыдущем дне для связи
-        previousDayReference: previousDayData?.date,
       };
 
-      // Mock API call для сохранения
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      // Отправляем POST запрос
+      const res = await fetch('/api/daily-reports', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(reportData),
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.error || 'Помилка при збереженні звіту');
+      }
 
       setSuccess('Звіт успішно збережено!');
 
-      // После успешного сохранения можно очистить форму, но оставить базовый баланс
-      // так как он будет использован завтра
+      // Очистить дополнительные балансы, кассу и т.д.
       setAdditionalBalances([]);
       setTotalCashRegister(0);
       setActualEveningBalance('');
-      setExpenseItems([]);
-      setDebtors([]);
-      setSuppliers([]);
+      // сюда добавь сброс других полей, если надо
     } catch (err) {
-      console.error('Submit error:', err);
-      setError('Помилка мережі або сервера');
+      const error = err instanceof Error ? err.message : String(err);
+      setError(error);
     } finally {
       setLoading(false);
     }
