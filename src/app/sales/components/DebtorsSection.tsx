@@ -3,14 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Users, Plus, Trash2 } from 'lucide-react';
-import type { DebtorItem } from '@/types/types';
-
-interface DebtorsSectionProps {
-  debtors: DebtorItem[];
-  onAddDebtor: (debtor: Omit<DebtorItem, 'id'>) => void;
-  onRemoveDebtor: (id: string) => void;
-  onError: (error: string) => void;
-}
+import type { DebtorsSectionProps } from '@/types/types';
 
 export function DebtorsSection({
   debtors,
@@ -45,7 +38,6 @@ export function DebtorsSection({
         </CardTitle>
       </CardHeader>
       <CardContent className='space-y-4'>
-        {/* Add New Debtor */}
         <div className='grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-gray-50 rounded-lg'>
           <Input
             value={newDebtor.name}
@@ -73,7 +65,6 @@ export function DebtorsSection({
           </Button>
         </div>
 
-        {/* Debtors List */}
         {debtors.length > 0 && (
           <div className='space-y-2'>
             {debtors.map((debtor) => (

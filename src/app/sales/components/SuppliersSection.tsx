@@ -3,15 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Truck, Plus, Trash2 } from 'lucide-react';
-import type { SupplierItem, ExpenseItem } from '@/types/types';
-
-interface SuppliersSectionProps {
-  suppliers: SupplierItem[];
-  onAddSupplier: (supplier: Omit<SupplierItem, 'id'>) => void;
-  onRemoveSupplier: (id: string) => void;
-  onAddExpense: (expense: Omit<ExpenseItem, 'id'>) => void;
-  onError: (error: string) => void;
-}
+import type { SuppliersSectionProps } from '@/types/types';
 
 export function SuppliersSection({
   suppliers,

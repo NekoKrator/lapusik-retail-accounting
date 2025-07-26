@@ -52,3 +52,41 @@ export interface SupplierItem {
   debt: number
   pricePerDelivery: number
 }
+
+export interface BalanceItem {
+  id: string;
+  amount: number;
+}
+
+export interface PreviousDayInfo {
+  date: string;
+  actualEveningBalance?: number;
+  calculatedEveningBalance: number;
+}
+
+export interface MorningBalanceProps {
+  baseMorningBalance: number;
+  additionalBalances: BalanceItem[];
+  newBalanceAmount: string;
+  onNewBalanceAmountChange: (value: string) => void;
+  onAddBalance: () => void;
+  onRemoveBalance: (id: string) => void;
+  totalMorningBalance: number;
+  previousDayInfo?: PreviousDayInfo | null;
+  isLoading?: boolean;
+}
+
+export interface DebtorsSectionProps {
+  debtors: DebtorItem[];
+  onAddDebtor: (debtor: Omit<DebtorItem, 'id'>) => void;
+  onRemoveDebtor: (id: string) => void;
+  onError: (error: string) => void;
+}
+
+export interface SuppliersSectionProps {
+  suppliers: SupplierItem[];
+  onAddSupplier: (supplier: Omit<SupplierItem, 'id'>) => void;
+  onRemoveSupplier: (id: string) => void;
+  onAddExpense: (expense: Omit<ExpenseItem, 'id'>) => void;
+  onError: (error: string) => void;
+}

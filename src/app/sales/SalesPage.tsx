@@ -285,6 +285,7 @@ export default function SalesPage() {
             <Users className='h-5 w-5 mr-2' />
             Боржники ({debtors.length})
           </Button>
+
           <Button
             type='button'
             onClick={() => setShowSuppliers(!showSuppliers)}

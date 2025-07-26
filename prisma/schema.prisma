@@ -19,6 +19,7 @@ model User {
   password        String
   role            String            @default("user") // 'admin' or 'user'
   DailyCashReport DailyCashReport[]
+  debtors         Debtor[]
 }
 
 model Supplier {
@@ -76,4 +77,17 @@ model CashReportBreakdown {
   ownerWithdrawal  Float @default(0) // cash withdrawn by owner
   piggyBank        Float @default(0) // Amount of cash set aside into the piggy bank (considered an expense)
   otherExpenses    Float @default(0)
+}
+
+model Debtor {
+  id       String   @id @default(uuid())
+  name     String
+  debt     Float    @default(0)
+  date     DateTime @default(now())
+
+  userId   String
+  user     User     @relation(fields: [userId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
