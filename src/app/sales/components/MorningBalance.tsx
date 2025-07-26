@@ -1,4 +1,10 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardDescription,
+  CardTitle,
+} from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
@@ -10,29 +16,7 @@ import {
   CheckCircle,
   AlertCircle,
 } from 'lucide-react';
-
-interface BalanceItem {
-  id: string;
-  amount: number;
-}
-
-interface PreviousDayInfo {
-  date: string;
-  actualEveningBalance?: number;
-  calculatedEveningBalance: number;
-}
-
-interface MorningBalanceProps {
-  baseMorningBalance: number;
-  additionalBalances: BalanceItem[];
-  newBalanceAmount: string;
-  onNewBalanceAmountChange: (value: string) => void;
-  onAddBalance: () => void;
-  onRemoveBalance: (id: string) => void;
-  totalMorningBalance: number;
-  previousDayInfo?: PreviousDayInfo | null;
-  isLoading?: boolean;
-}
+import type { MorningBalanceProps } from '@/types/types';
 
 export function MorningBalance({
   baseMorningBalance,
@@ -115,6 +99,9 @@ export function MorningBalance({
           <Wallet className='h-5 w-5 text-green-600' />
           Залишок на ранок
         </CardTitle>
+        <CardDescription className='text-sm text-gray-600'>
+          Залишок попереднього дня + додаткові надходження до каси
+        </CardDescription>
       </CardHeader>
       <CardContent className='space-y-4'>
         <div

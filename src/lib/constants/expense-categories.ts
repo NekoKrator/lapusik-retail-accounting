@@ -10,7 +10,7 @@ import {
 } from "lucide-react"
 
 export const expenseCategories = [
-  { key: "terminalExpenses", label: "Термінальні витрати", icon: Receipt },
+  { key: "terminalExpenses", label: "Термінал", icon: Receipt },
   { key: "rent", label: "Оренда", icon: DollarSign },
   { key: "salaries", label: "Зарплати", icon: TrendingUp },
   { key: "utilities", label: "Комунальні", icon: Calculator },

@@ -5,7 +5,6 @@ import {
   CardTitle,
   CardDescription,
 } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
@@ -20,7 +19,6 @@ interface CashRegisterProps {
 export function CashRegister({
   totalCashRegister,
   onTotalCashRegisterChange,
-  onQuickSave,
 }: CashRegisterProps) {
   return (
     <Card className='shadow-lg border-0 bg-white/95 backdrop-blur'>
@@ -68,7 +66,7 @@ export function CashRegister({
           </div>
         </div>
 
-        {/* Quick Save Button */}
+        {/* Quick Save Button
         <div className='pt-2'>
           <Button
             type='button'
@@ -79,7 +77,7 @@ export function CashRegister({
             <Receipt className='mr-2 h-4 w-4' />
             Зберегти касу
           </Button>
-        </div>
+        </div> */}
       </CardContent>
     </Card>
   );
