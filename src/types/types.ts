@@ -33,3 +33,22 @@ export interface RoleGuardProps {
   loadingMessage?: string;
   redirectMessage?: string;
 }
+
+export interface ExpenseItem {
+  id: string
+  amount: number
+  category: string
+}
+
+export interface DebtorItem {
+  id: string
+  name: string
+  amount: number
+}
+
+export interface SupplierItem {
+  id: string
+  name: string
+  debt: number
+  pricePerDelivery: number
+}

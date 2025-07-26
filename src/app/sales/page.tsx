@@ -1,6 +1,6 @@
 'use client';
 import RoleGuard from '@/components/RoleGuard';
-import SalesDashboardPage from './SalesDashboard';
+import SalesDashboardPage from './SalesPage';
 
 export default function SalesPage() {
   return (

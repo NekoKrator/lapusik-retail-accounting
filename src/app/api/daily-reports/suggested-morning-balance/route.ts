@@ -3,15 +3,26 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
+function getUTCStartOfDay(date: Date) {
+  return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
+}
+
+function getUTCEndOfDay(date: Date) {
+  return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(), 23, 59, 59, 999));
+}
+
 async function getPreviousDayBalance(userId: string, currentDate: Date) {
   const previousDay = new Date(currentDate);
-  previousDay.setDate(currentDate.getDate() - 1);
+  previousDay.setUTCDate(currentDate.getUTCDate() - 1);
 
-  const startOfPreviousDay = new Date(previousDay);
-  startOfPreviousDay.setHours(0, 0, 0, 0);
+  const startOfPreviousDay = getUTCStartOfDay(previousDay);
+  const endOfPreviousDay = getUTCEndOfDay(previousDay);
 
-  const endOfPreviousDay = new Date(previousDay);
-  endOfPreviousDay.setHours(23, 59, 59, 999);
+  console.log('searching for report:', {
+    userId,
+    startOfPreviousDay,
+    endOfPreviousDay,
+  });
 
   const previousReport = await prisma.dailyCashReport.findFirst({
     where: {
@@ -25,6 +36,8 @@ async function getPreviousDayBalance(userId: string, currentDate: Date) {
       date: 'desc',
     },
   });
+
+  console.log('found report:', previousReport);
 
   return (
     previousReport?.actualEveningBalance ??

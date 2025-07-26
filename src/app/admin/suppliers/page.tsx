@@ -1,3 +1,5 @@
+'use client';
+
 import type { Supplier } from '@/types/types';
 import { useEffect, useState } from 'react';
 
