@@ -90,3 +90,19 @@ export interface SuppliersSectionProps {
   onAddExpense: (expense: Omit<ExpenseItem, 'id'>) => void;
   onError: (error: string) => void;
 }
+
+export interface PreviousDayData {
+  date: string;
+  actualEveningBalance?: number;
+  calculatedEveningBalance: number;
+}
+
+export interface LocalStorageData {
+  baseMorningBalance: number;
+  additionalBalances: { id: string; amount: number }[];
+  totalCashRegister: number;
+  actualEveningBalance: string;
+  expenseItems: ExpenseItem[];
+  lastSaved: string;
+  date: string;
+}

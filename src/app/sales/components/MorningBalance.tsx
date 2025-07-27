@@ -110,19 +110,18 @@ export function MorningBalance({
           <div className='flex items-center justify-between mb-2'>
             <div className='flex items-center gap-2'>
               <IconComponent className={`h-4 w-4 ${sourceInfo.color}`} />
-              <span className={`text-sm ${sourceInfo.color}`}>Базова сума</span>
+              <span className={`text-sm leading-none ${sourceInfo.color}`}>
+                Базова сума{' '}
+                {previousDayInfo && `(${formatDate(previousDayInfo.date)})`}
+              </span>
             </div>
             <span className={`font-bold ${sourceInfo.color}`}>
               ₴{baseMorningBalance.toFixed(2)}
             </span>
           </div>
-          <div
-            className={`text-xs ${sourceInfo.color} flex items-center gap-1`}
-          >
-            <Info className='h-3 w-3' />
-            {sourceInfo.text}
-          </div>
         </div>
+
+        <Separator />
 
         <div className='flex gap-2'>
           <Input
