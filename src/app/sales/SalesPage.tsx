@@ -1,7 +1,7 @@
 'use client';
 
 import type React from 'react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -16,6 +16,9 @@ import {
   Truck,
   CheckCircle,
   AlertCircle,
+  Save,
+  Trash2,
+  Clock,
 } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 
@@ -35,6 +38,16 @@ interface PreviousDayData {
   calculatedEveningBalance: number;
 }
 
+interface LocalStorageData {
+  baseMorningBalance: number;
+  additionalBalances: { id: string; amount: number }[];
+  totalCashRegister: number;
+  actualEveningBalance: string;
+  expenseItems: ExpenseItem[];
+  lastSaved: string;
+  date: string; // Дата сохранения для проверки актуальности
+}
+
 export default function SalesPage() {
   const { data: session } = useSession();
 
@@ -50,17 +63,147 @@ export default function SalesPage() {
   const [actualEveningBalance, setActualEveningBalance] = useState('');
   const [expenseItems, setExpenseItems] = useState<ExpenseItem[]>([]);
 
-  // Debtors state
   const [debtors, setDebtors] = useState<DebtorItem[]>([]);
   const [showDebtors, setShowDebtors] = useState(false);
 
-  // Suppliers state
   const [suppliers, setSuppliers] = useState<SupplierItem[]>([]);
   const [showSuppliers, setShowSuppliers] = useState(false);
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+
+  // Новые состояния для localStorage
+  const [lastSaved, setLastSaved] = useState<string | null>(null);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+
+  const LOCAL_STORAGE_KEY = 'sales-page-draft';
+
+  // Улучшенная функция сохранения в localStorage
+  const saveToLocalStorage = useCallback(() => {
+    const currentDate = new Date().toISOString().split('T')[0];
+    const draft: LocalStorageData = {
+      baseMorningBalance,
+      additionalBalances,
+      totalCashRegister,
+      actualEveningBalance,
+      expenseItems,
+      lastSaved: new Date().toISOString(),
+      date: currentDate,
+    };
+
+    try {
+      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(draft));
+      setLastSaved(draft.lastSaved);
+      setHasUnsavedChanges(false);
+      console.log('Данные сохранены в localStorage');
+    } catch (error) {
+      console.error('Ошибка сохранения в localStorage:', error);
+      setError('Не удалось сохранить данные локально');
+    }
+  }, [
+    baseMorningBalance,
+    additionalBalances,
+    totalCashRegister,
+    actualEveningBalance,
+    expenseItems,
+  ]);
+
+  // Автосохранение при изменении данных
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      saveToLocalStorage();
+    }, 1000); // Автосохранение через 1 секунду после изменения
+
+    return () => clearTimeout(timeoutId);
+  }, [saveToLocalStorage]);
+
+  // Отслеживание изменений для индикации несохраненных данных
+  useEffect(() => {
+    setHasUnsavedChanges(true);
+  }, [
+    baseMorningBalance,
+    additionalBalances,
+    totalCashRegister,
+    actualEveningBalance,
+    expenseItems,
+  ]);
+
+  // Улучшенная функция загрузки из localStorage
+  const loadFromLocalStorage = useCallback(() => {
+    try {
+      const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
+      if (!saved) return false;
+
+      const data: LocalStorageData = JSON.parse(saved);
+      const currentDate = new Date().toISOString().split('T')[0];
+
+      // Проверяем, актуальны ли данные (сохранены ли они сегодня)
+      if (data.date !== currentDate) {
+        console.log('Данные из localStorage устарели, очищаем...');
+        localStorage.removeItem(LOCAL_STORAGE_KEY);
+        return false;
+      }
+
+      // Загружаем данные с проверкой на undefined/null
+      if (typeof data.baseMorningBalance === 'number') {
+        setBaseMorningBalance(data.baseMorningBalance);
+      }
+
+      if (Array.isArray(data.additionalBalances)) {
+        setAdditionalBalances(data.additionalBalances);
+      }
+
+      if (typeof data.totalCashRegister === 'number') {
+        setTotalCashRegister(data.totalCashRegister);
+      }
+
+      if (typeof data.actualEveningBalance === 'string') {
+        setActualEveningBalance(data.actualEveningBalance);
+      }
+
+      if (Array.isArray(data.expenseItems)) {
+        setExpenseItems(data.expenseItems);
+      }
+
+      if (data.lastSaved) {
+        setLastSaved(data.lastSaved);
+      }
+
+      setHasUnsavedChanges(false);
+      console.log('Данные загружены из localStorage');
+      return true;
+    } catch (e) {
+      console.error('Не удалось прочитать localStorage:', e);
+      localStorage.removeItem(LOCAL_STORAGE_KEY); // Удаляем поврежденные данные
+      return false;
+    }
+  }, []);
+
+  // Загрузка данных при монтировании компонента
+  useEffect(() => {
+    loadFromLocalStorage();
+  }, [loadFromLocalStorage]);
+
+  // Очистка localStorage
+  const clearLocalStorage = () => {
+    localStorage.removeItem(LOCAL_STORAGE_KEY);
+    setAdditionalBalances([]);
+    setTotalCashRegister(0);
+    setActualEveningBalance('');
+    setExpenseItems([]);
+    setLastSaved(null);
+    setHasUnsavedChanges(false);
+    setSuccess('Локальные данные очищены!');
+    setTimeout(() => setSuccess(null), 2000);
+  };
+
+  // Принудительное сохранение
+  const forceSave = () => {
+    saveToLocalStorage();
+    setSuccess('Данные сохранены!');
+    setTimeout(() => setSuccess(null), 2000);
+  };
 
   useEffect(() => {
     if (!session?.user?.id) return;
@@ -74,7 +217,11 @@ export default function SalesPage() {
         if (!res.ok) throw new Error('Failed to fetch morning balance');
         const data = await res.json();
 
-        setBaseMorningBalance(data.suggestedMorningBalance || 0);
+        // Загружаем базовый баланс только если нет сохраненных данных
+        const hasLocalData = loadFromLocalStorage();
+        if (!hasLocalData) {
+          setBaseMorningBalance(data.suggestedMorningBalance || 0);
+        }
 
         setPreviousDayData({
           date: new Date(Date.now() - 24 * 60 * 60 * 1000)
@@ -86,13 +233,15 @@ export default function SalesPage() {
         });
       } catch (err) {
         console.error(err);
-        setBaseMorningBalance(0);
+        if (!loadFromLocalStorage()) {
+          setBaseMorningBalance(0);
+        }
         setPreviousDayData(null);
       }
     };
 
     fetchMorningBalance();
-  }, [session]);
+  }, [session, loadFromLocalStorage]);
 
   useEffect(() => {
     async function fetchDebtors() {
@@ -172,7 +321,12 @@ export default function SalesPage() {
       setAdditionalBalances([]);
       setTotalCashRegister(0);
       setActualEveningBalance('');
-      // сюда добавь сброс других полей, если надо
+      setExpenseItems([]);
+
+      // Очистить localStorage после успешного сохранения
+      localStorage.removeItem(LOCAL_STORAGE_KEY);
+      setLastSaved(null);
+      setHasUnsavedChanges(false);
     } catch (err) {
       const error = err instanceof Error ? err.message : String(err);
       setError(error);
@@ -289,8 +443,7 @@ export default function SalesPage() {
   // Cash register handlers
   const handleQuickSave = () => {
     if (totalCashRegister > 0) {
-      setSuccess('Каса збережена!');
-      setTimeout(() => setSuccess(null), 2000);
+      forceSave(); // Принудительное сохранение при быстром сохранении кассы
     } else {
       setError('Введіть суму каси');
       setTimeout(() => setError(null), 2000);
@@ -301,6 +454,16 @@ export default function SalesPage() {
   const handleError = (errorMessage: string) => {
     setError(errorMessage);
     setTimeout(() => setError(null), 3000);
+  };
+
+  // Функция для форматирования времени последнего сохранения
+  const formatLastSaved = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleTimeString('uk-UA', {
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+    });
   };
 
   // Calculations
@@ -332,8 +495,48 @@ export default function SalesPage() {
             <CardDescription className='text-gray-600'>
               Ведення обліку доходів та витрат за робочу зміну
             </CardDescription>
+
+            {/* Индикатор сохранения */}
+            <div className='flex items-center justify-center gap-4 mt-2 text-sm'>
+              {lastSaved && (
+                <div className='flex items-center gap-1 text-green-600'>
+                  <Clock className='h-4 w-4' />
+                  <span>Останнє збереження: {formatLastSaved(lastSaved)}</span>
+                </div>
+              )}
+              {hasUnsavedChanges && (
+                <div className='flex items-center gap-1 text-orange-600'>
+                  <AlertCircle className='h-4 w-4' />
+                  <span>Незбережені зміни</span>
+                </div>
+              )}
+            </div>
           </CardHeader>
         </Card>
+
+        {/* Кнопки управления localStorage */}
+        <div className='flex gap-2 justify-center'>
+          <Button
+            type='button'
+            onClick={forceSave}
+            variant='outline'
+            size='sm'
+            className='flex items-center gap-1'
+          >
+            <Save className='h-4 w-4' />
+            Зберегти зараз
+          </Button>
+          <Button
+            type='button'
+            onClick={clearLocalStorage}
+            variant='outline'
+            size='sm'
+            className='flex items-center gap-1 text-red-600 hover:text-red-700'
+          >
+            <Trash2 className='h-4 w-4' />
+            Очистити дані
+          </Button>
+        </div>
 
         {/* Quick Stats */}
         <QuickStats
