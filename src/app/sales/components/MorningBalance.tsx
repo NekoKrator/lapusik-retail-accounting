@@ -100,7 +100,7 @@ export function MorningBalance({
           Залишок на ранок
         </CardTitle>
         <CardDescription className='text-sm text-gray-600'>
-          Залишок попереднього дня + додаткові надходження до каси
+          Залишок попереднього дня та додаткові надходження до каси
         </CardDescription>
       </CardHeader>
       <CardContent className='space-y-4'>

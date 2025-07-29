@@ -98,11 +98,22 @@ export interface PreviousDayData {
 }
 
 export interface LocalStorageData {
-  baseMorningBalance: number;
-  additionalBalances: { id: string; amount: number }[];
+  additionalBalances: BalanceItem[];
   totalCashRegister: number;
   actualEveningBalance: string;
   expenseItems: ExpenseItem[];
   lastSaved: string;
   date: string;
 }
+
+export interface CashRegisterProps {
+  totalCashRegister: number;
+  onTotalCashRegisterChange: (value: number) => void;
+}
+
+export type DraftData = {
+  additionalBalances: { id: string; amount: number }[];
+  actualEveningBalance: string;
+  expenseItems: ExpenseItem[];
+  totalCashRegister: number;
+};

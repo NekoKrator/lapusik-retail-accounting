@@ -19,8 +19,6 @@ import {
   Truck,
   CheckCircle,
   AlertCircle,
-  Save,
-  Trash2,
   Clock,
 } from 'lucide-react';
 
@@ -43,29 +41,22 @@ import type {
 
 export default function SalesPage() {
   const { data: session } = useSession();
-
   const [previousDayData, setPreviousDayData] =
     useState<PreviousDayData | null>(null);
-
+  const [baseMorningBalance, setBaseMorningBalance] = useState(0);
+  const { totalCashRegister, setTotalCashRegister } = useLocalStorageDraft();
   const [newBalanceAmount, setNewBalanceAmount] = useState('');
-
   const [debtors, setDebtors] = useState<DebtorItem[]>([]);
   const [showDebtors, setShowDebtors] = useState(false);
-
   const [suppliers, setSuppliers] = useState<SupplierItem[]>([]);
   const [showSuppliers, setShowSuppliers] = useState(false);
-
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
   const {
-    baseMorningBalance,
-    setBaseMorningBalance,
     additionalBalances,
     setAdditionalBalances,
-    totalCashRegister,
-    setTotalCashRegister,
     actualEveningBalance,
     setActualEveningBalance,
     expenseItems,
@@ -77,7 +68,7 @@ export default function SalesPage() {
     clearDraft,
   } = useLocalStorageDraft();
 
-  // Загрузка утреннего баланса и данных предыдущего дня, плюс загрузка из localStorage
+  // loading morning balance and previous day data + loading from localStorage
   useEffect(() => {
     if (!session?.user?.id) return;
 
@@ -90,10 +81,7 @@ export default function SalesPage() {
         if (!res.ok) throw new Error('Failed to fetch morning balance');
         const data = await res.json();
 
-        const hasLocalData = loadDraft();
-        if (!hasLocalData) {
-          setBaseMorningBalance(data.suggestedMorningBalance || 0);
-        }
+        setBaseMorningBalance(data.suggestedMorningBalance || 0);
 
         setPreviousDayData({
           date: new Date(Date.now() - 24 * 60 * 60 * 1000)
@@ -103,19 +91,21 @@ export default function SalesPage() {
           calculatedEveningBalance:
             data.calculatedEveningBalance ?? data.suggestedMorningBalance ?? 0,
         });
+
+        loadDraft();
       } catch (err) {
         console.error(err);
-        if (!loadDraft()) {
-          setBaseMorningBalance(0);
-        }
+        setBaseMorningBalance(0);
         setPreviousDayData(null);
+
+        loadDraft();
       }
     };
 
     fetchMorningBalance();
-  }, [session, loadDraft, setBaseMorningBalance]);
+  }, [session, loadDraft]);
 
-  // Загрузка должников
+  // debtors loading
   useEffect(() => {
     async function fetchDebtors() {
       try {
@@ -138,27 +128,23 @@ export default function SalesPage() {
     fetchDebtors();
   }, []);
 
-  // Сохраняем в localStorage принудительно
-  const forceSave = () => {
-    saveDraft();
-    setSuccess('Дані збережено локально');
-    setTimeout(() => setSuccess(null), 2000);
-  };
+  useEffect(() => {
+    if (!hasUnsavedChanges) return;
 
-  // Очистить localStorage и состояние
-  const clearLocalStorage = () => {
-    clearDraft();
-    setSuccess('Локальні дані очищено');
-    setTimeout(() => setSuccess(null), 2000);
-  };
+    const timeout = setTimeout(() => {
+      saveDraft();
+    }, 1000);
 
-  // Ошибки
+    return () => clearTimeout(timeout);
+  }, [hasUnsavedChanges, saveDraft]);
+
+  // errors
   const handleError = (errorMessage: string) => {
     setError(errorMessage);
     setTimeout(() => setError(null), 3000);
   };
 
-  // Форматируем время последнего сохранения
+  // format the last save time
   const formatLastSaved = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleTimeString('uk-UA', {
@@ -168,7 +154,7 @@ export default function SalesPage() {
     });
   };
 
-  // Добавление дополнительного баланса
+  // adding an additional balance to the morning cash register
   const addBalanceItem = () => {
     if (!newBalanceAmount || Number(newBalanceAmount) <= 0) {
       setError('Будь ласка, введіть коректну суму');
@@ -187,7 +173,7 @@ export default function SalesPage() {
     setAdditionalBalances((prev) => prev.filter((item) => item.id !== id));
   };
 
-  // Добавление и удаление расходов
+  // adding and removing expenses
   const addExpenseItem = (expense: Omit<ExpenseItem, 'id'>) => {
     const item: ExpenseItem = {
       id: Date.now().toString(),
@@ -200,7 +186,7 @@ export default function SalesPage() {
     setExpenseItems((prev) => prev.filter((item) => item.id !== id));
   };
 
-  // Должники
+  // debtors
   const addOrUpdateDebtor = (newDebtor: DebtorItem) => {
     setDebtors((prev) => {
       const existingIndex = prev.findIndex((d) => d.id === newDebtor.id);
@@ -242,7 +228,7 @@ export default function SalesPage() {
     try {
       const debtorToRemove = debtors.find((d) => d.id === id);
       if (!debtorToRemove) {
-        handleError('Должник не найден');
+        handleError('Боржник не знайден');
         return;
       }
 
@@ -252,15 +238,21 @@ export default function SalesPage() {
         throw new Error(err.error || 'Помилка при видаленні боржника');
       }
 
-      setBaseMorningBalance((prev) => prev + debtorToRemove.amount);
-
       setDebtors((prev) => prev.filter((d) => d.id !== id));
+
+      setAdditionalBalances((prev) => [
+        ...prev,
+        {
+          id: `debtor-${debtorToRemove.id}`,
+          amount: debtorToRemove.amount,
+        },
+      ]);
     } catch (error) {
       handleError(error instanceof Error ? error.message : 'Невідома помилка');
     }
   };
 
-  // Поставщики
+  // suppliers
   const addSupplier = (supplier: Omit<SupplierItem, 'id'>) => {
     const item: SupplierItem = {
       id: Date.now().toString(),
@@ -273,17 +265,7 @@ export default function SalesPage() {
     setSuppliers((prev) => prev.filter((item) => item.id !== id));
   };
 
-  // Быстрое сохранение кассы
-  const handleQuickSave = () => {
-    if (totalCashRegister > 0) {
-      forceSave();
-    } else {
-      setError('Введіть суму каси');
-      setTimeout(() => setError(null), 2000);
-    }
-  };
-
-  // Итоговые расчёты
+  // final calculations
   const totalExpenses = expenseItems.reduce(
     (sum, item) => sum + item.amount,
     0
@@ -299,7 +281,7 @@ export default function SalesPage() {
   const difference =
     actualBalance !== null ? calculatedEveningBalance - actualBalance : 0;
 
-  // Отправка отчёта на сервер
+  // sending a report to the server
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
@@ -348,13 +330,8 @@ export default function SalesPage() {
 
       setSuccess('Звіт успішно збережено!');
 
-      // Очистить
-      setAdditionalBalances([]);
-      setTotalCashRegister(0);
-      setActualEveningBalance('');
-      setExpenseItems([]);
-
       clearDraft();
+      setNewBalanceAmount('');
     } catch (err) {
       const error = err instanceof Error ? err.message : String(err);
       setError(error);
@@ -394,30 +371,6 @@ export default function SalesPage() {
             </div>
           </CardHeader>
         </Card>
-
-        {/* Кнопки управления localStorage */}
-        <div className='flex gap-2 justify-center'>
-          <Button
-            type='button'
-            onClick={forceSave}
-            variant='outline'
-            size='sm'
-            className='flex items-center gap-1'
-          >
-            <Save className='h-4 w-4' />
-            Зберегти зараз
-          </Button>
-          <Button
-            type='button'
-            onClick={clearLocalStorage}
-            variant='outline'
-            size='sm'
-            className='flex items-center gap-1 text-red-600 hover:text-red-700'
-          >
-            <Trash2 className='h-4 w-4' />
-            Очистити дані
-          </Button>
-        </div>
 
         {/* Quick Stats */}
         <QuickStats
@@ -490,7 +443,6 @@ export default function SalesPage() {
             <CashRegister
               totalCashRegister={totalCashRegister}
               onTotalCashRegisterChange={setTotalCashRegister}
-              onQuickSave={handleQuickSave}
             />
           </div>
 
