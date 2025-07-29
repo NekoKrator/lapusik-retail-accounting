@@ -1,8 +1,10 @@
 'use client';
 
+// hooks
 import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { useLocalStorageDraft } from '@/app/hooks/useLocalStorageDraft';
+import { useDebtors } from '../hooks/useDebtors';
 
 // UI
 import { Button } from '@/components/ui/button';
@@ -32,12 +34,7 @@ import { ExpensesSection } from './components/ExpensesSection';
 import { FinalCalculations } from './components/FinalCalculations';
 
 // types
-import type {
-  ExpenseItem,
-  DebtorItem,
-  SupplierItem,
-  PreviousDayData,
-} from '@/types/types';
+import type { ExpenseItem, SupplierItem, PreviousDayData } from '@/types/types';
 
 export default function SalesPage() {
   const { data: session } = useSession();
@@ -46,7 +43,6 @@ export default function SalesPage() {
   const [baseMorningBalance, setBaseMorningBalance] = useState(0);
   const { totalCashRegister, setTotalCashRegister } = useLocalStorageDraft();
   const [newBalanceAmount, setNewBalanceAmount] = useState('');
-  const [debtors, setDebtors] = useState<DebtorItem[]>([]);
   const [showDebtors, setShowDebtors] = useState(false);
   const [suppliers, setSuppliers] = useState<SupplierItem[]>([]);
   const [showSuppliers, setShowSuppliers] = useState(false);
@@ -67,6 +63,9 @@ export default function SalesPage() {
     saveDraft,
     clearDraft,
   } = useLocalStorageDraft();
+
+  const { debtors, fetchDebtors, addDebtor, removeDebtor } =
+    useDebtors(handleError);
 
   // loading morning balance and previous day data + loading from localStorage
   useEffect(() => {
@@ -105,29 +104,12 @@ export default function SalesPage() {
     fetchMorningBalance();
   }, [session, loadDraft]);
 
-  // debtors loading
+  // fetch debtors on mount
   useEffect(() => {
-    async function fetchDebtors() {
-      try {
-        const res = await fetch('/api/debtors');
-        if (!res.ok) throw new Error('Failed to fetch debtors');
-        const data = await res.json();
-
-        const mapped = data.map((d: DebtorItem) => ({
-          id: d.id,
-          name: d.name,
-          amount: typeof d.amount === 'number' ? d.amount : 0,
-        }));
-
-        setDebtors(mapped);
-      } catch (error) {
-        console.error(error);
-        handleError('Не вдалося завантажити боржників');
-      }
-    }
     fetchDebtors();
-  }, []);
+  }, [fetchDebtors]);
 
+  // auto-save draft if there are unsaved changes
   useEffect(() => {
     if (!hasUnsavedChanges) return;
 
@@ -138,13 +120,13 @@ export default function SalesPage() {
     return () => clearTimeout(timeout);
   }, [hasUnsavedChanges, saveDraft]);
 
-  // errors
-  const handleError = (errorMessage: string) => {
+  // error handler
+  function handleError(errorMessage: string) {
     setError(errorMessage);
     setTimeout(() => setError(null), 3000);
-  };
+  }
 
-  // format the last save time
+  // форматирование времени последнего сохранения
   const formatLastSaved = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleTimeString('uk-UA', {
@@ -154,7 +136,7 @@ export default function SalesPage() {
     });
   };
 
-  // adding an additional balance to the morning cash register
+  // добавление дополнительного баланса
   const addBalanceItem = () => {
     if (!newBalanceAmount || Number(newBalanceAmount) <= 0) {
       setError('Будь ласка, введіть коректну суму');
@@ -173,7 +155,7 @@ export default function SalesPage() {
     setAdditionalBalances((prev) => prev.filter((item) => item.id !== id));
   };
 
-  // adding and removing expenses
+  // добавление и удаление расходов
   const addExpenseItem = (expense: Omit<ExpenseItem, 'id'>) => {
     const item: ExpenseItem = {
       id: Date.now().toString(),
@@ -186,45 +168,8 @@ export default function SalesPage() {
     setExpenseItems((prev) => prev.filter((item) => item.id !== id));
   };
 
-  // debtors
-  const addOrUpdateDebtor = (newDebtor: DebtorItem) => {
-    setDebtors((prev) => {
-      const existingIndex = prev.findIndex((d) => d.id === newDebtor.id);
-      if (existingIndex !== -1) {
-        const updated = [...prev];
-        updated[existingIndex] = newDebtor;
-        return updated;
-      }
-      return [...prev, newDebtor];
-    });
-  };
-
-  const addDebtor = async (debtor: Omit<DebtorItem, 'id'>) => {
-    try {
-      const res = await fetch('/api/debtors', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: debtor.name,
-          amount: debtor.amount,
-          date: new Date().toISOString().split('T')[0],
-        }),
-      });
-
-      if (!res.ok) {
-        const err = await res.json();
-        throw new Error(err.error || 'Помилка при створенні боржника');
-      }
-
-      const createdOrUpdated = await res.json();
-
-      addOrUpdateDebtor(createdOrUpdated);
-    } catch (error) {
-      handleError(error instanceof Error ? error.message : 'Невідома помилка');
-    }
-  };
-
-  const removeDebtor = async (id: string) => {
+  // новый обработчик удаления должника, чтобы добавить его долг в additionalBalances
+  const handleRemoveDebtor = async (id: string) => {
     try {
       const debtorToRemove = debtors.find((d) => d.id === id);
       if (!debtorToRemove) {
@@ -238,21 +183,20 @@ export default function SalesPage() {
         throw new Error(err.error || 'Помилка при видаленні боржника');
       }
 
-      setDebtors((prev) => prev.filter((d) => d.id !== id));
+      // Удаляем должника из состояния через хук
+      removeDebtor(id);
 
+      // Добавляем сумму должника в additionalBalances
       setAdditionalBalances((prev) => [
         ...prev,
-        {
-          id: `debtor-${debtorToRemove.id}`,
-          amount: debtorToRemove.amount,
-        },
+        { id: `debtor-${debtorToRemove.id}`, amount: debtorToRemove.amount },
       ]);
     } catch (error) {
       handleError(error instanceof Error ? error.message : 'Невідома помилка');
     }
   };
 
-  // suppliers
+  // поставщики
   const addSupplier = (supplier: Omit<SupplierItem, 'id'>) => {
     const item: SupplierItem = {
       id: Date.now().toString(),
@@ -265,7 +209,7 @@ export default function SalesPage() {
     setSuppliers((prev) => prev.filter((item) => item.id !== id));
   };
 
-  // final calculations
+  // финальные расчёты
   const totalExpenses = expenseItems.reduce(
     (sum, item) => sum + item.amount,
     0
@@ -281,7 +225,7 @@ export default function SalesPage() {
   const difference =
     actualBalance !== null ? calculatedEveningBalance - actualBalance : 0;
 
-  // sending a report to the server
+  // отправка отчёта
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
@@ -408,7 +352,7 @@ export default function SalesPage() {
           <DebtorsSection
             debtors={debtors}
             onAddDebtor={addDebtor}
-            onRemoveDebtor={removeDebtor}
+            onRemoveDebtor={handleRemoveDebtor}
             onError={handleError}
           />
         )}
