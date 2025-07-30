@@ -1,16 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
 import { getToken } from 'next-auth/jwt';
+import type { NextRequest as NextRequestType } from 'next/server';
 
 const prisma = new PrismaClient();
 
-type Params = {
-  params: {
-    id: string;
-  };
-};
-
-export async function DELETE(req: NextRequest, context: Params) {
+export async function DELETE(
+  req: NextRequestType,
+  context: { params: { id: string } } // 🔥 вот так, без type Params
+) {
   const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
 
   if (!token) {
@@ -48,7 +46,7 @@ export async function DELETE(req: NextRequest, context: Params) {
   }
 }
 
-export async function PATCH(req: NextRequest, context: Params) {
+export async function PATCH(req: NextRequest, context: { params: { id: string } }) {
   const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
 
   if (!token) {
