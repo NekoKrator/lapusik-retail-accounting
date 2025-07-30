@@ -1,13 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
 import { getToken } from 'next-auth/jwt';
-import type { NextRequest as NextRequestType } from 'next/server';
 
 const prisma = new PrismaClient();
 
 export async function DELETE(
-  req: NextRequestType,
-  context: { params: { id: string } } // 🔥 вот так, без type Params
+  req: NextRequest,
+  { params }: { params: { id: string } }
 ) {
   const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
 
@@ -16,7 +15,7 @@ export async function DELETE(
   }
 
   try {
-    const { id } = context.params;
+    const { id } = params;
 
     const debtor = await prisma.debtor.findFirst({
       where: {
@@ -46,7 +45,10 @@ export async function DELETE(
   }
 }
 
-export async function PATCH(req: NextRequest, context: { params: { id: string } }) {
+export async function PATCH(
+  req: NextRequest,
+  { params }: { params: { id: string } }
+) {
   const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
 
   if (!token) {
@@ -54,7 +56,7 @@ export async function PATCH(req: NextRequest, context: { params: { id: string } 
   }
 
   try {
-    const { id } = context.params;
+    const { id } = params;
     const body = await req.json();
     const { amount } = body;
 
@@ -74,9 +76,7 @@ export async function PATCH(req: NextRequest, context: { params: { id: string } 
     }
 
     const updatedDebtor = await prisma.debtor.update({
-      where: {
-        id,
-      },
+      where: { id },
       data: {
         amount,
         updatedAt: new Date(),
