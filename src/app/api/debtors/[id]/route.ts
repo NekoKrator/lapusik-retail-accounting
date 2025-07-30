@@ -1,13 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
 import { getToken } from 'next-auth/jwt';
+import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-export async function DELETE(
-  req: NextRequest,
-  { params }: { params: { id: string } }
-) {
+type Context = {
+  params: {
+    id: string;
+  };
+};
+
+export async function DELETE(req: NextRequest, context: Context) {
   const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
 
   if (!token) {
@@ -15,33 +18,26 @@ export async function DELETE(
   }
 
   try {
-    const { id } = params;
+    const { id } = context.params;
 
     const debtor = await prisma.debtor.findFirst({
-      where: {
-        id,
-        userId: token.id as string,
-      },
+      where: { id, userId: token.id as string },
     });
 
     if (!debtor) {
       return NextResponse.json({ error: 'Debtor not found' }, { status: 404 });
     }
 
-    await prisma.debtor.delete({
-      where: {
-        id,
-      },
-    });
+    await prisma.debtor.delete({ where: { id } });
 
     return NextResponse.json({
       message: 'Debtor deleted successfully',
       debtAmount: debtor.amount,
       debtorName: debtor.name,
     });
-  } catch (error) {
-    console.error('Failed to delete debtor:', error);
-    return NextResponse.json({ error: 'Failed to delete debtor' }, { status: 500 });
+  } catch (err) {
+    console.error(err);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
