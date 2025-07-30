@@ -161,6 +161,27 @@ export function useLocalStorageDraft() {
     };
   }, [hasUnsavedChanges, saveDraft]);
 
+  const addBalanceItem = (amount: number) => {
+    if (amount <= 0) return;
+    setAdditionalBalances((prev) => [
+      ...prev,
+      { id: Date.now().toString(), amount },
+    ]);
+  };
+
+  const removeBalanceItem = (id: string) => {
+    setAdditionalBalances((prev) => prev.filter((item) => item.id !== id));
+  };
+
+  const addExpenseItem = (expense: Omit<ExpenseItem, 'id'>) => {
+    const item: ExpenseItem = { id: Date.now().toString(), ...expense };
+    setExpenseItems((prev) => [...prev, item]);
+  };
+
+  const removeExpenseItem = (id: string) => {
+    setExpenseItems((prev) => prev.filter((item) => item.id !== id));
+  };
+
   return {
     additionalBalances,
     setAdditionalBalances,
@@ -175,5 +196,10 @@ export function useLocalStorageDraft() {
     loadDraft,
     saveDraft,
     clearDraft,
+    addBalanceItem,
+    removeBalanceItem,
+    addExpenseItem,
+    removeExpenseItem,
   };
+
 }

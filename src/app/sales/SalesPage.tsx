@@ -4,7 +4,7 @@
 import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { useLocalStorageDraft } from '@/app/hooks/useLocalStorageDraft';
-import { useDebtors } from '../hooks/useDebtors';
+import { useDebtors } from '@/app/hooks/useDebtors';
 
 // UI
 import { Button } from '@/components/ui/button';
@@ -34,14 +34,19 @@ import { ExpensesSection } from './components/ExpensesSection';
 import { FinalCalculations } from './components/FinalCalculations';
 
 // types
-import type { ExpenseItem, SupplierItem, PreviousDayData } from '@/types/types';
+import type { SupplierItem, PreviousDayData } from '@/types/types';
+
+// lib
+import { formatLastSaved } from '@/lib/date';
 
 export default function SalesPage() {
   const { data: session } = useSession();
+
   const [previousDayData, setPreviousDayData] =
     useState<PreviousDayData | null>(null);
   const [baseMorningBalance, setBaseMorningBalance] = useState(0);
   const { totalCashRegister, setTotalCashRegister } = useLocalStorageDraft();
+
   const [newBalanceAmount, setNewBalanceAmount] = useState('');
   const [showDebtors, setShowDebtors] = useState(false);
   const [suppliers, setSuppliers] = useState<SupplierItem[]>([]);
@@ -56,18 +61,21 @@ export default function SalesPage() {
     actualEveningBalance,
     setActualEveningBalance,
     expenseItems,
-    setExpenseItems,
     lastSaved,
     hasUnsavedChanges,
     loadDraft,
     saveDraft,
     clearDraft,
+    addBalanceItem,
+    removeBalanceItem,
+    addExpenseItem,
+    removeExpenseItem,
   } = useLocalStorageDraft();
 
   const { debtors, fetchDebtors, addDebtor, removeDebtor } =
     useDebtors(handleError);
 
-  // loading morning balance and previous day data + loading from localStorage
+  // Загрузка утреннего баланса и данных предыдущего дня
   useEffect(() => {
     if (!session?.user?.id) return;
 
@@ -104,12 +112,12 @@ export default function SalesPage() {
     fetchMorningBalance();
   }, [session, loadDraft]);
 
-  // fetch debtors on mount
+  // Загрузка должников
   useEffect(() => {
     fetchDebtors();
   }, [fetchDebtors]);
 
-  // auto-save draft if there are unsaved changes
+  // Автоматическое сохранение драфта
   useEffect(() => {
     if (!hasUnsavedChanges) return;
 
@@ -120,55 +128,23 @@ export default function SalesPage() {
     return () => clearTimeout(timeout);
   }, [hasUnsavedChanges, saveDraft]);
 
-  // error handler
+  // Ошибки
   function handleError(errorMessage: string) {
     setError(errorMessage);
     setTimeout(() => setError(null), 3000);
   }
 
-  // форматирование времени последнего сохранения
-  const formatLastSaved = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleTimeString('uk-UA', {
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
-    });
-  };
-
-  // добавление дополнительного баланса
-  const addBalanceItem = () => {
+  // Добавление дополнительного баланса из поля ввода
+  const handleAddBalance = () => {
     if (!newBalanceAmount || Number(newBalanceAmount) <= 0) {
-      setError('Будь ласка, введіть коректну суму');
+      handleError('Будь ласка, введіть коректну суму');
       return;
     }
-    const item = {
-      id: Date.now().toString(),
-      amount: Number(newBalanceAmount),
-    };
-    setAdditionalBalances((prev) => [...prev, item]);
+    addBalanceItem(Number(newBalanceAmount));
     setNewBalanceAmount('');
-    setError(null);
   };
 
-  const removeBalanceItem = (id: string) => {
-    setAdditionalBalances((prev) => prev.filter((item) => item.id !== id));
-  };
-
-  // добавление и удаление расходов
-  const addExpenseItem = (expense: Omit<ExpenseItem, 'id'>) => {
-    const item: ExpenseItem = {
-      id: Date.now().toString(),
-      ...expense,
-    };
-    setExpenseItems((prev) => [...prev, item]);
-  };
-
-  const removeExpenseItem = (id: string) => {
-    setExpenseItems((prev) => prev.filter((item) => item.id !== id));
-  };
-
-  // новый обработчик удаления должника, чтобы добавить его долг в additionalBalances
+  // Удаление должника с добавлением его долга в additionalBalances
   const handleRemoveDebtor = async (id: string) => {
     try {
       const debtorToRemove = debtors.find((d) => d.id === id);
@@ -183,10 +159,8 @@ export default function SalesPage() {
         throw new Error(err.error || 'Помилка при видаленні боржника');
       }
 
-      // Удаляем должника из состояния через хук
       removeDebtor(id);
 
-      // Добавляем сумму должника в additionalBalances
       setAdditionalBalances((prev) => [
         ...prev,
         { id: `debtor-${debtorToRemove.id}`, amount: debtorToRemove.amount },
@@ -196,7 +170,7 @@ export default function SalesPage() {
     }
   };
 
-  // поставщики
+  // Поставщики
   const addSupplier = (supplier: Omit<SupplierItem, 'id'>) => {
     const item: SupplierItem = {
       id: Date.now().toString(),
@@ -209,7 +183,7 @@ export default function SalesPage() {
     setSuppliers((prev) => prev.filter((item) => item.id !== id));
   };
 
-  // финальные расчёты
+  // Итоговые вычисления
   const totalExpenses = expenseItems.reduce(
     (sum, item) => sum + item.amount,
     0
@@ -225,7 +199,7 @@ export default function SalesPage() {
   const difference =
     actualBalance !== null ? calculatedEveningBalance - actualBalance : 0;
 
-  // отправка отчёта
+  // Отправка отчёта
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
@@ -242,10 +216,8 @@ export default function SalesPage() {
       const reportData = {
         date: new Date().toISOString().split('T')[0],
         userId: session.user.id,
-        morningBalance:
-          baseMorningBalance +
-          additionalBalances.reduce((sum, item) => sum + item.amount, 0),
-        totalCashRegister: totalCashRegister,
+        morningBalance: totalMorningBalance,
+        totalCashRegister,
         breakdown: {
           terminalExpenses: 0,
           ownerWithdrawal: 0,
@@ -273,7 +245,6 @@ export default function SalesPage() {
       }
 
       setSuccess('Звіт успішно збережено!');
-
       clearDraft();
       setNewBalanceAmount('');
     } catch (err) {
@@ -377,7 +348,7 @@ export default function SalesPage() {
               additionalBalances={additionalBalances}
               newBalanceAmount={newBalanceAmount}
               onNewBalanceAmountChange={setNewBalanceAmount}
-              onAddBalance={addBalanceItem}
+              onAddBalance={handleAddBalance}
               onRemoveBalance={removeBalanceItem}
               totalMorningBalance={totalMorningBalance}
               previousDayInfo={previousDayData}

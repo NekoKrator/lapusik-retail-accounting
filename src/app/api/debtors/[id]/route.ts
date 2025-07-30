@@ -4,10 +4,13 @@ import { getToken } from 'next-auth/jwt';
 
 const prisma = new PrismaClient();
 
-export async function DELETE(
-  req: NextRequest,
-  { params }: { params: { id: string } }
-) {
+type Params = {
+  params: {
+    id: string;
+  };
+};
+
+export async function DELETE(req: NextRequest, context: Params) {
   const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
 
   if (!token) {
@@ -15,11 +18,11 @@ export async function DELETE(
   }
 
   try {
-    const { id } = params;
+    const { id } = context.params;
 
     const debtor = await prisma.debtor.findFirst({
       where: {
-        id: id,
+        id,
         userId: token.id as string,
       },
     });
@@ -30,14 +33,14 @@ export async function DELETE(
 
     await prisma.debtor.delete({
       where: {
-        id: id,
+        id,
       },
     });
 
     return NextResponse.json({
       message: 'Debtor deleted successfully',
       debtAmount: debtor.amount,
-      debtorName: debtor.name
+      debtorName: debtor.name,
     });
   } catch (error) {
     console.error('Failed to delete debtor:', error);
@@ -45,10 +48,7 @@ export async function DELETE(
   }
 }
 
-export async function PATCH(
-  req: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function PATCH(req: NextRequest, context: Params) {
   const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
 
   if (!token) {
@@ -56,7 +56,7 @@ export async function PATCH(
   }
 
   try {
-    const { id } = params;
+    const { id } = context.params;
     const body = await req.json();
     const { amount } = body;
 
@@ -66,7 +66,7 @@ export async function PATCH(
 
     const existingDebtor = await prisma.debtor.findFirst({
       where: {
-        id: id,
+        id,
         userId: token.id as string,
       },
     });
@@ -77,10 +77,10 @@ export async function PATCH(
 
     const updatedDebtor = await prisma.debtor.update({
       where: {
-        id: id,
+        id,
       },
       data: {
-        amount: amount,
+        amount,
         updatedAt: new Date(),
       },
     });
