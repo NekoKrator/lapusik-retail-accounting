@@ -35,7 +35,7 @@ export function QuickStats({
           <div className='text-lg font-bold text-blue-600'>
             ₴{totalCashRegister.toFixed(2)}
           </div>
-          <div className='text-xs text-gray-600'>Виручка</div>
+          <div className='text-xs text-gray-600'>Каса</div>
         </CardContent>
       </Card>
       <Card className='bg-white/95 backdrop-blur border-0 shadow-md'>

@@ -4,13 +4,7 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-type Context = {
-  params: {
-    id: string;
-  };
-};
-
-export async function DELETE(req: NextRequest, context: Context) {
+export async function DELETE(req: NextRequest) {
   const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
 
   if (!token) {
@@ -18,7 +12,12 @@ export async function DELETE(req: NextRequest, context: Context) {
   }
 
   try {
-    const { id } = context.params;
+    const url = new URL(req.url);
+    const id = url.pathname.split('/').pop();
+
+    if (!id) {
+      return NextResponse.json({ error: 'Missing ID' }, { status: 400 });
+    }
 
     const debtor = await prisma.debtor.findFirst({
       where: { id, userId: token.id as string },
@@ -41,10 +40,7 @@ export async function DELETE(req: NextRequest, context: Context) {
   }
 }
 
-export async function PATCH(
-  req: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function PATCH(req: NextRequest) {
   const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
 
   if (!token) {
@@ -52,7 +48,13 @@ export async function PATCH(
   }
 
   try {
-    const { id } = params;
+    const url = new URL(req.url);
+    const id = url.pathname.split('/').pop();
+
+    if (!id) {
+      return NextResponse.json({ error: 'Missing ID' }, { status: 400 });
+    }
+
     const body = await req.json();
     const { amount } = body;
 

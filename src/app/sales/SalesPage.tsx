@@ -1,7 +1,7 @@
 'use client';
 
 // hooks
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useSession } from 'next-auth/react';
 import { useLocalStorageDraft } from '@/app/hooks/useLocalStorageDraft';
 import { useDebtors } from '@/app/hooks/useDebtors';
@@ -72,6 +72,11 @@ export default function SalesPage() {
     removeExpenseItem,
   } = useLocalStorageDraft();
 
+  const handleError = useCallback((errorMessage: string) => {
+    setError(errorMessage);
+    setTimeout(() => setError(null), 3000);
+  }, []);
+
   const { debtors, fetchDebtors, addDebtor, removeDebtor } =
     useDebtors(handleError);
 
@@ -128,12 +133,6 @@ export default function SalesPage() {
     return () => clearTimeout(timeout);
   }, [hasUnsavedChanges, saveDraft]);
 
-  // Ошибки
-  function handleError(errorMessage: string) {
-    setError(errorMessage);
-    setTimeout(() => setError(null), 3000);
-  }
-
   // Добавление дополнительного баланса из поля ввода
   const handleAddBalance = () => {
     if (!newBalanceAmount || Number(newBalanceAmount) <= 0) {
@@ -153,14 +152,9 @@ export default function SalesPage() {
         return;
       }
 
-      const res = await fetch(`/api/debtors/${id}`, { method: 'DELETE' });
-      if (!res.ok) {
-        const err = await res.json();
-        throw new Error(err.error || 'Помилка при видаленні боржника');
-      }
+      await removeDebtor(id);
 
-      removeDebtor(id);
-
+      // Добавляем сумму в баланс
       setAdditionalBalances((prev) => [
         ...prev,
         { id: `debtor-${debtorToRemove.id}`, amount: debtorToRemove.amount },
