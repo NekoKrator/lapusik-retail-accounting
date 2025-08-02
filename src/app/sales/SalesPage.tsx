@@ -154,7 +154,6 @@ export default function SalesPage() {
 
       await removeDebtor(id);
 
-      // Добавляем сумму в баланс
       setAdditionalBalances((prev) => [
         ...prev,
         { id: `debtor-${debtorToRemove.id}`, amount: debtorToRemove.amount },

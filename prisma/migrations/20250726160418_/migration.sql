@@ -1,8 +1,8 @@
 /*
   Warnings:
 
-  - A unique constraint covering the columns `[name,userId]` on the table `Debtor` will be added. If there are existing duplicate values, this will fail.
+  - You are about to drop the column `debt` on the `Debtor` table. All the data in the column will be lost.
 
 */
--- CreateIndex
-CREATE UNIQUE INDEX "Debtor_name_userId_key" ON "Debtor"("name", "userId");
+-- AlterTable
+ALTER TABLE "CashReportBreakdown" ADD COLUMN "inventoryWriteOff" FLOAT DEFAULT 0 NOT NULL;

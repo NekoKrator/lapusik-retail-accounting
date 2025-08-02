@@ -74,8 +74,9 @@ model CashReportBreakdown {
   salaries         Float @default(0) // salaries paid
   utilities        Float @default(0) // utility bills
   supplierPayments Float @default(0) // payments made to suppliers
+  goodsWriteOff    Float @default(0) // value of inventory written off due to damage, loss, or expiration
   ownerWithdrawal  Float @default(0) // cash withdrawn by owner
-  piggyBank        Float @default(0) // Amount of cash set aside into the piggy bank (considered an expense)
+  piggyBank        Float @default(0) // amount of cash set aside into the piggy bank (considered an expense)
   otherExpenses    Float @default(0)
 }
 
