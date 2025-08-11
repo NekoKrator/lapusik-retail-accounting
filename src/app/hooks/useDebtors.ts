@@ -16,6 +16,10 @@ export function useDebtors(handleError: (msg: string) => void) {
   }, [handleError]);
 
   const addOrUpdateDebtor = useCallback((newDebtor: DebtorItem) => {
+    if (!newDebtor) {
+      console.warn('addOrUpdateDebtor called with undefined or null');
+      return;
+    }
     setDebtors((prev) => {
       const idx = prev.findIndex((d) => d.id === newDebtor.id);
       if (idx !== -1) {

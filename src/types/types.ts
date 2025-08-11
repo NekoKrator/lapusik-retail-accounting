@@ -77,12 +77,13 @@ export interface MorningBalanceProps {
   isLoading?: boolean;
 }
 
-export interface DebtorsSectionProps {
+export type DebtorsSectionProps = {
   debtors: DebtorItem[];
-  onAddDebtor: (debtor: Omit<DebtorItem, 'id'>) => void;
-  onRemoveDebtor: (id: string) => void;
-  onError: (error: string) => void;
-}
+  onAddDebtor: (debtor: Omit<DebtorItem, 'id'>) => Promise<void> | void;
+  onRemoveDebtor: (id: string) => Promise<void> | void;
+  onWriteOffDebtor: (id: string, amount: number) => Promise<void> | void;
+  onError: (errorMessage: string) => void;
+};
 
 export interface SuppliersSectionProps {
   suppliers: SupplierItem[];

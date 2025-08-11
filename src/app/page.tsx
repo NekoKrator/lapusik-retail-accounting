@@ -16,5 +16,7 @@ export default function Home() {
 
   if (status === 'loading') {
     return <LoadingScreen message='Перенаправлення...' />;
+  } else {
+    router.replace('/dashboard');
   }
 }

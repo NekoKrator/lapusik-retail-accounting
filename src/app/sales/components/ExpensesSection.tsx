@@ -109,7 +109,10 @@ export function ExpensesSection({
                 </div>
                 <div className='flex items-center gap-3'>
                   <span className='font-bold text-red-600'>
-                    ₴{item.amount.toFixed(2)}
+                    ₴
+                    {typeof item.amount === 'number'
+                      ? item.amount.toFixed(2)
+                      : '0.00'}
                   </span>
                   <Button
                     type='button'

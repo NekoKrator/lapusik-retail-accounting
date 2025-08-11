@@ -9,9 +9,13 @@ export function DebtorsSection({
   debtors,
   onAddDebtor,
   onRemoveDebtor,
+  onWriteOffDebtor,
   onError,
 }: DebtorsSectionProps) {
   const [newDebtor, setNewDebtor] = useState({ name: '', amount: '' });
+  const [writeOffAmounts, setWriteOffAmounts] = useState<
+    Record<string, string>
+  >({});
 
   const handleAdd = () => {
     if (
@@ -29,6 +33,31 @@ export function DebtorsSection({
     });
 
     setNewDebtor({ name: '', amount: '' });
+  };
+
+  const handleWriteOff = async (id: string) => {
+    const value = writeOffAmounts[id];
+    const amountToWriteOff = Number(value);
+
+    if (!value || isNaN(amountToWriteOff) || amountToWriteOff <= 0) {
+      onError('Введіть коректну суму для списання');
+      return;
+    }
+
+    const debtor = debtors.find((d) => d.id === id);
+    if (!debtor) return;
+
+    if (amountToWriteOff > debtor.amount) {
+      onError('Сума списання не може бути більшою за суму боргу');
+      return;
+    }
+
+    try {
+      await onWriteOffDebtor(id, amountToWriteOff);
+      setWriteOffAmounts((prev) => ({ ...prev, [id]: '' }));
+    } catch {
+      onError('Помилка при списанні боргу');
+    }
   };
 
   return (
@@ -79,6 +108,31 @@ export function DebtorsSection({
                   <span className='font-bold text-orange-600'>
                     ₴{debtor.amount.toFixed(2)}
                   </span>
+
+                  <Input
+                    type='number'
+                    min='0'
+                    step='0.01'
+                    className='w-24'
+                    placeholder='Списати...'
+                    value={writeOffAmounts[debtor.id] || ''}
+                    onChange={(e) =>
+                      setWriteOffAmounts((prev) => ({
+                        ...prev,
+                        [debtor.id]: e.target.value,
+                      }))
+                    }
+                  />
+
+                  <Button
+                    type='button'
+                    size='sm'
+                    className='bg-red-600 hover:bg-red-700 text-white'
+                    onClick={() => handleWriteOff(debtor.id)}
+                  >
+                    Списати
+                  </Button>
+
                   <Button
                     type='button'
                     variant='ghost'

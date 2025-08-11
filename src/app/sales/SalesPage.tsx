@@ -77,7 +77,7 @@ export default function SalesPage() {
     setTimeout(() => setError(null), 3000);
   }, []);
 
-  const { debtors, fetchDebtors, addDebtor, removeDebtor } =
+  const { debtors, fetchDebtors, addDebtor, removeDebtor, addOrUpdateDebtor } =
     useDebtors(handleError);
 
   // Загрузка утреннего баланса и данных предыдущего дня
@@ -143,6 +143,37 @@ export default function SalesPage() {
     setNewBalanceAmount('');
   };
 
+  async function writeOffDebt(debtorId: string, amount: number) {
+    try {
+      const response = await fetch(`/api/debtors/${debtorId}/writeoff`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ amount }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to write off debt');
+      }
+
+      const data = await response.json();
+      const { updatedDebtor, amountWrittenOff } = data;
+
+      setAdditionalBalances((prev) => [
+        ...prev,
+        { id: `writeoff-${debtorId}-${Date.now()}`, amount: amountWrittenOff },
+      ]);
+
+      addOrUpdateDebtor(updatedDebtor);
+
+      return updatedDebtor;
+    } catch (error) {
+      throw error;
+    }
+  }
+
   // Удаление должника с добавлением его долга в additionalBalances
   const handleRemoveDebtor = async (id: string) => {
     try {
@@ -192,7 +223,6 @@ export default function SalesPage() {
   const difference =
     actualBalance !== null ? calculatedEveningBalance - actualBalance : 0;
 
-  // Отправка отчёта
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
@@ -241,6 +271,7 @@ export default function SalesPage() {
       setSuccess('Звіт успішно збережено!');
       clearDraft();
       setNewBalanceAmount('');
+      setTotalCashRegister(0);
     } catch (err) {
       const error = err instanceof Error ? err.message : String(err);
       setError(error);
@@ -318,6 +349,7 @@ export default function SalesPage() {
             debtors={debtors}
             onAddDebtor={addDebtor}
             onRemoveDebtor={handleRemoveDebtor}
+            onWriteOffDebtor={writeOffDebt}
             onError={handleError}
           />
         )}
