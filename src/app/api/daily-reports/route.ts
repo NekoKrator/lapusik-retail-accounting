@@ -56,6 +56,7 @@ export async function POST(request: NextRequest) {
       (b.ownerWithdrawal || 0) +
       (b.rent || 0) +
       (b.utilities || 0) +
+      (b.goodsWriteOff || 0) +
       (b.supplierPayments || 0) +
       (b.salaries || 0) +
       (b.piggyBank || 0) +
@@ -90,6 +91,7 @@ export async function POST(request: NextRequest) {
             ownerWithdrawal: data.breakdown.ownerWithdrawal || 0,
             rent: data.breakdown.rent || 0,
             utilities: data.breakdown.utilities || 0,
+            goodsWriteOff: data.breakdown.goodsWriteOff || 0,
             supplierPayments: data.breakdown.supplierPayments || 0,
             salaries: data.breakdown.salaries || 0,
             piggyBank: data.breakdown.piggyBank || 0,

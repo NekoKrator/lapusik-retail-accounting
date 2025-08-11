@@ -10,6 +10,7 @@ export type Expenses = {
   salaries: number;
   utilities: number;
   supplierPayments: number;
+  goodsWriteOff: number;
   ownerWithdrawal: number;
   piggyBank: number;
   otherExpenses: number;

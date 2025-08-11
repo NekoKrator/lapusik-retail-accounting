@@ -216,6 +216,7 @@ export default function SalesPage() {
           ownerWithdrawal: 0,
           rent: 0,
           utilities: 0,
+          goodsWriteOff: 0,
           supplierPayments: 0,
           salaries: 0,
           piggyBank: 0,
