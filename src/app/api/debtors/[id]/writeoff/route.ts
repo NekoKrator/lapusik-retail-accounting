@@ -8,12 +8,11 @@ export async function PATCH(
   req: NextRequest,
   { params }: { params: { id: string } }
 ) {
+  const { id } = params;
   const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
   if (!token) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
-
-  const { id } = params;
 
   if (!id) {
     return NextResponse.json({ error: 'Debtor ID is required' }, { status: 400 });
