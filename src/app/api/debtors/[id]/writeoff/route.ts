@@ -4,11 +4,15 @@ import { getToken } from 'next-auth/jwt';
 
 const prisma = new PrismaClient();
 
-export async function PATCH(req: NextRequest, context: { params: { id: string } }) {
-  const { params } = context;
+export async function PATCH(
+  req: NextRequest,
+  context: { params: Promise<{ id: string }> }
+) {
+  const params = await context.params;
   const { id } = params;
 
   const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
+
   if (!token) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
@@ -26,6 +30,7 @@ export async function PATCH(req: NextRequest, context: { params: { id: string } 
     }
 
     const debtor = await prisma.debtor.findUnique({ where: { id } });
+
     if (!debtor || debtor.userId !== token.id) {
       return NextResponse.json({ error: 'Debtor not found or unauthorized' }, { status: 404 });
     }
