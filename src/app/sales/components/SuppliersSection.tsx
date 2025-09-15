@@ -1,45 +1,57 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Select } from "@/components/ui/select";
 import { Truck, Plus, Trash2 } from "lucide-react";
 import type { SuppliersSectionProps } from "@/types/types";
 
 export function SuppliersSection({
     suppliers,
+    supplierItems,
     onAddSupplier,
     onRemoveSupplier,
     onAddExpense,
     onError,
 }: SuppliersSectionProps) {
-    const [newSupplier, setNewSupplier] = useState({
+    const [newSupplierItem, setNewSupplier] = useState({
         name: "",
-        debt: "",
         pricePerDelivery: "",
         paidAmount: "",
     });
 
+    const selectRef = useRef<HTMLSelectElement>(null);
+
     const handleAdd = () => {
+        const selectedId = selectRef.current?.value || "";
+        const supplier = suppliers.find((s) => String(s.id) === selectedId);
+
+        if (!supplier) {
+            onError("Оберіть постачальника");
+            return;
+        }
+
         if (
-            !newSupplier.name.trim() ||
-            !newSupplier.debt ||
-            !newSupplier.pricePerDelivery ||
-            Number(newSupplier.debt) < 0 ||
-            Number(newSupplier.pricePerDelivery) <= 0
+            !newSupplierItem.pricePerDelivery ||
+            Number(newSupplierItem.pricePerDelivery) <= 0 ||
+            newSupplierItem.paidAmount > newSupplierItem.pricePerDelivery
         ) {
             onError("Будь ласка, заповніть всі поля коректно");
             return;
         }
 
-        const paidAmount = Number(newSupplier.paidAmount) || 0;
-        const totalDebt = Number(newSupplier.debt);
-        const pricePerDelivery = Number(newSupplier.pricePerDelivery);
+        const paidAmount = Number(newSupplierItem.paidAmount) || 0;
+        const pricePerDelivery = Number(newSupplierItem.pricePerDelivery);
+        const debt = Number(pricePerDelivery - paidAmount);
 
         // Add supplier with remaining debt
         onAddSupplier({
-            name: newSupplier.name.trim(),
-            debt: Math.max(0, totalDebt - paidAmount),
-            pricePerDelivery: pricePerDelivery,
+            supplierId: supplier.id,
+            supplierName: "",
+            totalPrice: pricePerDelivery,
+            debt: debt,
+            paidOff: debt === 0,
+            paymentType: "CASH",
         });
 
         // If paid amount > 0, add to expenses
@@ -52,7 +64,6 @@ export function SuppliersSection({
 
         setNewSupplier({
             name: "",
-            debt: "",
             pricePerDelivery: "",
             paidAmount: "",
         });
@@ -60,7 +71,7 @@ export function SuppliersSection({
 
     return (
         <Card className="shadow-lg border-0 bg-white/95 backdrop-blur">
-            <CardHeader className="pb-4">
+            <CardHeader className="">
                 <CardTitle className="text-lg flex items-center gap-2">
                     <Truck className="h-5 w-5 text-blue-600" />
                     Постачальники
@@ -68,90 +79,78 @@ export function SuppliersSection({
             </CardHeader>
             <CardContent className="space-y-4">
                 {/* Add New Supplier */}
-                <div className="grid grid-cols-1 md:grid-cols-5 gap-4 p-4 bg-gray-50 rounded-lg">
-                    <Input
-                        value={newSupplier.name}
-                        onChange={(e) =>
-                            setNewSupplier((prev) => ({
-                                ...prev,
-                                name: e.target.value,
-                            }))
-                        }
-                        placeholder="Назва постачальника"
-                    />
-                    <Input
-                        type="number"
-                        min="0"
-                        value={newSupplier.debt}
-                        onChange={(e) =>
-                            setNewSupplier((prev) => ({
-                                ...prev,
-                                debt: e.target.value,
-                            }))
-                        }
-                        placeholder="Загальний борг"
-                    />
-                    <Input
-                        type="number"
-                        min="0"
-                        value={newSupplier.pricePerDelivery}
-                        onChange={(e) =>
-                            setNewSupplier((prev) => ({
-                                ...prev,
-                                pricePerDelivery: e.target.value,
-                            }))
-                        }
-                        placeholder="Ціна за поставку"
-                    />
-                    <Input
-                        type="number"
-                        min="0"
-                        value={newSupplier.paidAmount}
-                        onChange={(e) =>
-                            setNewSupplier((prev) => ({
-                                ...prev,
-                                paidAmount: e.target.value,
-                            }))
-                        }
-                        placeholder="Заплачено"
-                    />
-                    <Button
-                        type="button"
-                        onClick={handleAdd}
-                        className="bg-blue-600 hover:bg-blue-700 text-white"
-                    >
-                        <Plus className="h-4 w-4 mr-2" />
-                        Додати
-                    </Button>
+                <div className="grid grid-cols-3 md:grid-cols-3 gap-4 p-4 bg-gray-50 rounded-lg">
+                    <div className="col-span-2 flex gap-4">
+                        <Select ref={selectRef} defaultValue="" className="">
+                            {suppliers.map((supplier) => (
+                                <option
+                                    key={supplier.id}
+                                    value={String(supplier.id)}
+                                >
+                                    {supplier.name}
+                                </option>
+                            ))}
+                        </Select>
+                        <Input
+                            type="number"
+                            min="0"
+                            value={newSupplierItem.pricePerDelivery}
+                            onChange={(e) =>
+                                setNewSupplier((prev) => ({
+                                    ...prev,
+                                    pricePerDelivery: e.target.value,
+                                }))
+                            }
+                            placeholder="Ціна за поставку"
+                        />
+                        <Input
+                            type="number"
+                            min="0"
+                            value={newSupplierItem.paidAmount}
+                            onChange={(e) =>
+                                setNewSupplier((prev) => ({
+                                    ...prev,
+                                    paidAmount: e.target.value,
+                                }))
+                            }
+                            placeholder="Сплачено"
+                        />
+                    </div>
+
+                    <div className="col-span-1 flex">
+                        <Button
+                            type="button"
+                            onClick={handleAdd}
+                            className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                        >
+                            <Plus className="h-4 w-4 mr-2" /> Додати
+                        </Button>
+                    </div>
                 </div>
 
                 {/* Suppliers List */}
-                {suppliers.length > 0 && (
+                {supplierItems.length > 0 && (
                     <div className="space-y-2">
-                        {suppliers.map((supplier) => (
+                        {supplierItems.map((item) => (
                             <div
-                                key={supplier.id}
+                                key={item.id}
                                 className="flex items-center justify-between p-2 bg-white rounded border"
                             >
                                 <div>
                                     <div className="font-medium">
-                                        {supplier.name}
-                                    </div>
-                                    <div className="text-xs text-gray-600">
-                                        ₴{supplier.pricePerDelivery.toFixed(2)}{" "}
-                                        за поставку
+                                        {item.supplierName}
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-3">
-                                    <span className="font-bold text-blue-600">
-                                        ₴{supplier.debt.toFixed(2)}
-                                    </span>
+                                    <div className="font-bold text-blue-600">
+                                        ₴{item.debt.toFixed(2)}
+                                    </div>
                                     <Button
                                         type="button"
                                         variant="ghost"
                                         size="sm"
                                         onClick={() =>
-                                            onRemoveSupplier(supplier.id)
+                                            onRemoveSupplier(item.id)
                                         }
                                         className="text-red-600 hover:text-red-700 hover:bg-red-50 h-6 w-6 p-0"
                                     >
@@ -164,12 +163,12 @@ export function SuppliersSection({
                             <div className="text-center">
                                 <span className="text-lg font-bold text-blue-700">
                                     ₴
-                                    {suppliers
-                                        .reduce((sum, s) => sum + s.debt, 0)
+                                    {supplierItems
+                                        .reduce((sum, d) => sum + d.debt, 0)
                                         .toFixed(2)}
                                 </span>
                                 <span className="text-sm text-blue-600 ml-2">
-                                    Загальна заборгованість
+                                    Загальна сума боргів
                                 </span>
                             </div>
                         </div>

@@ -20,6 +20,7 @@ model User {
   role            String            @default("user") // 'admin' or 'user'
   DailyCashReport DailyCashReport[]
   debtors         Debtor[]
+  payment 		  SupplierPayment[]
 }
 
 model Supplier {
@@ -38,9 +39,15 @@ model SupplierPayment {
   id          String      @id @default(uuid())
   supplierId  String
   supplier    Supplier    @relation(fields: [supplierId], references: [id])
-  amount      Float // amount paid in this transaction
-  date        DateTime    @default(now())
+  userId 	  String
+  user        User        @relation(fields: [userId], references: [id])
+
+  totalPrice  Float
+  debt        Float
   paymentType PaymentType @default(CASH)
+  paidOff 	  Boolean     @default(false)
+
+  date        DateTime    @default(now())
 }
 
 model DailyCashReport {

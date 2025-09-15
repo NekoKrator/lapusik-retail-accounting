@@ -5,6 +5,8 @@ import { useState, useEffect, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import { useLocalStorageDraft } from "@/app/hooks/useLocalStorageDraft";
 import { useDebtors } from "@/app/hooks/useDebtors";
+import { useSuppliers } from "@/app/hooks/useSuppliers";
+import { useSupplierPayments } from "@/app/hooks/useSupplierPayments";
 
 // UI
 import { Button } from "@/components/ui/button";
@@ -34,7 +36,7 @@ import { ExpensesSection } from "./components/ExpensesSection";
 import { FinalCalculations } from "./components/FinalCalculations";
 
 // types
-import type { SupplierItem, PreviousDayData } from "@/types/types";
+import type { PreviousDayData } from "@/types/types";
 
 // lib
 import { formatLastSaved } from "@/lib/date";
@@ -49,7 +51,6 @@ export default function SalesPage() {
 
     const [newBalanceAmount, setNewBalanceAmount] = useState("");
     const [showDebtors, setShowDebtors] = useState(false);
-    const [suppliers, setSuppliers] = useState<SupplierItem[]>([]);
     const [showSuppliers, setShowSuppliers] = useState(false);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -84,6 +85,15 @@ export default function SalesPage() {
         removeDebtor,
         addOrUpdateDebtor,
     } = useDebtors(handleError);
+
+    const { suppliers, fetchSuppliers } = useSuppliers(handleError);
+
+    const {
+        supplierPayments,
+        fetchSupplierPayments,
+        addSupplierPayments,
+        removeSupplierPayments,
+    } = useSupplierPayments(handleError);
 
     // Загрузка утреннего баланса и данных предыдущего дня
     useEffect(() => {
@@ -129,6 +139,16 @@ export default function SalesPage() {
     useEffect(() => {
         fetchDebtors();
     }, [fetchDebtors]);
+
+    // Завантаження постачальників
+    useEffect(() => {
+        fetchSuppliers();
+    }, [fetchSuppliers]);
+
+    // Завантаження операцій постачальників
+    useEffect(() => {
+        fetchSupplierPayments();
+    }, [fetchSupplierPayments]);
 
     // Автоматическое сохранение драфта
     useEffect(() => {
@@ -213,17 +233,17 @@ export default function SalesPage() {
     };
 
     // Поставщики
-    const addSupplier = (supplier: Omit<SupplierItem, "id">) => {
-        const item: SupplierItem = {
-            id: Date.now().toString(),
-            ...supplier,
-        };
-        setSuppliers((prev) => [...prev, item]);
-    };
+    // const addSupplier = (supplier: Omit<SupplierItem, "id">) => {
+    //     const item: SupplierItem = {
+    //         id: Date.now().toString(),
+    //         ...supplier,
+    //     };
+    //     setSupplierItems((prev) => [...prev, item]);
+    // };
 
-    const removeSupplier = (id: string) => {
-        setSuppliers((prev) => prev.filter((item) => item.id !== id));
-    };
+    // const removeSupplier = (id: string) => {
+    //     setSupplierItems((prev) => prev.filter((item) => item.id !== id));
+    // };
 
     // Итоговые вычисления
     const totalExpenses = expenseItems.reduce(
@@ -348,7 +368,7 @@ export default function SalesPage() {
                     <Button
                         type="button"
                         onClick={() => setShowDebtors(!showDebtors)}
-                        variant={showDebtors ? "default" : "outline"}
+                        variant={showDebtors ? "dark" : "outline"}
                         className="h-12 font-medium"
                     >
                         <Users className="h-5 w-5 mr-2" />
@@ -358,11 +378,11 @@ export default function SalesPage() {
                     <Button
                         type="button"
                         onClick={() => setShowSuppliers(!showSuppliers)}
-                        variant={showSuppliers ? "default" : "outline"}
+                        variant={showSuppliers ? "dark" : "outline"}
                         className="h-12 font-medium"
                     >
                         <Truck className="h-5 w-5 mr-2" />
-                        Постачальники ({suppliers.length})
+                        Постачальники ({supplierPayments.length})
                     </Button>
                 </div>
 
@@ -381,8 +401,9 @@ export default function SalesPage() {
                 {showSuppliers && (
                     <SuppliersSection
                         suppliers={suppliers}
-                        onAddSupplier={addSupplier}
-                        onRemoveSupplier={removeSupplier}
+                        supplierItems={supplierPayments}
+                        onAddSupplier={addSupplierPayments}
+                        onRemoveSupplier={removeSupplierPayments}
                         onAddExpense={addExpenseItem}
                         onError={handleError}
                     />

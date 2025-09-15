@@ -19,22 +19,22 @@ export function useLocalStorageDraft() {
         if (typeof window === "undefined") return false;
 
         try {
-            console.log("Loading draft from localStorage...");
+            // console.log("Loading draft from localStorage...");
             const raw = localStorage.getItem(LOCAL_STORAGE_KEY);
-            console.log("Raw data from localStorage:", raw);
+            // console.log("Raw data from localStorage:", raw);
 
             if (!raw) {
-                console.log("No draft found in localStorage");
+                // console.log("No draft found in localStorage");
                 return false;
             }
 
             const parsed = JSON.parse(raw);
-            console.log("Parsed data:", parsed);
+            // console.log("Parsed data:", parsed);
 
             const today = new Date().toISOString().split("T")[0];
 
             if (parsed.date && parsed.date !== today) {
-                console.log("Draft is from different day, removing...");
+                // console.log("Draft is from different day, removing...");
                 localStorage.removeItem(LOCAL_STORAGE_KEY);
                 return false;
             }
@@ -42,28 +42,28 @@ export function useLocalStorageDraft() {
             isInitialLoad.current = true;
 
             if (parsed.additionalBalances) {
-                console.log(
-                    "Setting additionalBalances:",
-                    parsed.additionalBalances
-                );
+                // console.log(
+                //     "Setting additionalBalances:",
+                //     parsed.additionalBalances
+                // );
                 setAdditionalBalances(parsed.additionalBalances);
             }
             if (typeof parsed.totalCashRegister === "number") {
-                console.log(
-                    "Setting totalCashRegister:",
-                    parsed.totalCashRegister
-                );
+                // console.log(
+                //     "Setting totalCashRegister:",
+                //     parsed.totalCashRegister
+                // );
                 setTotalCashRegister(parsed.totalCashRegister);
             }
             if (parsed.actualEveningBalance) {
-                console.log(
-                    "Setting actualEveningBalance:",
-                    parsed.actualEveningBalance
-                );
+                // console.log(
+                //     "Setting actualEveningBalance:",
+                //     parsed.actualEveningBalance
+                // );
                 setActualEveningBalance(parsed.actualEveningBalance);
             }
             if (parsed.expenseItems) {
-                console.log("Setting expenseItems:", parsed.expenseItems);
+                // console.log("Setting expenseItems:", parsed.expenseItems);
                 setExpenseItems(parsed.expenseItems);
             }
             if (parsed.lastSaved) {
@@ -74,7 +74,7 @@ export function useLocalStorageDraft() {
 
             isInitialLoad.current = false;
 
-            console.log("Draft loaded successfully");
+            // console.log("Draft loaded successfully");
             return true;
         } catch (error) {
             console.error("Error loading draft:", error);
@@ -97,9 +97,9 @@ export function useLocalStorageDraft() {
             isInitialLoad.current ||
             !isMounted.current
         ) {
-            console.log(
-                "Skipping save - window undefined, initial load, or not mounted"
-            );
+            // console.log(
+            //     "Skipping save - window undefined, initial load, or not mounted"
+            // );
             return;
         }
 
@@ -116,12 +116,12 @@ export function useLocalStorageDraft() {
                 date: today,
             };
 
-            console.log("Saving draft to localStorage:", draft);
+            // console.log("Saving draft to localStorage:", draft);
             localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(draft));
             setLastSaved(now);
             setHasUnsavedChanges(false);
 
-            console.log("Draft saved successfully to localStorage");
+            // console.log("Draft saved successfully to localStorage");
         } catch (error) {
             console.error("Error saving draft:", error);
         }
@@ -136,7 +136,7 @@ export function useLocalStorageDraft() {
         if (typeof window === "undefined") return;
 
         try {
-            console.log("Clearing draft from localStorage...");
+            // console.log("Clearing draft from localStorage...");
             localStorage.removeItem(LOCAL_STORAGE_KEY);
 
             isInitialLoad.current = true;
@@ -152,7 +152,7 @@ export function useLocalStorageDraft() {
                 isInitialLoad.current = false;
             }, 100);
 
-            console.log("Draft cleared successfully");
+            // console.log("Draft cleared successfully");
         } catch (error) {
             console.error("Error clearing draft:", error);
         }
@@ -163,7 +163,7 @@ export function useLocalStorageDraft() {
             return;
         }
 
-        console.log("State changed, marking as unsaved changes");
+        // console.log("State changed, marking as unsaved changes");
         setHasUnsavedChanges(true);
     }, [
         additionalBalances,
@@ -175,13 +175,13 @@ export function useLocalStorageDraft() {
     useEffect(() => {
         if (!hasUnsavedChanges) return;
 
-        console.log("Auto-saving in 1 second...");
+        // console.log("Auto-saving in 1 second...");
         const timeout = setTimeout(() => {
             saveDraft();
         }, 1000);
 
         return () => {
-            console.log("Clearing auto-save timeout");
+            // console.log("Clearing auto-save timeout");
             clearTimeout(timeout);
         };
     }, [hasUnsavedChanges, saveDraft]);

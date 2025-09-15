@@ -47,11 +47,16 @@ export interface DebtorItem {
     amount: number;
 }
 
+export type PaymentType = "CASH" | "OWNER";
+
 export interface SupplierItem {
     id: string;
-    name: string;
+    supplierId: string;
+    supplierName: string;
+    totalPrice: number;
     debt: number;
-    pricePerDelivery: number;
+    paymentType: PaymentType;
+    paidOff: boolean;
 }
 
 export interface BalanceItem {
@@ -86,7 +91,8 @@ export type DebtorsSectionProps = {
 };
 
 export interface SuppliersSectionProps {
-    suppliers: SupplierItem[];
+    suppliers: Supplier[];
+    supplierItems: SupplierItem[];
     onAddSupplier: (supplier: Omit<SupplierItem, "id">) => void;
     onRemoveSupplier: (id: string) => void;
     onAddExpense: (expense: Omit<ExpenseItem, "id">) => void;

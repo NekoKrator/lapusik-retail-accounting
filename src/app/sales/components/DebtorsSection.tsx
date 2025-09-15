@@ -62,7 +62,7 @@ export function DebtorsSection({
 
     return (
         <Card className="shadow-lg border-0 bg-white/95 backdrop-blur">
-            <CardHeader className="pb-4">
+            <CardHeader className="">
                 <CardTitle className="text-lg flex items-center gap-2">
                     <Users className="h-5 w-5 text-orange-600" />
                     Облік боржників
