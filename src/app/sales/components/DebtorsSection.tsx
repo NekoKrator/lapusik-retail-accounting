@@ -30,6 +30,7 @@ export function DebtorsSection({
         onAddDebtor({
             name: newDebtor.name.trim(),
             amount: Number(newDebtor.amount),
+            createdAt: new Date(),
         });
 
         setNewDebtor({ name: "", amount: "" });
@@ -109,9 +110,21 @@ export function DebtorsSection({
                                 key={debtor.id}
                                 className="flex items-center justify-between p-2 bg-white rounded border"
                             >
-                                <span className="font-medium">
-                                    {debtor.name}
-                                </span>
+                                <div>
+                                    <div className="font-medium">
+                                        {debtor.name}
+                                    </div>
+                                    <div className="text-xs text-gray-600">
+                                        {debtor.createdAt.toLocaleDateString(
+                                            "uk-UA",
+                                            {
+                                                day: "2-digit",
+                                                month: "2-digit",
+                                                year: "numeric",
+                                            }
+                                        )}
+                                    </div>
+                                </div>
                                 <div className="flex items-center gap-3">
                                     <span className="font-bold text-orange-600">
                                         ₴{debtor.amount.toFixed(2)}

@@ -52,6 +52,7 @@ export function SuppliersSection({
             debt: debt,
             paidOff: debt === 0,
             paymentType: "CASH",
+            date: new Date(),
         });
 
         // If paid amount > 0, add to expenses
@@ -139,6 +140,13 @@ export function SuppliersSection({
                                 <div>
                                     <div className="font-medium">
                                         {item.supplierName}
+                                    </div>
+                                    <div className="text-xs text-gray-600">
+                                        {item.date.toLocaleDateString("uk-UA", {
+                                            day: "2-digit",
+                                            month: "2-digit",
+                                            year: "numeric",
+                                        })}
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-3">

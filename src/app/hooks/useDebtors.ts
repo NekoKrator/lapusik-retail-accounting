@@ -8,8 +8,14 @@ export function useDebtors(handleError: (msg: string) => void) {
         try {
             const res = await fetch("/api/debtors");
             if (!res.ok) throw new Error("Failed to fetch debtors");
-            const data = await res.json();
-            setDebtors(data);
+            const data: DebtorItem[] = await res.json();
+
+            const normalized = data.map((d) => ({
+                ...d,
+                createdAt: new Date(d.createdAt),
+            }));
+
+            setDebtors(normalized);
         } catch {
             handleError("Не вдалося завантажити боржників");
         }
@@ -49,7 +55,10 @@ export function useDebtors(handleError: (msg: string) => void) {
                     );
                 }
                 const created = await res.json();
-                addOrUpdateDebtor(created);
+                addOrUpdateDebtor({
+                    ...created,
+                    createdAt: new Date(created.createdAt),
+                });
             } catch (error) {
                 handleError(
                     error instanceof Error ? error.message : "Невідома помилка"

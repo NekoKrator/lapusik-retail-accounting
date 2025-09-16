@@ -45,6 +45,7 @@ export interface DebtorItem {
     id: string;
     name: string;
     amount: number;
+    createdAt: Date;
 }
 
 export type PaymentType = "CASH" | "OWNER";
@@ -57,6 +58,7 @@ export interface SupplierItem {
     debt: number;
     paymentType: PaymentType;
     paidOff: boolean;
+    date: Date;
 }
 
 export interface BalanceItem {

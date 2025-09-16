@@ -148,6 +148,7 @@ export default function SalesPage() {
     // Завантаження операцій постачальників
     useEffect(() => {
         fetchSupplierPayments();
+        console.log(supplierPayments);
     }, [fetchSupplierPayments]);
 
     // Автоматическое сохранение драфта
@@ -199,7 +200,10 @@ export default function SalesPage() {
                 },
             ]);
 
-            addOrUpdateDebtor(updatedDebtor);
+            addOrUpdateDebtor({
+                ...updatedDebtor,
+                createdAt: new Date(updatedDebtor.createdAt),
+            });
 
             return updatedDebtor;
         } catch (error) {

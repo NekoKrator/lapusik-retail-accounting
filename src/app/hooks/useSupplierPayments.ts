@@ -8,8 +8,14 @@ export function useSupplierPayments(handleError: (msg: string) => void) {
         try {
             const res = await fetch("/api/supplierPayments");
             if (!res.ok) throw new Error("Failed to fetch suppliers");
-            const data = await res.json();
-            setPayments(data);
+            const data: SupplierItem[] = await res.json();
+
+            const normalized = data.map((d) => ({
+                ...d,
+                date: new Date(d.date),
+            }));
+
+            setPayments(normalized);
         } catch {
             handleError("Не вдалося завантажити постачальників");
         }
@@ -50,7 +56,10 @@ export function useSupplierPayments(handleError: (msg: string) => void) {
                     );
                 }
                 const created = await res.json();
-                addOrUpdatePayment(created);
+                addOrUpdatePayment({
+                    ...created,
+                    date: new Date(created.date),
+                });
             } catch (error) {
                 handleError(
                     error instanceof Error ? error.message : "Невідома помилка"
