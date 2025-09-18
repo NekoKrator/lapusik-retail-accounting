@@ -1,11 +1,11 @@
 import { useState, useCallback, useEffect, useRef } from "react";
-import type { ExpenseItem } from "@/types/types";
+import type { BalanceItem, ExpenseItem } from "@/types/types";
 
 export function useLocalStorageDraft() {
     const LOCAL_STORAGE_KEY = "sales-page-draft";
-    const [additionalBalances, setAdditionalBalances] = useState<
-        { id: string; amount: number }[]
-    >([]);
+    const [additionalBalances, setAdditionalBalances] = useState<BalanceItem[]>(
+        []
+    );
     const [totalCashRegister, setTotalCashRegister] = useState(0);
     const [actualEveningBalance, setActualEveningBalance] = useState("");
     const [expenseItems, setExpenseItems] = useState<ExpenseItem[]>([]);
@@ -186,11 +186,11 @@ export function useLocalStorageDraft() {
         };
     }, [hasUnsavedChanges, saveDraft]);
 
-    const addBalanceItem = (amount: number) => {
+    const addBalanceItem = (amount: number, category: string) => {
         if (amount <= 0) return;
         setAdditionalBalances((prev) => [
             ...prev,
-            { id: Date.now().toString(), amount },
+            { id: Date.now().toString(), amount, category },
         ]);
     };
 

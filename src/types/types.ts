@@ -64,6 +64,7 @@ export interface SupplierItem {
 export interface BalanceItem {
     id: string;
     amount: number;
+    category: string;
 }
 
 export interface PreviousDayInfo {
@@ -77,6 +78,8 @@ export interface MorningBalanceProps {
     additionalBalances: BalanceItem[];
     newBalanceAmount: string;
     onNewBalanceAmountChange: (value: string) => void;
+    newBalanceCategory: string;
+    onNewBalanceCategoryChange: (value: string) => void;
     onAddBalance: () => void;
     onRemoveBalance: (id: string) => void;
     totalMorningBalance: number;

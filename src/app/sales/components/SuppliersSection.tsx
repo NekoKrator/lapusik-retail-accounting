@@ -80,8 +80,8 @@ export function SuppliersSection({
             </CardHeader>
             <CardContent className="space-y-4">
                 {/* Add New Supplier */}
-                <div className="grid grid-cols-3 md:grid-cols-3 gap-4 p-4 bg-gray-50 rounded-lg">
-                    <div className="col-span-2 flex gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-gray-50 rounded-lg">
+                    <div className="flex flex-col md:flex-row gap-4 col-span-1 md:col-span-2">
                         <Select ref={selectRef} defaultValue="" className="">
                             {suppliers.map((supplier) => (
                                 <option
@@ -122,9 +122,9 @@ export function SuppliersSection({
                         <Button
                             type="button"
                             onClick={handleAdd}
-                            className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                            className="w-full bg-blue-600 hover:bg-blue-700 text-white gap-2"
                         >
-                            <Plus className="h-4 w-4 mr-2" /> Додати
+                            <Plus className="h-4 w-4" /> Додати
                         </Button>
                     </div>
                 </div>
@@ -151,7 +151,7 @@ export function SuppliersSection({
                                 </div>
                                 <div className="flex items-center gap-3">
                                     <div className="font-bold text-blue-600">
-                                        ₴{item.debt.toFixed(2)}
+                                        {item.debt.toFixed(2)} ₴
                                     </div>
                                     <Button
                                         type="button"
@@ -169,15 +169,19 @@ export function SuppliersSection({
                         ))}
                         <div className="p-2 bg-blue-50 rounded border border-blue-200">
                             <div className="text-center">
-                                <span className="text-lg font-bold text-blue-700">
-                                    ₴
-                                    {supplierItems
-                                        .reduce((sum, d) => sum + d.debt, 0)
-                                        .toFixed(2)}
-                                </span>
-                                <span className="text-sm text-blue-600 ml-2">
+                                <div className="relative inline-block">
+                                    <span className="text-lg font-bold text-blue-700">
+                                        {supplierItems
+                                            .reduce((sum, d) => sum + d.debt, 0)
+                                            .toFixed(2)}{" "}
+                                    </span>
+                                    <span className="absolute -right-5 top-0 text-lg font-bold text-blue-600">
+                                        ₴
+                                    </span>
+                                </div>
+                                <div className="text-sm text-blue-600 ml-2">
                                     Загальна сума боргів
-                                </span>
+                                </div>
                             </div>
                         </div>
                     </div>

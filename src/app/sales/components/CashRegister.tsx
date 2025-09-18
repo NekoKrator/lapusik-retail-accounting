@@ -25,7 +25,7 @@ export function CashRegister({
                     Загальна сума готівки та терміналу за день
                 </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="flex flex-col space-y-4 h-full">
                 <div className="space-y-2">
                     <Label
                         htmlFor="cashRegister"
@@ -46,10 +46,15 @@ export function CashRegister({
                     />
                 </div>
 
-                <div className="p-4 bg-blue-50 rounded-lg border-2 border-blue-200">
+                <div className="flex-1 flex items-center justify-center p-4 bg-blue-50 rounded-lg border-2 border-blue-200">
                     <div className="text-center">
-                        <div className="text-3xl font-bold text-blue-700 mb-2">
-                            ₴{totalCashRegister.toFixed(2)}
+                        <div className="relative inline-block">
+                            <span className="text-3xl font-bold text-blue-700 mb-2">
+                                {totalCashRegister.toFixed(2)}
+                            </span>
+                            <span className="absolute -right-7 top-0 text-3xl font-bold text-blue-700">
+                                ₴
+                            </span>
                         </div>
                         <div className="text-lg font-medium text-blue-800">
                             Виручка за день

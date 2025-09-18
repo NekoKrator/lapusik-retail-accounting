@@ -50,6 +50,7 @@ export default function SalesPage() {
     const { totalCashRegister, setTotalCashRegister } = useLocalStorageDraft();
 
     const [newBalanceAmount, setNewBalanceAmount] = useState("");
+    const [newBalanceCategory, setNewBalanceCategory] = useState("");
     const [showDebtors, setShowDebtors] = useState(false);
     const [showSuppliers, setShowSuppliers] = useState(false);
     const [loading, setLoading] = useState(false);
@@ -168,8 +169,10 @@ export default function SalesPage() {
             handleError("Будь ласка, введіть коректну суму");
             return;
         }
-        addBalanceItem(Number(newBalanceAmount));
+        // TODO: category check
+        addBalanceItem(Number(newBalanceAmount), String(newBalanceCategory));
         setNewBalanceAmount("");
+        setNewBalanceCategory("");
     };
 
     async function writeOffDebt(debtorId: string, amount: number) {
@@ -195,8 +198,10 @@ export default function SalesPage() {
             setAdditionalBalances((prev) => [
                 ...prev,
                 {
-                    id: `writeoff-${debtorId}-${Date.now()}`,
+                    // id: `writeoff-${debtorId}-${Date.now()}`,
+                    id: String(Date.now()),
                     amount: amountWrittenOff,
+                    category: `${updatedDebtor.name} повернув борг`,
                 },
             ]);
 
@@ -225,8 +230,10 @@ export default function SalesPage() {
             setAdditionalBalances((prev) => [
                 ...prev,
                 {
-                    id: `debtor-${debtorToRemove.id}`,
+                    // id: `debtor-${debtorToRemove.id}`,
+                    id: String(Date.now()),
                     amount: debtorToRemove.amount,
+                    category: `${debtorToRemove.name} повернув борг`,
                 },
             ]);
         } catch (error) {
@@ -329,7 +336,7 @@ export default function SalesPage() {
             <div className="max-w-6xl mx-auto space-y-6">
                 {/* Header */}
                 <Card className="shadow-xl border-0 bg-white/95 backdrop-blur">
-                    <CardHeader className="text-center pb-4">
+                    <CardHeader className="text-center">
                         <CardTitle className="text-3xl font-bold text-gray-800 flex items-center justify-center gap-2">
                             <Calculator className="h-8 w-8 text-green-600" />
                             Звіт за зміну
@@ -339,22 +346,31 @@ export default function SalesPage() {
                         </CardDescription>
 
                         {/* Индикатор сохранения */}
-                        <div className="flex items-center justify-center gap-4 mt-2 text-sm">
-                            {lastSaved && (
-                                <div className="flex items-center gap-1 text-green-600">
-                                    <Clock className="h-4 w-4" />
-                                    <span>
-                                        Останнє збереження:{" "}
-                                        {formatLastSaved(lastSaved)}
-                                    </span>
-                                </div>
-                            )}
-                            {hasUnsavedChanges && (
-                                <div className="flex items-center gap-1 text-orange-600">
-                                    <AlertCircle className="h-4 w-4" />
-                                    <span>Незбережені зміни</span>
-                                </div>
-                            )}
+                        <div className="flex flex-col items-center justify-center gap-2 mt-2 text-sm">
+                            <div
+                                className={`flex items-center gap-1 text-green-600 transition-opacity duration-200 ${
+                                    lastSaved ? "opacity-100" : "opacity-0"
+                                }`}
+                            >
+                                <Clock className="h-4 w-4" />
+                                <span>
+                                    Останнє збереження:{" "}
+                                    {lastSaved
+                                        ? formatLastSaved(lastSaved)
+                                        : ""}
+                                </span>
+                            </div>
+
+                            <div
+                                className={`flex items-center gap-1 text-orange-600 transition-opacity duration-200 ${
+                                    hasUnsavedChanges
+                                        ? "opacity-100"
+                                        : "opacity-0"
+                                }`}
+                            >
+                                <AlertCircle className="h-4 w-4" />
+                                <span>Незбережені зміни</span>
+                            </div>
                         </div>
                     </CardHeader>
                 </Card>
@@ -422,6 +438,8 @@ export default function SalesPage() {
                             additionalBalances={additionalBalances}
                             newBalanceAmount={newBalanceAmount}
                             onNewBalanceAmountChange={setNewBalanceAmount}
+                            newBalanceCategory={newBalanceCategory}
+                            onNewBalanceCategoryChange={setNewBalanceCategory}
                             onAddBalance={handleAddBalance}
                             onRemoveBalance={removeBalanceItem}
                             totalMorningBalance={totalMorningBalance}

@@ -96,9 +96,9 @@ export function DebtorsSection({
                     <Button
                         type="button"
                         onClick={handleAdd}
-                        className="bg-orange-600 hover:bg-orange-700 text-white"
+                        className="bg-orange-600 hover:bg-orange-700 text-white gap-2"
                     >
-                        <Plus className="h-4 w-4 mr-2" />
+                        <Plus className="h-4 w-4" />
                         Додати
                     </Button>
                 </div>
@@ -125,9 +125,9 @@ export function DebtorsSection({
                                         )}
                                     </div>
                                 </div>
-                                <div className="flex items-center gap-3">
+                                <div className="flex items-center gap-2">
                                     <span className="font-bold text-orange-600">
-                                        ₴{debtor.amount.toFixed(2)}
+                                        {debtor.amount.toFixed(2)} ₴
                                     </span>
 
                                     <Input
@@ -135,7 +135,7 @@ export function DebtorsSection({
                                         min="0"
                                         step="0.01"
                                         className="w-24"
-                                        placeholder="Списати..."
+                                        placeholder="0.00"
                                         value={writeOffAmounts[debtor.id] || ""}
                                         onChange={(e) =>
                                             setWriteOffAmounts((prev) => ({
@@ -172,15 +172,22 @@ export function DebtorsSection({
                         ))}
                         <div className="p-2 bg-orange-50 rounded border border-orange-200">
                             <div className="text-center">
-                                <span className="text-lg font-bold text-orange-700">
-                                    ₴
-                                    {debtors
-                                        .reduce((sum, d) => sum + d.amount, 0)
-                                        .toFixed(2)}
-                                </span>
-                                <span className="text-sm text-orange-600 ml-2">
+                                <div className="relative inline-block">
+                                    <span className="text-lg font-bold text-orange-700">
+                                        {debtors
+                                            .reduce(
+                                                (sum, d) => sum + d.amount,
+                                                0
+                                            )
+                                            .toFixed(2)}
+                                    </span>
+                                    <span className="absolute -right-5 top-0 text-lg font-bold text-orange-700">
+                                        ₴
+                                    </span>
+                                </div>
+                                <div className="text-sm text-orange-600 ml-2">
                                     Загальна сума боргів
-                                </span>
+                                </div>
                             </div>
                         </div>
                     </div>
