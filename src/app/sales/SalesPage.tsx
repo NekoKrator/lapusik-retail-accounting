@@ -149,7 +149,6 @@ export default function SalesPage() {
     // Завантаження операцій постачальників
     useEffect(() => {
         fetchSupplierPayments();
-        console.log(supplierPayments);
     }, [fetchSupplierPayments]);
 
     // Автоматическое сохранение драфта
@@ -285,12 +284,16 @@ export default function SalesPage() {
         }
 
         try {
-            const reportData = {
-                date: new Date().toISOString().split("T")[0],
-                userId: session.user.id,
-                morningBalance: totalMorningBalance,
-                totalCashRegister,
-                breakdown: {
+            // агрегуємо витрати по категоріях
+            const breakdown = expenseItems.reduce(
+                (acc, item) => {
+                    if (!acc[item.category]) {
+                        acc[item.category] = 0;
+                    }
+                    acc[item.category] += item.amount;
+                    return acc;
+                },
+                {
                     terminalExpenses: 0,
                     ownerWithdrawal: 0,
                     rent: 0,
@@ -300,7 +303,15 @@ export default function SalesPage() {
                     salaries: 0,
                     piggyBank: 0,
                     otherExpenses: 0,
-                },
+                } as Record<string, number>
+            );
+
+            const reportData = {
+                date: new Date().toISOString().split("T")[0],
+                userId: session.user.id,
+                morningBalance: totalMorningBalance,
+                totalCashRegister,
+                breakdown,
                 actualEveningBalance: actualEveningBalance
                     ? Number(actualEveningBalance)
                     : null,
