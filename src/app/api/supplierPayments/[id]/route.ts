@@ -19,13 +19,13 @@ export async function DELETE(req: NextRequest) {
             return NextResponse.json({ error: "Missing ID" }, { status: 400 });
         }
 
-        const debtor = await prisma.supplierPayment.findFirst({
+        const payment = await prisma.supplierPayment.findFirst({
             where: { id, userId: token.id as string },
         });
 
-        if (!debtor) {
+        if (!payment) {
             return NextResponse.json(
-                { error: "Debtor not found" },
+                { error: "Supplier payment not found" },
                 { status: 404 }
             );
         }
@@ -39,6 +39,54 @@ export async function DELETE(req: NextRequest) {
         console.error(err);
         return NextResponse.json(
             { error: "Internal server error" },
+            { status: 500 }
+        );
+    }
+}
+
+export async function PATCH(req: NextRequest) {
+    const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
+
+    if (!token) {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    try {
+        const url = new URL(req.url);
+        const id = url.pathname.split("/").pop();
+
+        if (!id) {
+            return NextResponse.json({ error: "Missing ID" }, { status: 400 });
+        }
+
+        const body = await req.json();
+
+        const existingPayments = await prisma.supplierPayment.findFirst({
+            where: {
+                id,
+                userId: token.id as string,
+            },
+        });
+
+        if (!existingPayments) {
+            return NextResponse.json(
+                { error: "Supplier payment not found" },
+                { status: 404 }
+            );
+        }
+
+        const updatedPayment = await prisma.supplierPayment.update({
+            where: { id },
+            data: {
+                ...body,
+            },
+        });
+
+        return NextResponse.json(updatedPayment);
+    } catch (error) {
+        console.error("Failed to update supplier payment:", error);
+        return NextResponse.json(
+            { error: "Failed to update supplier payment" },
             { status: 500 }
         );
     }

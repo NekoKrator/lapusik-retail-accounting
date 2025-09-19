@@ -93,6 +93,7 @@ export default function SalesPage() {
         supplierPayments,
         fetchSupplierPayments,
         addSupplierPayments,
+        updateSupplierPayment,
         removeSupplierPayments,
     } = useSupplierPayments(handleError);
 
@@ -434,6 +435,7 @@ export default function SalesPage() {
                         suppliers={suppliers}
                         supplierItems={supplierPayments}
                         onAddSupplier={addSupplierPayments}
+                        onUpdateSupplier={updateSupplierPayment}
                         onRemoveSupplier={removeSupplierPayments}
                         onAddExpense={addExpenseItem}
                         onError={handleError}

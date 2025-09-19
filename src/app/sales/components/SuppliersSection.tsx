@@ -10,6 +10,7 @@ export function SuppliersSection({
     suppliers,
     supplierItems,
     onAddSupplier,
+    onUpdateSupplier,
     onRemoveSupplier,
     onAddExpense,
     onError,
@@ -68,6 +69,20 @@ export function SuppliersSection({
             pricePerDelivery: "",
             paidAmount: "",
         });
+    };
+
+    const handleWriteOff = async (id: string) => {
+        const payment = supplierItems.find((d) => d.id === id);
+        if (!payment) return;
+
+        try {
+            await onUpdateSupplier(id, {
+                paidOff: true,
+                paymentType: "OWNER",
+            });
+        } catch {
+            onError("Помилка при списанні боргу");
+        }
     };
 
     return (
@@ -132,47 +147,68 @@ export function SuppliersSection({
                 {/* Suppliers List */}
                 {supplierItems.length > 0 && (
                     <div className="space-y-2">
-                        {supplierItems.map((item) => (
-                            <div
-                                key={item.id}
-                                className="flex items-center justify-between p-2 bg-white rounded border"
-                            >
-                                <div>
-                                    <div className="font-medium">
-                                        {item.supplierName}
+                        {supplierItems
+                            .filter((item) => !item.paidOff)
+                            .map((item) => (
+                                <div
+                                    key={item.id}
+                                    className="flex items-center justify-between p-2 bg-white rounded border"
+                                >
+                                    <div>
+                                        <div className="font-medium">
+                                            {item.supplierName}
+                                        </div>
+                                        <div className="text-xs text-gray-600">
+                                            {new Date(
+                                                item.date
+                                            ).toLocaleDateString("uk-UA", {
+                                                day: "2-digit",
+                                                month: "2-digit",
+                                                year: "numeric",
+                                            })}
+                                        </div>
                                     </div>
-                                    <div className="text-xs text-gray-600">
-                                        {item.date.toLocaleDateString("uk-UA", {
-                                            day: "2-digit",
-                                            month: "2-digit",
-                                            year: "numeric",
-                                        })}
+                                    <div className="flex items-center gap-3">
+                                        <div className="font-bold text-blue-600">
+                                            {item.debt.toFixed(2)} ₴
+                                        </div>
+                                        <Button
+                                            type="button"
+                                            size="sm"
+                                            className="bg-red-600 hover:bg-red-700 text-white"
+                                            onClick={() =>
+                                                handleWriteOff(item.id)
+                                            }
+                                        >
+                                            Списати
+                                        </Button>
+                                        <Button
+                                            type="button"
+                                            variant="ghost"
+                                            size="sm"
+                                            onClick={() =>
+                                                onRemoveSupplier(item.id)
+                                            }
+                                            className="text-red-600 hover:text-red-700 hover:bg-red-50 h-6 w-6 p-0"
+                                        >
+                                            <Trash2 className="h-3 w-3" />
+                                        </Button>
                                     </div>
                                 </div>
-                                <div className="flex items-center gap-3">
-                                    <div className="font-bold text-blue-600">
-                                        {item.debt.toFixed(2)} ₴
-                                    </div>
-                                    <Button
-                                        type="button"
-                                        variant="ghost"
-                                        size="sm"
-                                        onClick={() =>
-                                            onRemoveSupplier(item.id)
-                                        }
-                                        className="text-red-600 hover:text-red-700 hover:bg-red-50 h-6 w-6 p-0"
-                                    >
-                                        <Trash2 className="h-3 w-3" />
-                                    </Button>
-                                </div>
-                            </div>
-                        ))}
+                            ))}
+
                         <div className="p-2 bg-blue-50 rounded border border-blue-200">
                             <div className="text-center">
                                 <div className="relative inline-block">
                                     <span className="text-lg font-bold text-blue-700">
                                         {supplierItems
-                                            .reduce((sum, d) => sum + d.debt, 0)
+                                            .reduce(
+                                                (sum, d) =>
+                                                    !d.paidOff
+                                                        ? sum + d.debt
+                                                        : sum,
+                                                0
+                                            )
                                             .toFixed(2)}{" "}
                                     </span>
                                     <span className="absolute -right-5 top-0 text-lg font-bold text-blue-600">

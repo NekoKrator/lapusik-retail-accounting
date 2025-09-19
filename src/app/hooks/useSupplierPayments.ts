@@ -69,6 +69,35 @@ export function useSupplierPayments(handleError: (msg: string) => void) {
         [addOrUpdatePayment, handleError]
     );
 
+    const updateSupplierPayment = useCallback(
+        async (id: string, updates: Partial<SupplierItem>) => {
+            try {
+                const res = await fetch(`/api/supplierPayments/${id}`, {
+                    method: "PATCH",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(updates),
+                });
+                if (!res.ok) {
+                    const err = await res.json();
+                    throw new Error(
+                        err.error ||
+                            "Помилка при оновленні сплати постачальнику"
+                    );
+                }
+                const updated = await res.json();
+                addOrUpdatePayment({
+                    ...updated,
+                    date: new Date(updated.date),
+                });
+            } catch (error) {
+                handleError(
+                    error instanceof Error ? error.message : "Невідома помилка"
+                );
+            }
+        },
+        [addOrUpdatePayment, handleError]
+    );
+
     const removeSupplierPayments = useCallback(
         async (id: string) => {
             try {
@@ -96,6 +125,7 @@ export function useSupplierPayments(handleError: (msg: string) => void) {
         supplierPayments,
         fetchSupplierPayments,
         addSupplierPayments,
+        updateSupplierPayment,
         removeSupplierPayments,
     };
 }

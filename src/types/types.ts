@@ -99,6 +99,10 @@ export interface SuppliersSectionProps {
     suppliers: Supplier[];
     supplierItems: SupplierItem[];
     onAddSupplier: (supplier: Omit<SupplierItem, "id">) => void;
+    onUpdateSupplier: (
+        id: string,
+        updates: Partial<SupplierItem>
+    ) => Promise<void>;
     onRemoveSupplier: (id: string) => void;
     onAddExpense: (expense: Omit<ExpenseItem, "id">) => void;
     onError: (error: string) => void;
