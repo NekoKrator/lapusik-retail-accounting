@@ -1,121 +1,192 @@
 export interface User {
-  id: string
-  username: string
-  role: string
+    id: string;
+    username: string;
+    role: string;
 }
 
 export type Expenses = {
-  terminalExpenses: number;
-  rent: number;
-  salaries: number;
-  utilities: number;
-  supplierPayments: number;
-  goodsWriteOff: number;
-  ownerWithdrawal: number;
-  piggyBank: number;
-  otherExpenses: number;
+    terminalExpenses: number;
+    rent: number;
+    salaries: number;
+    utilities: number;
+    supplierPayments: number;
+    goodsWriteOff: number;
+    ownerWithdrawal: number;
+    piggyBank: number;
+    otherExpenses: number;
 };
 
 export type Supplier = {
-  id: string
-  name: string
-  totalDebt: number
-}
+    id: string;
+    name: string;
+    totalDebt: number;
+};
 
 export interface LoadingScreenProps {
-  message: string;
+    message: string;
 }
 
-export type UserRole = 'admin' | 'user';
+export type UserRole = "admin" | "user";
 
 export interface RoleGuardProps {
-  requiredRole: UserRole;
-  children: React.ReactNode;
-  loadingMessage?: string;
-  redirectMessage?: string;
+    requiredRole: UserRole;
+    children: React.ReactNode;
+    loadingMessage?: string;
+    redirectMessage?: string;
 }
 
 export interface ExpenseItem {
-  id: string
-  amount: number
-  category: string
+    id: string;
+    amount: number;
+    category: string;
 }
 
 export interface DebtorItem {
-  id: string
-  name: string
-  amount: number
+    id: string;
+    name: string;
+    amount: number;
+    createdAt: Date;
 }
 
+export type PaymentType = "CASH" | "OWNER";
+
 export interface SupplierItem {
-  id: string
-  name: string
-  debt: number
-  pricePerDelivery: number
+    id: string;
+    supplierId: string;
+    supplierName: string;
+    totalPrice: number;
+    debt: number;
+    paymentType: PaymentType;
+    paidOff: boolean;
+    date: Date;
 }
 
 export interface BalanceItem {
-  id: string;
-  amount: number;
+    id: string;
+    amount: number;
+    category: string;
 }
 
 export interface PreviousDayInfo {
-  date: string;
-  actualEveningBalance?: number;
-  calculatedEveningBalance: number;
+    date: string;
+    actualEveningBalance?: number;
+    calculatedEveningBalance: number;
 }
 
 export interface MorningBalanceProps {
-  baseMorningBalance: number;
-  additionalBalances: BalanceItem[];
-  newBalanceAmount: string;
-  onNewBalanceAmountChange: (value: string) => void;
-  onAddBalance: () => void;
-  onRemoveBalance: (id: string) => void;
-  totalMorningBalance: number;
-  previousDayInfo?: PreviousDayInfo | null;
-  isLoading?: boolean;
+    baseMorningBalance: number;
+    additionalBalances: BalanceItem[];
+    newBalanceAmount: string;
+    onNewBalanceAmountChange: (value: string) => void;
+    newBalanceCategory: string;
+    onNewBalanceCategoryChange: (value: string) => void;
+    onAddBalance: () => void;
+    onRemoveBalance: (id: string) => void;
+    totalMorningBalance: number;
+    previousDayInfo?: PreviousDayInfo | null;
+    isLoading?: boolean;
 }
 
 export type DebtorsSectionProps = {
-  debtors: DebtorItem[];
-  onAddDebtor: (debtor: Omit<DebtorItem, 'id'>) => Promise<void> | void;
-  onRemoveDebtor: (id: string) => Promise<void> | void;
-  onWriteOffDebtor: (id: string, amount: number) => Promise<void> | void;
-  onError: (errorMessage: string) => void;
+    debtors: DebtorItem[];
+    onAddDebtor: (debtor: Omit<DebtorItem, "id">) => Promise<void> | void;
+    onRemoveDebtor: (id: string) => Promise<void> | void;
+    onWriteOffDebtor: (id: string, amount: number) => Promise<void> | void;
+    onError: (errorMessage: string) => void;
 };
 
 export interface SuppliersSectionProps {
-  suppliers: SupplierItem[];
-  onAddSupplier: (supplier: Omit<SupplierItem, 'id'>) => void;
-  onRemoveSupplier: (id: string) => void;
-  onAddExpense: (expense: Omit<ExpenseItem, 'id'>) => void;
-  onError: (error: string) => void;
+    suppliers: Supplier[];
+    supplierItems: SupplierItem[];
+    onAddSupplier: (supplier: Omit<SupplierItem, "id">) => void;
+    onUpdateSupplier: (
+        id: string,
+        updates: Partial<SupplierItem>
+    ) => Promise<void>;
+    onRemoveSupplier: (id: string) => void;
+    onAddExpense: (expense: Omit<ExpenseItem, "id">) => void;
+    onError: (error: string) => void;
 }
 
 export interface PreviousDayData {
-  date: string;
-  actualEveningBalance?: number;
-  calculatedEveningBalance: number;
+    date: string;
+    actualEveningBalance?: number;
+    calculatedEveningBalance: number;
 }
 
 export interface LocalStorageData {
-  additionalBalances: BalanceItem[];
-  totalCashRegister: number;
-  actualEveningBalance: string;
-  expenseItems: ExpenseItem[];
-  lastSaved: string;
-  date: string;
+    additionalBalances: BalanceItem[];
+    totalCashRegister: number;
+    actualEveningBalance: string;
+    expenseItems: ExpenseItem[];
+    lastSaved: string;
+    date: string;
 }
 
 export interface CashRegisterProps {
-  totalCashRegister: number;
-  onTotalCashRegisterChange: (value: number) => void;
+    totalCashRegister: number;
+    onTotalCashRegisterChange: (value: number) => void;
 }
 
 export type DraftData = {
-  additionalBalances: { id: string; amount: number }[];
-  actualEveningBalance: string;
-  expenseItems: ExpenseItem[];
-  totalCashRegister: number;
+    additionalBalances: { id: string; amount: number }[];
+    actualEveningBalance: string;
+    expenseItems: ExpenseItem[];
+    totalCashRegister: number;
 };
+
+export interface DailyReport {
+    date: string;
+    income: number;
+    expenses: number;
+    expectedBalance: number;
+    actualBalance: number | null;
+    difference: number;
+    confirmed: boolean;
+}
+
+export interface StatsResponse {
+    totalIncome: number;
+    totalExpenses: number;
+    totalDifference: number;
+    expensesByCategory: Record<string, number>;
+    daily: DailyReport[];
+}
+
+export interface DashboardCards {
+    data: StatsResponse;
+}
+
+export interface RevenueChart {
+    data: {
+        formattedDate: string;
+        date: string;
+        income: number;
+        expenses: number;
+        expectedBalance: number;
+        actualBalance: number | null;
+        difference: number;
+        confirmed: boolean;
+    }[];
+}
+
+export interface ExpensesBarChart {
+    data: { category: string; value: number }[];
+}
+
+export interface ExpensesPieChart {
+    data: { category: string; value: number }[];
+}
+
+export interface DailyReportsTable {
+    data: {
+        formattedDate: string;
+        date: string;
+        income: number;
+        expenses: number;
+        expectedBalance: number;
+        actualBalance: number | null;
+        difference: number;
+        confirmed: boolean;
+    }[];
+}

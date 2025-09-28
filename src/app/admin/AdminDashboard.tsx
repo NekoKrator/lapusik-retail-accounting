@@ -1,12 +1,13 @@
-'use client';
+"use client";
 
-import SupplierPage from './suppliers/page';
+import SupplierPage from "./suppliers/page";
+import StatsPage from "./stats/page";
 
 export default function AdminDashboardPage() {
-  return (
-    <div>
-      <h1>Hello, admin!</h1>
-      <SupplierPage />
-    </div>
-  );
+    return (
+        <div>
+            <StatsPage />
+            <SupplierPage />
+        </div>
+    );
 }
