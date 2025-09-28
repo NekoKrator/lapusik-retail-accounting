@@ -11,7 +11,7 @@ import ExpensesBarChart from "./components/ExpensesBarChart";
 import ExpensesPieChart from "./components/ExpensesPieChart";
 import DailyReportsTable from "./components/DailyReportsTable";
 
-export default function StatsDashboardPage() {
+export default function StatsPage() {
     const [stats, setStats] = useState<StatsResponse | null>(null);
     const [loading, setLoading] = useState(true);
     const searchParams = useSearchParams();
