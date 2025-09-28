@@ -134,3 +134,59 @@ export type DraftData = {
     expenseItems: ExpenseItem[];
     totalCashRegister: number;
 };
+
+export interface DailyReport {
+    date: string;
+    income: number;
+    expenses: number;
+    expectedBalance: number;
+    actualBalance: number | null;
+    difference: number;
+    confirmed: boolean;
+}
+
+export interface StatsResponse {
+    totalIncome: number;
+    totalExpenses: number;
+    totalDifference: number;
+    expensesByCategory: Record<string, number>;
+    daily: DailyReport[];
+}
+
+export interface DashboardCards {
+    data: StatsResponse;
+}
+
+export interface RevenueChart {
+    data: {
+        formattedDate: string;
+        date: string;
+        income: number;
+        expenses: number;
+        expectedBalance: number;
+        actualBalance: number | null;
+        difference: number;
+        confirmed: boolean;
+    }[];
+}
+
+export interface ExpensesBarChart {
+    data: { category: string; value: number }[];
+}
+
+export interface ExpensesPieChart {
+    data: { category: string; value: number }[];
+}
+
+export interface DailyReportsTable {
+    data: {
+        formattedDate: string;
+        date: string;
+        income: number;
+        expenses: number;
+        expectedBalance: number;
+        actualBalance: number | null;
+        difference: number;
+        confirmed: boolean;
+    }[];
+}
