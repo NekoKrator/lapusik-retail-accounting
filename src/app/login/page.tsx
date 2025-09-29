@@ -102,7 +102,7 @@ export default function LoginPage() {
                                     Логін відділення
                                 </Label>
                                 <div className="relative">
-                                    <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                                    <User className="absolute left-4 top-4 h-4 w-4 text-gray-400" />
                                     <Input
                                         id="username"
                                         type="text"
@@ -126,7 +126,7 @@ export default function LoginPage() {
                                     Пароль
                                 </Label>
                                 <div className="relative">
-                                    <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                                    <Lock className="absolute left-4 top-4 h-4 w-4 text-gray-400" />
                                     <Input
                                         id="password"
                                         type="password"
