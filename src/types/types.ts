@@ -147,9 +147,6 @@ export interface DailyReport {
 }
 
 export interface StatsResponse {
-    totalIncome: number;
-    totalExpenses: number;
-    totalDifference: number;
     daily: DailyReport[];
 }
 

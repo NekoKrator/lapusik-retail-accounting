@@ -19,19 +19,6 @@ export async function GET(req: NextRequest) {
             orderBy: { date: "asc" },
         });
 
-        const totalIncome = reports.reduce(
-            (acc, r) => acc + r.totalCashRegister,
-            0
-        );
-        const totalExpenses = reports.reduce(
-            (acc, r) => acc + (r.totalExpenses ?? 0),
-            0
-        );
-        const totalDifference = reports.reduce(
-            (acc, r) => acc + (r.difference ?? 0),
-            0
-        );
-
         const daily = reports.map((r) => ({
             date: r.date,
             income: r.totalCashRegister,
@@ -44,9 +31,6 @@ export async function GET(req: NextRequest) {
         }));
 
         return NextResponse.json({
-            totalIncome,
-            totalExpenses,
-            totalDifference,
             daily,
         });
     } catch (err) {

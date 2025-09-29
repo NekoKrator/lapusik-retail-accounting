@@ -53,9 +53,16 @@ export default function StatsPage() {
             return d >= from && d <= to;
         });
 
-        // expenses за цей період
         const expensesByCategory: Record<string, number> = {};
+        let totalIncome = 0;
+        let totalExpenses = 0;
+        let totalDifference = 0;
+
         for (const day of daily) {
+            totalIncome += day.income ?? 0;
+            totalExpenses += day.expenses ?? 0;
+            totalDifference += day.difference ?? 0;
+
             for (const [key, value] of Object.entries(day.expensesByCategory)) {
                 expensesByCategory[key] =
                     (expensesByCategory[key] || 0) + (value as number);
@@ -66,6 +73,9 @@ export default function StatsPage() {
             ...allStats,
             daily,
             expensesByCategory,
+            totalIncome,
+            totalExpenses,
+            totalDifference,
         };
     }, [allStats, searchParams]);
 
