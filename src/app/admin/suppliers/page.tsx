@@ -2,6 +2,7 @@
 
 import type { Supplier } from "@/types/types";
 import { useEffect, useState } from "react";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 
 export default function SupplierPage() {
     const [suppliers, setSuppliers] = useState<Supplier[]>([]);
@@ -58,34 +59,58 @@ export default function SupplierPage() {
     }
 
     return (
-        <div>
-            <h1>Постачальники</h1>
+        <Card>
+            <CardHeader>
+                <CardTitle>Постачальники</CardTitle>
+            </CardHeader>
+            <CardContent>
+                <div className="overflow-x-auto">
+                    <table className="min-w-full border text-sm">
+                        <thead className="bg-gray-100">
+                            <tr>
+                                <th className="px-4 py-2 text-left">Назва</th>
+                                <th className="px-4 py-2 text-right">Борг</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {suppliers.map(({ id, name, totalDebt }) => (
+                                <tr key={id} className="border-t">
+                                    <td className="px-4 py-2">{name}</td>
+                                    <td className="px-4 py-2 text-right">
+                                        {totalDebt.toFixed(2)} ₴
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
 
-            <ul>
-                {suppliers.map(({ id, name, totalDebt }) => (
-                    <li key={id}>
-                        <strong>{name}</strong> — Борг: {totalDebt.toFixed(2)}{" "}
-                        грн
-                    </li>
-                ))}
-            </ul>
-
-            <h2>Додати нового постачальника</h2>
-            <input
-                type="text"
-                placeholder="Назва постачальника"
-                value={newSupplierName}
-                onChange={(e) => setNewSupplierName(e.target.value)}
-            />
-            <input
-                type="number"
-                placeholder="Заборгованість"
-                value={newSupplierDebt}
-                onChange={(e) => setNewSupplierDebt(e.target.value)}
-                step="0.01"
-                min="0"
-            />
-            <button onClick={addSupplier}>Додати</button>
-        </div>
+                <h2 className="mt-6">Додати нового постачальника</h2>
+                <div className="flex gap-2 mt-2">
+                    <input
+                        type="text"
+                        placeholder="Назва постачальника"
+                        value={newSupplierName}
+                        onChange={(e) => setNewSupplierName(e.target.value)}
+                        className="border rounded px-2 py-1 flex-1"
+                    />
+                    <input
+                        type="number"
+                        placeholder="Заборгованість"
+                        value={newSupplierDebt}
+                        onChange={(e) => setNewSupplierDebt(e.target.value)}
+                        step="0.01"
+                        min="0"
+                        className="border rounded px-2 py-1 w-32"
+                    />
+                    <button
+                        onClick={addSupplier}
+                        className="bg-blue-600 text-white px-4 py-1 rounded"
+                    >
+                        Додати
+                    </button>
+                </div>
+            </CardContent>
+        </Card>
     );
 }

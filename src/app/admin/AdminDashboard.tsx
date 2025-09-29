@@ -5,7 +5,7 @@ import StatsPage from "./stats/page";
 
 export default function AdminDashboardPage() {
     return (
-        <div>
+        <div className="p-6 space-y-6">
             <StatsPage />
             <SupplierPage />
         </div>

@@ -40,17 +40,19 @@ export default function DailyReportsTable({ data }: DailyReportsTable) {
                                         {report.formattedDate}
                                     </td>
                                     <td className="px-4 py-2 text-right">
-                                        {report.income} ₴
+                                        {report.income.toFixed(2)} ₴
                                     </td>
                                     <td className="px-4 py-2 text-right">
-                                        {report.expenses} ₴
+                                        {report.expenses.toFixed(2)} ₴
                                     </td>
                                     <td className="px-4 py-2 text-right">
-                                        {report.expectedBalance} ₴
+                                        {report.expectedBalance.toFixed(2)} ₴
                                     </td>
                                     <td className="px-4 py-2 text-right">
                                         {report.actualBalance !== null
-                                            ? `${report.actualBalance} ₴`
+                                            ? `${report.actualBalance.toFixed(
+                                                  2
+                                              )} ₴`
                                             : "-"}
                                     </td>
                                     <td
@@ -60,7 +62,7 @@ export default function DailyReportsTable({ data }: DailyReportsTable) {
                                                 : "text-green-600"
                                         }`}
                                     >
-                                        {report.difference} ₴
+                                        {report.difference.toFixed(2)} ₴
                                     </td>
                                     <td className="px-4 py-2 text-center">
                                         {report.confirmed ? (
