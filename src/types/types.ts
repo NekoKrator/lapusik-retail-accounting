@@ -143,13 +143,13 @@ export interface DailyReport {
     actualBalance: number | null;
     difference: number;
     confirmed: boolean;
+    expensesByCategory: Record<string, number>;
 }
 
 export interface StatsResponse {
     totalIncome: number;
     totalExpenses: number;
     totalDifference: number;
-    expensesByCategory: Record<string, number>;
     daily: DailyReport[];
 }
 

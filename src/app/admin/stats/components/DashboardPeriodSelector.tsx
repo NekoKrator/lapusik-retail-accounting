@@ -52,15 +52,20 @@ export default function DashboardPeriodSelector() {
         }
 
         setActivePeriod(type);
+        setCustomFrom(from.toISOString().split("T")[0]);
+        setCustomTo(to.toISOString().split("T")[0]);
         setRange(from, to);
     };
 
-    const handleCustomApply = () => {
-        if (!customFrom || !customTo) return;
-        const from = new Date(customFrom);
-        const to = new Date(customTo);
+    const handleCustomChange = (from: string, to: string) => {
+        setCustomFrom(from);
+        setCustomTo(to);
+
+        if (!from || !to) return;
+        const fromDate = new Date(from);
+        const toDate = new Date(to);
         setActivePeriod("custom");
-        setRange(from, to);
+        setRange(fromDate, toDate);
     };
 
     return (
@@ -86,33 +91,27 @@ export default function DashboardPeriodSelector() {
                             {p.label}
                         </button>
                     ))}
-                    <button
-                        className={`px-4 py-2 rounded-xl text-sm font-medium transition
-              ${
-                  activePeriod === "custom"
-                      ? "bg-blue-600 text-white"
-                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-              }`}
-                        onClick={handleCustomApply}
-                        disabled={!customFrom || !customTo}
-                    >
-                        Власний
-                    </button>
                 </div>
 
                 {/* Власний період */}
-                <div className="flex items-center gap-2 border rounded-xl px-3 py-2 bg-gray-50">
+                <div className="flex items-center gap-2">
                     <input
                         type="date"
                         value={customFrom}
-                        onChange={(e) => setCustomFrom(e.target.value)}
+                        max={customTo || undefined} // Перша дата не більше другої
+                        onChange={(e) =>
+                            handleCustomChange(e.target.value, customTo)
+                        }
                         className="border rounded px-2 py-1 text-sm"
                     />
                     <span className="text-gray-500">—</span>
                     <input
                         type="date"
                         value={customTo}
-                        onChange={(e) => setCustomTo(e.target.value)}
+                        min={customFrom || undefined} // Друга дата не менше першої
+                        onChange={(e) =>
+                            handleCustomChange(customFrom, e.target.value)
+                        }
                         className="border rounded px-2 py-1 text-sm"
                     />
                 </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { expenseCategories } from "@/lib/constants/expense-categories";
 import { StatsResponse } from "@/types/types";
 import { useSearchParams } from "next/navigation";
@@ -12,34 +12,16 @@ import ExpensesPieChart from "./components/ExpensesPieChart";
 import DailyReportsTable from "./components/DailyReportsTable";
 
 export default function StatsPage() {
-    const [stats, setStats] = useState<StatsResponse | null>(null);
+    const [allStats, setAllStats] = useState<StatsResponse | null>(null);
     const [loading, setLoading] = useState(true);
     const searchParams = useSearchParams();
 
     useEffect(() => {
         const fetchStats = async () => {
             try {
-                // беремо параметри з посилання
-                const fromParam = searchParams.get("from");
-                const toParam = searchParams.get("to");
-
-                // дефолт — поточний місяць
-                const now = new Date();
-                const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
-                const lastDay = new Date(
-                    now.getFullYear(),
-                    now.getMonth() + 1,
-                    0
-                );
-
-                const from = fromParam || firstDay.toISOString().split("T")[0];
-                const to = toParam || lastDay.toISOString().split("T")[0];
-
-                const res = await fetch(
-                    `/api/dashboard/stats?from=${from}&to=${to}`
-                );
+                const res = await fetch(`/api/dashboard/stats`);
                 const data = await res.json();
-                setStats(data);
+                setAllStats(data);
             } catch (err) {
                 console.error("Failed to load stats", err);
             } finally {
@@ -48,17 +30,54 @@ export default function StatsPage() {
         };
 
         fetchStats();
-    }, [searchParams]);
+    }, []);
+
+    // обробляємо параметри дат
+    const filteredStats = useMemo(() => {
+        if (!allStats) return null;
+
+        const fromParam = searchParams.get("from");
+        const toParam = searchParams.get("to");
+
+        // дефолт — поточний місяць
+        const now = new Date();
+        const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
+        const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+
+        const from = new Date(fromParam || firstDay);
+        const to = new Date(toParam || lastDay);
+
+        // фільтруємо daily
+        const daily = allStats.daily.filter((r) => {
+            const d = new Date(r.date);
+            return d >= from && d <= to;
+        });
+
+        // expenses за цей період
+        const expensesByCategory: Record<string, number> = {};
+        for (const day of daily) {
+            for (const [key, value] of Object.entries(day.expensesByCategory)) {
+                expensesByCategory[key] =
+                    (expensesByCategory[key] || 0) + (value as number);
+            }
+        }
+
+        return {
+            ...allStats,
+            daily,
+            expensesByCategory,
+        };
+    }, [allStats, searchParams]);
 
     if (loading) {
         return <p className="p-6">Завантаження...</p>;
     }
 
-    if (!stats) {
+    if (!filteredStats) {
         return <p className="p-6 text-red-600">Не вдалося завантажити дані</p>;
     }
 
-    const dailyWithFormattedDates = stats.daily.map((r) => ({
+    const dailyWithFormattedDates = filteredStats.daily.map((r) => ({
         ...r,
         formattedDate: new Date(r.date).toLocaleDateString("uk-UA", {
             day: "2-digit",
@@ -67,15 +86,15 @@ export default function StatsPage() {
         }),
     }));
 
-    const expensesData = Object.entries(stats.expensesByCategory).map(
-        ([key, value]) => {
-            const category = expenseCategories.find((c) => c.key === key);
+    const expensesData = Object.entries(filteredStats.expensesByCategory)
+        .filter(([key]) => expenseCategories.some((c) => c.key === key))
+        .map(([key, value]) => {
+            const category = expenseCategories.find((c) => c.key === key)!;
             return {
-                category: category ? category.label : key,
+                category: category.label,
                 value,
             };
-        }
-    );
+        });
 
     return (
         <div className="p-6 space-y-6">
@@ -83,17 +102,12 @@ export default function StatsPage() {
             <DashboardPeriodSelector />
 
             {/* Верхні картки */}
-            <DashboardCards data={stats} />
+            <DashboardCards data={filteredStats} />
 
             {/* Діаграми */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Лінійний графік виручки */}
                 <RevenueChart data={dailyWithFormattedDates} />
-
-                {/* Стовпчиковий графік витрат */}
                 <ExpensesBarChart data={expensesData} />
-
-                {/* Кругова діаграма структури витрат */}
                 <ExpensesPieChart data={expensesData} />
             </div>
 
