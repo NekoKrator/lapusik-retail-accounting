@@ -1,7 +1,6 @@
 "use client";
 
-import { useRouter, useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 
 const periods = [
@@ -11,61 +10,72 @@ const periods = [
     { key: "year", label: "Рік" },
 ];
 
-export default function DashboardPeriodSelector() {
-    const router = useRouter();
-    const searchParams = useSearchParams();
+type Props = {
+    from: string;
+    to: string;
+    onChangeRange: (from: string, to: string) => void;
+};
 
-    const [customFrom, setCustomFrom] = useState("");
-    const [customTo, setCustomTo] = useState("");
-    const [activePeriod, setActivePeriod] = useState<string | null>(null);
+export default function DashboardPeriodSelector({
+    from,
+    to,
+    onChangeRange,
+}: Props) {
+    const [customFrom, setCustomFrom] = useState(from);
+    const [customTo, setCustomTo] = useState(to);
+    const [activePeriod, setActivePeriod] = useState<string | null>("month");
 
-    const setRange = (from: Date, to: Date) => {
-        const params = new URLSearchParams(searchParams.toString());
-        params.set("from", from.toISOString().split("T")[0]);
-        params.set("to", to.toISOString().split("T")[0]);
-        router.push(`?${params.toString()}`);
-    };
+    useEffect(() => {
+        setCustomFrom(from);
+        setCustomTo(to);
+    }, [from, to]);
 
     const handleQuickSelect = (type: "day" | "week" | "month" | "year") => {
         const now = new Date();
-        let from: Date;
-        const to: Date = now;
+        let fromDate: Date;
+        const toDate = now;
+
+        const subtractDays = (days: number) => {
+            const d = new Date(now);
+            d.setDate(now.getDate() - days);
+            return d;
+        };
 
         switch (type) {
             case "day":
-                from = now;
+                fromDate = now;
                 break;
-            case "week": {
-                const firstDayOfWeek = new Date(now);
-                const day = now.getDay();
-                const diff = day === 0 ? -6 : 1 - day;
-                firstDayOfWeek.setDate(now.getDate() + diff);
-                from = firstDayOfWeek;
+            case "week":
+                fromDate = subtractDays(6);
                 break;
-            }
             case "month":
-                from = new Date(now.getFullYear(), now.getMonth(), 1);
+                fromDate = subtractDays(29);
                 break;
             case "year":
-                from = new Date(now.getFullYear(), 0, 1);
+                fromDate = subtractDays(364);
                 break;
         }
 
+        const format = (d: Date) => d.toISOString().split("T")[0];
+
+        const f = format(fromDate);
+        const t = format(toDate);
+
         setActivePeriod(type);
-        setCustomFrom(from.toISOString().split("T")[0]);
-        setCustomTo(to.toISOString().split("T")[0]);
-        setRange(from, to);
+        setCustomFrom(f);
+        setCustomTo(t);
+        onChangeRange(f, t);
     };
 
-    const handleCustomChange = (from: string, to: string) => {
-        setCustomFrom(from);
-        setCustomTo(to);
+    const handleCustomChange = (fromVal: string, toVal: string) => {
+        setCustomFrom(fromVal);
+        setCustomTo(toVal);
 
-        if (!from || !to) return;
-        const fromDate = new Date(from);
-        const toDate = new Date(to);
+        if (!fromVal || !toVal) return;
+        if (fromVal > toVal) return;
+
         setActivePeriod("custom");
-        setRange(fromDate, toDate);
+        onChangeRange(fromVal, toVal);
     };
 
     return (
@@ -76,12 +86,11 @@ export default function DashboardPeriodSelector() {
                     {periods.map((p) => (
                         <button
                             key={p.key}
-                            className={`px-4 py-2 rounded-xl text-sm font-medium transition
-                ${
-                    activePeriod === p.key
-                        ? "bg-blue-600 text-white"
-                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                }`}
+                            className={`px-4 py-2 rounded-xl text-sm font-medium transition ${
+                                activePeriod === p.key
+                                    ? "bg-blue-600 text-white"
+                                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                            }`}
                             onClick={() =>
                                 handleQuickSelect(
                                     p.key as "day" | "week" | "month" | "year"
