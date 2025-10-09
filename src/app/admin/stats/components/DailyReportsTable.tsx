@@ -5,7 +5,7 @@ import type { DailyReportsTable } from "@/types/types";
 
 export default function DailyReportsTable({ data }: DailyReportsTable) {
     return (
-        <Card>
+        <Card className="shadow-xl border-0 bg-white/95 backdrop-blur">
             <CardHeader>
                 <CardTitle>Щоденні звіти</CardTitle>
             </CardHeader>

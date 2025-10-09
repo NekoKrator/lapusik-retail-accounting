@@ -29,8 +29,13 @@ export function FinalCalculations({
             <CardContent className="space-y-4">
                 <div className="p-4 bg-yellow-50 rounded-lg border-2 border-yellow-200">
                     <div className="text-center">
-                        <div className="text-3xl font-bold text-yellow-700 mb-2">
-                            ₴{calculatedEveningBalance.toFixed(2)}
+                        <div className="relative inline-block">
+                            <span className="text-3xl font-bold text-yellow-700 mb-2">
+                                {calculatedEveningBalance.toFixed(2)}
+                            </span>
+                            <span className="absolute -right-6 top-0 text-3xl font-bold text-yellow-700">
+                                ₴
+                            </span>
                         </div>
                         <div className="text-lg font-medium text-yellow-800">
                             Розрахунковий залишок на вечір
@@ -54,7 +59,7 @@ export function FinalCalculations({
                             onActualEveningBalanceChange(e.target.value)
                         }
                         placeholder="Введіть після підрахунку каси"
-                        className="h-10"
+                        className="h-10 bg-white"
                     />
                     {actualBalance !== null && (
                         <div
@@ -73,7 +78,7 @@ export function FinalCalculations({
                                     <AlertCircle className="h-5 w-5" />
                                 )}
                                 <span>
-                                    Різниця: ₴{Math.abs(difference).toFixed(2)}
+                                    Різниця: {Math.abs(difference).toFixed(2)} ₴
                                     {difference < 0 && " (надлишок)"}
                                     {difference > 0 && " (нестача)"}
                                     {difference === 0 && " (збігається)"}

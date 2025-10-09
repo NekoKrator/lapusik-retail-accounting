@@ -142,6 +142,7 @@ export function MorningBalance({
 
                     <div className="flex gap-2">
                         <Input
+                            id="newBalanceAmount"
                             type="number"
                             min="0"
                             value={newBalanceAmount}
@@ -149,9 +150,10 @@ export function MorningBalance({
                                 onNewBalanceAmountChange(e.target.value)
                             }
                             placeholder="Додаткова сума"
-                            className="flex-1"
+                            className="flex-1 bg-white"
                         />
                         <Input
+                            id="newBalanceCategory"
                             type="text"
                             min="0"
                             value={newBalanceCategory}
@@ -159,14 +161,14 @@ export function MorningBalance({
                                 onNewBalanceCategoryChange(e.target.value)
                             }
                             placeholder="Джерело"
-                            className="flex-1"
+                            className="flex-1 bg-white"
                         />
                         <Button
                             type="button"
                             onClick={onAddBalance}
                             className="bg-green-600 hover:bg-green-700 text-white"
                         >
-                            <Plus className="h-4 w-4" />
+                            <Plus />
                         </Button>
                     </div>
 
@@ -184,7 +186,7 @@ export function MorningBalance({
                                 <span className="text-xl font-bold text-green-700">
                                     {totalMorningBalance.toFixed(2)}
                                 </span>
-                                <span className="absolute -right-5 top-0 text-lg font-bold text-green-700">
+                                <span className="absolute -right-4 top-0 text-xl font-bold text-green-700">
                                     ₴
                                 </span>
                             </div>

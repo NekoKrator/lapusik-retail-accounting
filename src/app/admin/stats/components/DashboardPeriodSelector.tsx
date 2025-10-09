@@ -79,7 +79,7 @@ export default function DashboardPeriodSelector({
     };
 
     return (
-        <Card>
+        <Card className="shadow-xl border-0 bg-white/95 backdrop-blur">
             <CardContent className="flex flex-wrap items-center justify-between gap-4">
                 {/* Кнопки періодів */}
                 <div className="flex gap-2">

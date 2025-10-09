@@ -148,6 +148,10 @@ export interface DailyReport {
 
 export interface StatsResponse {
     daily: DailyReport[];
+    expensesByCategory: Record<string, number>;
+    totalDifference: number;
+    totalExpenses: number;
+    totalIncome: number;
 }
 
 export interface DashboardCards {

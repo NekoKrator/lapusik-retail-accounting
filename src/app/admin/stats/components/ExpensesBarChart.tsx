@@ -13,8 +13,14 @@ import {
 import type { ExpensesBarChart } from "@/types/types";
 
 export default function ExpensesBarChart({ data }: ExpensesBarChart) {
+    const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"];
+
+    const tooltipFormatter = (value: number, name: string) => {
+        return [`${value} ₴`];
+    };
+
     return (
-        <Card>
+        <Card className="shadow-xl border-0 bg-white/95 backdrop-blur">
             <CardHeader>
                 <CardTitle>Витрати по категоріях</CardTitle>
             </CardHeader>
@@ -27,19 +33,12 @@ export default function ExpensesBarChart({ data }: ExpensesBarChart) {
                     >
                         <XAxis type="number" />
                         <YAxis type="category" dataKey="category" />
-                        <Tooltip />
+                        <Tooltip formatter={tooltipFormatter} />
                         <Bar dataKey="value">
                             {data.map((_, index) => (
                                 <Cell
                                     key={`cell-${index}`}
-                                    fill={
-                                        [
-                                            "#2563eb",
-                                            "#16a34a",
-                                            "#f59e0b",
-                                            "#dc2626",
-                                        ][index % 4]
-                                    }
+                                    fill={COLORS[index % COLORS.length]}
                                 />
                             ))}
                         </Bar>

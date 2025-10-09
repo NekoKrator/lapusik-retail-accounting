@@ -5,8 +5,40 @@ import { Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 import type { ExpensesPieChart } from "@/types/types";
 
 export default function ExpensesPieChart({ data }: ExpensesPieChart) {
+    const RADIAN = Math.PI / 180;
+    const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"];
+
+    const renderCustomizedLabel = ({
+        cx,
+        cy,
+        midAngle,
+        innerRadius,
+        outerRadius,
+        percent,
+    }: any) => {
+        const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
+        const x = cx + radius * Math.cos(-(midAngle ?? 0) * RADIAN);
+        const y = cy + radius * Math.sin(-(midAngle ?? 0) * RADIAN);
+
+        return (
+            <text
+                x={x}
+                y={y}
+                fill="white"
+                textAnchor={x > cx ? "start" : "end"}
+                dominantBaseline="central"
+            >
+                {`${((percent ?? 1) * 100).toFixed(0)}%`}
+            </text>
+        );
+    };
+
+    const tooltipFormatter = (value: number, name: string) => {
+        return [`${value} ₴`, name];
+    };
+
     return (
-        <Card className="md:col-span-2">
+        <Card className="shadow-xl border-0 bg-white/95 backdrop-blur">
             <CardHeader>
                 <CardTitle>Структура витрат</CardTitle>
             </CardHeader>
@@ -20,23 +52,18 @@ export default function ExpensesPieChart({ data }: ExpensesPieChart) {
                             cx="50%"
                             cy="50%"
                             outerRadius={100}
-                            label
+                            fill="#8884d8"
+                            labelLine={false}
+                            label={renderCustomizedLabel}
                         >
                             {data.map((_, index) => (
                                 <Cell
                                     key={`cell-${index}`}
-                                    fill={
-                                        [
-                                            "#2563eb",
-                                            "#dc2626",
-                                            "#16a34a",
-                                            "#f59e0b",
-                                        ][index % 4]
-                                    }
+                                    fill={COLORS[index % COLORS.length]}
                                 />
                             ))}
                         </Pie>
-                        <Tooltip />
+                        <Tooltip formatter={tooltipFormatter} />
                     </PieChart>
                 </ResponsiveContainer>
             </CardContent>

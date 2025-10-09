@@ -72,6 +72,7 @@ export function DebtorsSection({
             <CardContent className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-gray-50 rounded-lg">
                     <Input
+                        id="newDebtorName"
                         value={newDebtor.name}
                         onChange={(e) =>
                             setNewDebtor((prev) => ({
@@ -80,8 +81,10 @@ export function DebtorsSection({
                             }))
                         }
                         placeholder="Ім'я боржника"
+                        className="bg-white"
                     />
                     <Input
+                        id="newDebtorAmount"
                         type="number"
                         min="0"
                         value={newDebtor.amount}
@@ -92,6 +95,7 @@ export function DebtorsSection({
                             }))
                         }
                         placeholder="Сума боргу"
+                        className="bg-white"
                     />
                     <Button
                         type="button"
@@ -131,10 +135,11 @@ export function DebtorsSection({
                                     </span>
 
                                     <Input
+                                        id="writeOffAmounts"
                                         type="number"
                                         min="0"
                                         step="0.01"
-                                        className="w-24"
+                                        className="w-24 bg-white"
                                         placeholder="0.00"
                                         value={writeOffAmounts[debtor.id] || ""}
                                         onChange={(e) =>

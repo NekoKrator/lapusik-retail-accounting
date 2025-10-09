@@ -97,7 +97,12 @@ export function SuppliersSection({
                 {/* Add New Supplier */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-gray-50 rounded-lg">
                     <div className="flex flex-col md:flex-row gap-4 col-span-1 md:col-span-2">
-                        <Select ref={selectRef} defaultValue="" className="">
+                        <Select
+                            id="newSupplierName"
+                            ref={selectRef}
+                            defaultValue=""
+                            className="bg-white"
+                        >
                             {suppliers.map((supplier) => (
                                 <option
                                     key={supplier.id}
@@ -108,6 +113,7 @@ export function SuppliersSection({
                             ))}
                         </Select>
                         <Input
+                            id="newSupplierItemPricePerDelivery"
                             type="number"
                             min="0"
                             value={newSupplierItem.pricePerDelivery}
@@ -118,8 +124,10 @@ export function SuppliersSection({
                                 }))
                             }
                             placeholder="Ціна за поставку"
+                            className="bg-white"
                         />
                         <Input
+                            id="newSupplierItemPaidAmount"
                             type="number"
                             min="0"
                             value={newSupplierItem.paidAmount}
@@ -130,6 +138,7 @@ export function SuppliersSection({
                                 }))
                             }
                             placeholder="Сплачено"
+                            className="bg-white"
                         />
                     </div>
 

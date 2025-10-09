@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Select } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { TrendingDown, Plus, Trash2, AlertCircle } from "lucide-react";
 import { expenseCategories } from "@/lib/constants/expense-categories";
@@ -26,6 +27,8 @@ export function ExpensesSection({
         amount: "",
         category: "otherExpenses",
     });
+
+    const selectRef = useRef<HTMLSelectElement>(null);
 
     const handleAdd = () => {
         if (!newExpense.amount || Number(newExpense.amount) <= 0) {
@@ -62,6 +65,7 @@ export function ExpensesSection({
                 {/* Add New Expense */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-gray-50 rounded-lg">
                     <Input
+                        id="newExpenseAmount"
                         type="number"
                         min="0"
                         value={newExpense.amount}
@@ -72,23 +76,29 @@ export function ExpensesSection({
                             }))
                         }
                         placeholder="Сума"
+                        className="bg-white"
                     />
-                    <select
-                        value={newExpense.category}
+                    <Select
+                        id="newExpenseCategory"
+                        ref={selectRef}
+                        defaultValue={newExpense.category}
+                        className="bg-white"
                         onChange={(e) =>
                             setNewExpense((prev) => ({
                                 ...prev,
                                 category: e.target.value,
                             }))
                         }
-                        className="h-10 px-3 border border-gray-200 rounded-md focus:border-green-500 focus:ring-green-500"
                     >
-                        {expenseCategories.map((cat) => (
-                            <option key={cat.key} value={cat.key}>
-                                {cat.label}
+                        {expenseCategories.map((category) => (
+                            <option
+                                key={category.key}
+                                value={String(category.key)}
+                            >
+                                {category.label}
                             </option>
                         ))}
-                    </select>
+                    </Select>
                     <Button
                         type="button"
                         onClick={handleAdd}
@@ -118,10 +128,10 @@ export function ExpensesSection({
                                 </div>
                                 <div className="flex items-center gap-3">
                                     <span className="font-bold text-red-600">
-                                        ₴
                                         {typeof item.amount === "number"
                                             ? item.amount.toFixed(2)
-                                            : "0.00"}
+                                            : "0.00"}{" "}
+                                        ₴
                                     </span>
                                     <Button
                                         type="button"
@@ -137,12 +147,17 @@ export function ExpensesSection({
                         ))}
                         <div className="p-2 bg-red-50 rounded border border-red-200">
                             <div className="text-center">
-                                <span className="text-lg font-bold text-red-700">
-                                    ₴{totalExpenses.toFixed(2)}
-                                </span>
-                                <span className="text-sm text-red-600 ml-2">
+                                <div className="relative inline-block">
+                                    <span className="text-xl font-bold text-red-700">
+                                        {totalExpenses.toFixed(2)}
+                                    </span>
+                                    <span className="absolute -right-4 top-0 text-xl font-bold text-red-700">
+                                        ₴
+                                    </span>
+                                </div>
+                                <div className="text-sm text-red-600 ml-2">
                                     Загальні витрати
-                                </span>
+                                </div>
                             </div>
                         </div>
                     </div>

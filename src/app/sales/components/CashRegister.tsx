@@ -6,7 +6,7 @@ import {
     CardDescription,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+// import { Label } from "@/components/ui/label";
 import { Receipt } from "lucide-react";
 import type { CashRegisterProps } from "@/types/types";
 
@@ -27,22 +27,21 @@ export function CashRegister({
             </CardHeader>
             <CardContent className="flex flex-col space-y-4 h-full">
                 <div className="space-y-2">
-                    <Label
+                    {/* <Label
                         htmlFor="cashRegister"
                         className="text-sm font-medium text-gray-700"
                     >
                         Загальна сума виручки за день
-                    </Label>
+                    </Label> */}
                     <Input
                         id="cashRegister"
                         type="number"
                         min="0"
-                        value={totalCashRegister}
                         onChange={(e) =>
                             onTotalCashRegisterChange(Number(e.target.value))
                         }
                         placeholder="Введіть загальну суму"
-                        className="h-12 text-lg font-medium"
+                        className="h-12 text-lg bg-white"
                     />
                 </div>
 
@@ -52,7 +51,7 @@ export function CashRegister({
                             <span className="text-3xl font-bold text-blue-700 mb-2">
                                 {totalCashRegister.toFixed(2)}
                             </span>
-                            <span className="absolute -right-7 top-0 text-3xl font-bold text-blue-700">
+                            <span className="absolute -right-6 top-0 text-3xl font-bold text-blue-700">
                                 ₴
                             </span>
                         </div>

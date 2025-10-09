@@ -133,9 +133,10 @@ export default function StatsPage() {
             {/* Верхні картки */}
             <DashboardCards data={filteredStats} />
 
+            <RevenueChart data={dailyWithFormattedDates} />
+
             {/* Діаграми */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <RevenueChart data={dailyWithFormattedDates} />
                 <ExpensesBarChart data={expensesData} />
                 <ExpensesPieChart data={expensesData} />
             </div>

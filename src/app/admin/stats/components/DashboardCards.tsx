@@ -10,9 +10,11 @@ import {
 import type { DashboardCards } from "@/types/types";
 
 export default function DashboardCards({ data }: DashboardCards) {
+    console.log(data);
+
     return (
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <Card>
+            <Card className="shadow-xl border-0 bg-white/95 backdrop-blur">
                 <CardHeader className="flex flex-row items-center justify-between">
                     <CardTitle>Дохід</CardTitle>
                     <TrendingUp className="h-5 w-5 text-green-600" />
@@ -22,7 +24,7 @@ export default function DashboardCards({ data }: DashboardCards) {
                 </CardContent>
             </Card>
 
-            <Card>
+            <Card className="shadow-xl border-0 bg-white/95 backdrop-blur">
                 <CardHeader className="flex flex-row items-center justify-between">
                     <CardTitle>Витрати</CardTitle>
                     <ArrowDownCircle className="h-5 w-5 text-red-600" />
@@ -32,7 +34,7 @@ export default function DashboardCards({ data }: DashboardCards) {
                 </CardContent>
             </Card>
 
-            <Card>
+            <Card className="shadow-xl border-0 bg-white/95 backdrop-blur">
                 <CardHeader className="flex flex-row items-center justify-between">
                     <CardTitle>Прибуток</CardTitle>
                     <Wallet className="h-5 w-5 text-blue-600" />
@@ -44,7 +46,7 @@ export default function DashboardCards({ data }: DashboardCards) {
                 </CardContent>
             </Card>
 
-            <Card>
+            <Card className="shadow-xl border-0 bg-white/95 backdrop-blur">
                 <CardHeader className="flex flex-row items-center justify-between">
                     <CardTitle>Різниця</CardTitle>
                     <AlertTriangle className="h-5 w-5 text-yellow-600" />

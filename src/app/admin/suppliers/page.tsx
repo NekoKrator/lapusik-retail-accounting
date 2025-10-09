@@ -59,7 +59,7 @@ export default function SupplierPage() {
     }
 
     return (
-        <Card>
+        <Card className="shadow-xl border-0 bg-white/95 backdrop-blur">
             <CardHeader>
                 <CardTitle>Постачальники</CardTitle>
             </CardHeader>

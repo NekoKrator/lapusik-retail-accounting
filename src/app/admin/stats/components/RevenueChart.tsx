@@ -18,11 +18,11 @@ export default function RevenueChart({ data }: RevenueChart) {
         if (name === "income") label = "Доходи";
         else if (name === "expenses") label = "Витрати";
         else label = name;
-        return [`${value} грн`, label];
+        return [`${value} ₴`, label];
     };
 
     return (
-        <Card>
+        <Card className="shadow-xl border-0 bg-white/95 backdrop-blur">
             <CardHeader>
                 <CardTitle>Динаміка доходів/витрат</CardTitle>
             </CardHeader>

@@ -414,7 +414,8 @@ export default function SalesPage() {
                         className="h-12 font-medium"
                     >
                         <Truck className="h-5 w-5 mr-2" />
-                        Постачальники ({supplierPayments.length})
+                        Постачальники (
+                        {supplierPayments.filter((p) => !p.paidOff).length})
                     </Button>
                 </div>
 
