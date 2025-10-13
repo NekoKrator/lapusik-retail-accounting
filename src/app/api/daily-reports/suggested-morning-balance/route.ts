@@ -3,54 +3,14 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-function getUTCStartOfDay(date: Date) {
-    return new Date(
-        Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate())
-    );
-}
-
-function getUTCEndOfDay(date: Date) {
-    return new Date(
-        Date.UTC(
-            date.getUTCFullYear(),
-            date.getUTCMonth(),
-            date.getUTCDate(),
-            23,
-            59,
-            59,
-            999
-        )
-    );
-}
-
-async function getPreviousDayBalance(userId: string, currentDate: Date) {
-    const previousDay = new Date(currentDate);
-    previousDay.setUTCDate(currentDate.getUTCDate() - 1);
-
-    const startOfPreviousDay = getUTCStartOfDay(previousDay);
-    const endOfPreviousDay = getUTCEndOfDay(previousDay);
-
-    console.log("searching for report:", {
-        userId,
-        startOfPreviousDay,
-        endOfPreviousDay,
-    });
-
+async function getPreviousBalance(userId: string) {
+    // шукаємо останній звіт користувача
     const previousReport = await prisma.dailyCashReport.findFirst({
-        where: {
-            userId,
-            date: {
-                gte: startOfPreviousDay,
-                lte: endOfPreviousDay,
-            },
-        },
-        orderBy: {
-            date: "desc",
-        },
+        where: { userId },
+        orderBy: { createdAt: "desc" },
     });
 
-    console.log("found report:", previousReport);
-
+    // повертаємо актуальний або розрахований вечірній баланс, або 0, якщо звітів немає
     return (
         previousReport?.actualEveningBalance ??
         previousReport?.calculatedEveningBalance ??
@@ -79,10 +39,7 @@ export async function GET(request: Request) {
             );
         }
 
-        const suggestedMorningBalance = await getPreviousDayBalance(
-            userId,
-            date
-        );
+        const suggestedMorningBalance = await getPreviousBalance(userId);
 
         return NextResponse.json({ suggestedMorningBalance });
     } catch (error) {

@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useMemo } from "react";
 import { expenseCategories } from "@/lib/constants/expense-categories";
-import { StatsResponse } from "@/types/types";
+import { StatsResponse, User } from "@/types/types";
 import DashboardPeriodSelector from "./components/DashboardPeriodSelector";
 import DashboardCards from "./components/DashboardCards";
 import RevenueChart from "./components/RevenueChart";
@@ -12,10 +12,12 @@ import DailyReportsTable from "./components/DailyReportsTable";
 
 export default function StatsPage() {
     const [allStats, setAllStats] = useState<StatsResponse | null>(null);
+    const [users, setUsers] = useState<User[]>([]);
     const [loading, setLoading] = useState(true);
 
     const [from, setFrom] = useState<string>("");
     const [to, setTo] = useState<string>("");
+    const [selectedUser, setSelectedUser] = useState<string>("all");
 
     useEffect(() => {
         const now = new Date();
@@ -29,43 +31,119 @@ export default function StatsPage() {
     }, []);
 
     useEffect(() => {
-        const fetchStats = async () => {
+        const fetchData = async () => {
             try {
-                const res = await fetch(`/api/dashboard/stats`);
-                const data = await res.json();
-                setAllStats(data);
+                const [statsRes, usersRes] = await Promise.all([
+                    fetch(`/api/dashboard/stats`),
+                    fetch(`/api/users?role=user`),
+                ]);
+
+                const statsData = await statsRes.json();
+                const usersData = await usersRes.json();
+
+                setAllStats(statsData);
+                setUsers(usersData);
             } catch (err) {
-                console.error("Failed to load stats", err);
+                console.error("Failed to load stats or users", err);
             } finally {
                 setLoading(false);
             }
         };
 
-        fetchStats();
+        fetchData();
     }, []);
 
-    // обробляємо параметри дат
+    // обробка і фільтрація статистики
     const filteredStats = useMemo(() => {
         if (!allStats) return null;
 
         const fromDate = from ? new Date(from) : null;
         const toDate = to ? new Date(to) : null;
 
-        const daily =
-            fromDate && toDate
-                ? allStats.daily.filter((r) => {
-                      const d = new Date(r.date);
-                      return d >= fromDate && d <= toDate;
-                  })
-                : allStats.daily;
+        // фільтрація по датах
+        let filtered = allStats.daily;
+        if (fromDate && toDate) {
+            filtered = filtered.filter((r) => {
+                const d = new Date(r.date);
+                return d >= fromDate && d <= toDate;
+            });
+        }
 
+        // фільтрація по користувачу
+        if (selectedUser !== "all") {
+            filtered = filtered.filter((r) => r.userId === selectedUser);
+        }
+
+        // групування за userId + date
+        const groupedMap = new Map<string, any>();
+
+        for (const entry of filtered) {
+            const key =
+                selectedUser === "all"
+                    ? `${entry.date}`
+                    : `${entry.userId}-${entry.date}`;
+
+            if (!groupedMap.has(key)) {
+                groupedMap.set(key, {
+                    userId: selectedUser === "all" ? "all" : entry.userId,
+                    date: entry.date,
+                    morningBalance: entry.morningBalance ?? 0,
+                    additionalBalance: 0,
+                    cashRegister: 0,
+                    expenses: 0,
+                    difference: 0,
+                    expensesByCategory: {},
+                    expectedBalance: entry.expectedBalance ?? 0,
+                    actualBalance: entry.actualBalance ?? 0,
+                    firstRecordTime: new Date(
+                        entry.createdAt || entry.date
+                    ).getTime(),
+                    lastRecordTime: new Date(
+                        entry.createdAt || entry.date
+                    ).getTime(),
+                });
+            }
+
+            const agg = groupedMap.get(key);
+            const entryTime = new Date(entry.createdAt || entry.date).getTime();
+
+            // сумування числових показників
+            agg.cashRegister += entry.cashRegister ?? 0;
+            agg.additionalBalance += entry.additionalBalance ?? 0;
+            agg.expenses += entry.expenses ?? 0;
+            agg.difference += entry.difference ?? 0;
+
+            // якщо поточний запис раніший — оновлюємо morningBalance
+            if (entryTime < agg.firstRecordTime) {
+                agg.morningBalance = entry.morningBalance ?? 0;
+                agg.firstRecordTime = entryTime;
+            }
+
+            // якщо пізніший — оновлюємо evening balances
+            if (entryTime > agg.lastRecordTime) {
+                agg.expectedBalance = entry.expectedBalance ?? null;
+                agg.actualBalance = entry.actualBalance ?? null;
+                agg.lastRecordTime = entryTime;
+            }
+
+            // сумування витрат за категоріями
+            for (const [cat, val] of Object.entries(entry.expensesByCategory)) {
+                agg.expensesByCategory[cat] =
+                    (agg.expensesByCategory[cat] || 0) + (val as number);
+            }
+        }
+
+        const aggregatedDaily = Array.from(groupedMap.values());
+
+        // загальна статистика
         const expensesByCategory: Record<string, number> = {};
         let totalIncome = 0;
         let totalExpenses = 0;
         let totalDifference = 0;
 
-        for (const day of daily) {
-            totalIncome += day.income ?? 0;
+        for (const day of aggregatedDaily) {
+            totalIncome +=
+                (day.cashRegister ?? 0) + (day.additionalBalance ?? 0);
             totalExpenses += day.expenses ?? 0;
             totalDifference += day.difference ?? 0;
 
@@ -77,19 +155,13 @@ export default function StatsPage() {
 
         return {
             ...allStats,
-            daily,
+            daily: aggregatedDaily,
             expensesByCategory,
             totalIncome,
             totalExpenses,
             totalDifference,
-        } as StatsResponse & {
-            daily: typeof allStats.daily;
-            expensesByCategory: Record<string, number>;
-            totalIncome: number;
-            totalExpenses: number;
-            totalDifference: number;
         };
-    }, [allStats, from, to]);
+    }, [allStats, from, to, selectedUser]);
 
     if (loading) {
         return <p className="p-6">Завантаження...</p>;
@@ -120,6 +192,19 @@ export default function StatsPage() {
 
     return (
         <div className="space-y-6">
+            <select
+                value={selectedUser}
+                onChange={(e) => setSelectedUser(e.target.value)}
+                className="border border-gray-300 rounded-lg px-3 py-2 text-sm"
+            >
+                <option value="all">Усі користувачі</option>
+                {users.map((user) => (
+                    <option key={user.id} value={user.id}>
+                        {user.username}
+                    </option>
+                ))}
+            </select>
+
             {/* Період статистики */}
             <DashboardPeriodSelector
                 from={from}
@@ -130,19 +215,32 @@ export default function StatsPage() {
                 }}
             />
 
-            {/* Верхні картки */}
-            <DashboardCards data={filteredStats} />
+            {/* Якщо даних немає */}
+            {!filteredStats ||
+            !filteredStats.daily ||
+            filteredStats.daily.length === 0 ? (
+                <div className="p-6 text-center text-gray-600">
+                    <p className="text-lg font-medium">Дані відсутні</p>
+                    <p className="text-sm text-gray-500">
+                        Спробуй змінити період або обрати іншого користувача.
+                    </p>
+                </div>
+            ) : (
+                <>
+                    {/* Верхні картки */}
+                    <DashboardCards data={filteredStats} />
 
-            <RevenueChart data={dailyWithFormattedDates} />
+                    {/* Графіки */}
+                    <RevenueChart data={dailyWithFormattedDates} />
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <ExpensesBarChart data={expensesData} />
+                        <ExpensesPieChart data={expensesData} />
+                    </div>
 
-            {/* Діаграми */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <ExpensesBarChart data={expensesData} />
-                <ExpensesPieChart data={expensesData} />
-            </div>
-
-            {/* Таблиця щоденних звітів */}
-            <DailyReportsTable data={dailyWithFormattedDates} />
+                    {/* Таблиця */}
+                    <DailyReportsTable data={dailyWithFormattedDates} />
+                </>
+            )}
         </div>
     );
 }

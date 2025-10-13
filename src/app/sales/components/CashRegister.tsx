@@ -37,6 +37,7 @@ export function CashRegister({
                         id="cashRegister"
                         type="number"
                         min="0"
+                        value={totalCashRegister === 0 ? "" : totalCashRegister}
                         onChange={(e) =>
                             onTotalCashRegisterChange(Number(e.target.value))
                         }

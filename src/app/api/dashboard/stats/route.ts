@@ -21,18 +21,20 @@ export async function GET(req: NextRequest) {
 
         const daily = reports.map((r) => ({
             date: r.date,
-            income: r.totalCashRegister,
+            morningBalance: r.morningBalance,
+            additionalBalance: r.additionalBalance,
+            cashRegister: r.totalCashRegister,
             expenses: r.totalExpenses,
             expectedBalance: r.calculatedEveningBalance,
             actualBalance: r.actualEveningBalance,
-            difference: r.difference,
+            difference: -r.difference, // зміна знаку різниці (у бд додатна різниця відповідає недостачі)
             confirmed: r.isConfirmed,
             expensesByCategory: r.breakdown || {},
+            userId: r.userId,
+            createdAt: r.createdAt,
         }));
 
-        return NextResponse.json({
-            daily,
-        });
+        return NextResponse.json({ daily });
     } catch (err) {
         console.error(err);
         return NextResponse.json({ error: "Server error" }, { status: 500 });

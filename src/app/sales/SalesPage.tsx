@@ -79,6 +79,11 @@ export default function SalesPage() {
         setTimeout(() => setError(null), 3000);
     }, []);
 
+    const handleSuccess = useCallback((successMessage: string) => {
+        setSuccess(successMessage);
+        setTimeout(() => setSuccess(null), 3000);
+    }, []);
+
     const {
         debtors,
         fetchDebtors,
@@ -261,9 +266,11 @@ export default function SalesPage() {
         (sum, item) => sum + item.amount,
         0
     );
-    const totalMorningBalance =
-        baseMorningBalance +
-        additionalBalances.reduce((sum, item) => sum + item.amount, 0);
+    const totalAdditionalBalance = additionalBalances.reduce(
+        (sum, item) => sum + item.amount,
+        0
+    );
+    const totalMorningBalance = baseMorningBalance + totalAdditionalBalance;
     const calculatedEveningBalance =
         totalMorningBalance + totalCashRegister - totalExpenses;
     const actualBalance = actualEveningBalance
@@ -279,7 +286,13 @@ export default function SalesPage() {
         setLoading(true);
 
         if (!session?.user) {
-            setError("Не авторизовано");
+            handleError("Не авторизовано");
+            setLoading(false);
+            return;
+        }
+
+        if (actualEveningBalance === "" || actualEveningBalance === null) {
+            handleError("Вкажіть фактичний залишок на вечір перед збереженням");
             setLoading(false);
             return;
         }
@@ -310,12 +323,15 @@ export default function SalesPage() {
             const reportData = {
                 date: new Date().toISOString().split("T")[0],
                 userId: session.user.id,
-                morningBalance: totalMorningBalance,
+                morningBalance: baseMorningBalance,
+                additionalBalance: totalAdditionalBalance,
                 totalCashRegister,
                 breakdown,
-                actualEveningBalance: actualEveningBalance
-                    ? Number(actualEveningBalance)
-                    : null,
+                actualEveningBalance:
+                    actualEveningBalance !== null &&
+                    actualEveningBalance !== undefined
+                        ? Number(actualEveningBalance)
+                        : null,
             };
 
             const res = await fetch("/api/daily-reports", {
@@ -331,13 +347,19 @@ export default function SalesPage() {
                 );
             }
 
-            setSuccess("Звіт успішно збережено!");
+            // успішно збережено — оновлюємо стани
+            const savedReport = await res.json();
+
+            // сервер повертає актуальний morningBalance
+            setBaseMorningBalance(savedReport.suggestedMorningBalance);
+
+            handleSuccess("Звіт успішно збережено!");
             clearDraft();
             setNewBalanceAmount("");
             setTotalCashRegister(0);
         } catch (err) {
             const error = err instanceof Error ? err.message : String(err);
-            setError(error);
+            handleError(error);
         } finally {
             setLoading(false);
         }
@@ -486,25 +508,29 @@ export default function SalesPage() {
                     />
 
                     {/* Alerts */}
-                    {error && (
-                        <Alert
-                            variant="destructive"
-                            className="bg-red-50 border-red-200"
-                        >
-                            <AlertCircle className="h-4 w-4" />
-                            <AlertDescription className="text-red-700">
-                                {error}
-                            </AlertDescription>
-                        </Alert>
-                    )}
+                    {(error || success) && (
+                        <div className="fixed top-2 left-1/2 transform -translate-x-1/2 z-50 space-y-2 w-full max-w-md">
+                            {error && (
+                                <Alert
+                                    variant="destructive"
+                                    className="bg-red-50 border-red-200"
+                                >
+                                    <AlertCircle className="h-4 w-4" />
+                                    <AlertDescription className="text-red-700">
+                                        {error}
+                                    </AlertDescription>
+                                </Alert>
+                            )}
 
-                    {success && (
-                        <Alert className="bg-green-50 border-green-200">
-                            <CheckCircle className="h-4 w-4 text-green-600" />
-                            <AlertDescription className="text-green-700">
-                                {success}
-                            </AlertDescription>
-                        </Alert>
+                            {success && (
+                                <Alert className="bg-green-50 border-green-200">
+                                    <CheckCircle className="h-4 w-4 text-green-600" />
+                                    <AlertDescription className="text-green-700">
+                                        {success}
+                                    </AlertDescription>
+                                </Alert>
+                            )}
+                        </div>
                     )}
 
                     {/* Submit Button */}

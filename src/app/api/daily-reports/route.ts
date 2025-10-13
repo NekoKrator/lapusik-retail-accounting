@@ -3,26 +3,48 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-async function getPreviousDayBalance(userId: string, date: Date) {
-    const previousDay = new Date(date);
-    previousDay.setDate(previousDay.getDate() - 1);
+export async function GET(request: NextRequest) {
+    try {
+        const { searchParams } = new URL(request.url);
+        const userId = searchParams.get("userId");
+        const date = searchParams.get("date");
 
-    const previousReport = await prisma.dailyCashReport.findFirst({
-        where: {
-            userId: userId,
-            date: {
-                gte: new Date(previousDay.setHours(0, 0, 0, 0)),
-                lte: new Date(previousDay.setHours(23, 59, 59, 999)),
+        if (!userId || !date) {
+            return NextResponse.json(
+                { error: "userId and date are required" },
+                { status: 400 }
+            );
+        }
+
+        // межі доби
+        const start = new Date(date);
+        start.setHours(0, 0, 0, 0);
+        const end = new Date(date);
+        end.setHours(23, 59, 59, 999);
+
+        const report = await prisma.dailyCashReport.findFirst({
+            where: {
+                userId,
+                date: {
+                    gte: start,
+                    lte: end,
+                },
             },
-        },
-        orderBy: { date: "desc" },
-    });
+            include: { breakdown: true },
+        });
 
-    return (
-        previousReport?.actualEveningBalance ||
-        previousReport?.calculatedEveningBalance ||
-        0
-    );
+        if (!report) {
+            return NextResponse.json({}, { status: 200 });
+        }
+
+        return NextResponse.json(report, { status: 200 });
+    } catch (error) {
+        console.error("[GET /api/daily-reports] Error:", error);
+        return NextResponse.json(
+            { error: "Internal Server Error" },
+            { status: 500 }
+        );
+    }
 }
 
 export async function POST(request: NextRequest) {
@@ -59,12 +81,6 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        // get the remainder of the previous day
-        const suggestedMorningBalance = await getPreviousDayBalance(
-            data.userId,
-            new Date(data.date)
-        );
-
         // calculate the total amount of expenses
         const b = data.breakdown;
         const totalExpenses =
@@ -79,28 +95,39 @@ export async function POST(request: NextRequest) {
             (b.otherExpenses || 0);
 
         // calculate total available amount (morning balance + cash)
-        const totalAvailable = data.morningBalance + data.totalCashRegister;
+        const totalAvailable =
+            data.morningBalance +
+            data.totalCashRegister +
+            data.additionalBalance;
 
         // calculate the expected balance for the evening
         const calculatedEveningBalance = totalAvailable - totalExpenses;
 
+        const actualEveningBalance =
+            data.actualEveningBalance !== null &&
+            data.actualEveningBalance !== undefined
+                ? Number(data.actualEveningBalance)
+                : null;
+
         // calculate the difference (if there is an actual balance)
-        const difference = data.actualEveningBalance
-            ? calculatedEveningBalance - data.actualEveningBalance
-            : 0;
+        const difference =
+            actualEveningBalance !== null
+                ? calculatedEveningBalance - actualEveningBalance
+                : 0;
 
         const newReport = await prisma.dailyCashReport.create({
             data: {
                 userId: data.userId,
                 date: new Date(data.date),
                 morningBalance: data.morningBalance,
+                additionalBalance: data.additionalBalance,
                 totalCashRegister: data.totalCashRegister,
                 totalAvailable: totalAvailable,
                 totalExpenses: totalExpenses,
                 calculatedEveningBalance: calculatedEveningBalance,
-                actualEveningBalance: data.actualEveningBalance || null,
+                actualEveningBalance: actualEveningBalance,
                 difference: difference,
-                isConfirmed: data.actualEveningBalance ? true : false,
+                isConfirmed: actualEveningBalance !== null,
                 breakdown: {
                     create: {
                         terminalExpenses: data.breakdown.terminalExpenses || 0,
@@ -117,6 +144,10 @@ export async function POST(request: NextRequest) {
             },
             include: { breakdown: true },
         });
+
+        // get the remainder of the previous day
+        const suggestedMorningBalance =
+            data.actualEveningBalance ?? calculatedEveningBalance ?? 0;
 
         return NextResponse.json(
             { newReport, suggestedMorningBalance, totalAvailable },

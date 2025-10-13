@@ -10,8 +10,6 @@ import {
 import type { DashboardCards } from "@/types/types";
 
 export default function DashboardCards({ data }: DashboardCards) {
-    console.log(data);
-
     return (
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <Card className="shadow-xl border-0 bg-white/95 backdrop-blur">
@@ -41,7 +39,10 @@ export default function DashboardCards({ data }: DashboardCards) {
                 </CardHeader>
                 <CardContent>
                     <p className="text-2xl font-bold">
-                        {data.totalIncome - data.totalExpenses} ₴
+                        {data.totalIncome -
+                            data.totalExpenses +
+                            data.totalDifference}{" "}
+                        ₴
                     </p>
                 </CardContent>
             </Card>

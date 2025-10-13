@@ -57,6 +57,7 @@ model DailyCashReport {
   date   DateTime
 
   morningBalance           Float // cash in register at the start of the day
+  additionalBalance        Float // additional cash receipts
   totalCashRegister        Float // total income received during the day (cash + card)
   totalAvailable           Float // morningBalance + totalCashRegister
   totalExpenses            Float // total amount of all expenses from breakdown

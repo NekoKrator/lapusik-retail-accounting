@@ -8,6 +8,8 @@ export default function ExpensesPieChart({ data }: ExpensesPieChart) {
     const RADIAN = Math.PI / 180;
     const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"];
 
+    const filteredData = data.filter((item) => item.value !== 0);
+
     const renderCustomizedLabel = ({
         cx,
         cy,
@@ -46,7 +48,7 @@ export default function ExpensesPieChart({ data }: ExpensesPieChart) {
                 <ResponsiveContainer width="100%" height={300}>
                     <PieChart>
                         <Pie
-                            data={data}
+                            data={filteredData}
                             dataKey="value"
                             nameKey="category"
                             cx="50%"

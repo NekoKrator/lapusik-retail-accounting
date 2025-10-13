@@ -15,21 +15,21 @@ export default function DailyReportsTable({ data }: DailyReportsTable) {
                         <thead className="bg-gray-100">
                             <tr>
                                 <th className="px-4 py-2 text-left">Дата</th>
+                                <th className="px-4 py-2 text-right">
+                                    Ранковий залишок
+                                </th>
+                                <th className="px-4 py-2 text-right">
+                                    Додаткові надходження
+                                </th>
                                 <th className="px-4 py-2 text-right">Дохід</th>
                                 <th className="px-4 py-2 text-right">
                                     Витрати
-                                </th>
-                                <th className="px-4 py-2 text-right">
-                                    Очікуваний прибуток
                                 </th>
                                 <th className="px-4 py-2 text-right">
                                     Фактичний прибуток
                                 </th>
                                 <th className="px-4 py-2 text-right">
                                     Різниця
-                                </th>
-                                <th className="px-4 py-2 text-center">
-                                    Підтверджено
                                 </th>
                             </tr>
                         </thead>
@@ -40,13 +40,16 @@ export default function DailyReportsTable({ data }: DailyReportsTable) {
                                         {report.formattedDate}
                                     </td>
                                     <td className="px-4 py-2 text-right">
-                                        {report.income.toFixed(2)} ₴
+                                        {report.morningBalance.toFixed(2)} ₴
+                                    </td>
+                                    <td className="px-4 py-2 text-right">
+                                        {report.additionalBalance.toFixed(2)} ₴
+                                    </td>
+                                    <td className="px-4 py-2 text-right">
+                                        {report.cashRegister.toFixed(2)} ₴
                                     </td>
                                     <td className="px-4 py-2 text-right">
                                         {report.expenses.toFixed(2)} ₴
-                                    </td>
-                                    <td className="px-4 py-2 text-right">
-                                        {report.expectedBalance.toFixed(2)} ₴
                                     </td>
                                     <td className="px-4 py-2 text-right">
                                         {report.actualBalance !== null
@@ -63,17 +66,6 @@ export default function DailyReportsTable({ data }: DailyReportsTable) {
                                         }`}
                                     >
                                         {report.difference.toFixed(2)} ₴
-                                    </td>
-                                    <td className="px-4 py-2 text-center">
-                                        {report.confirmed ? (
-                                            <span className="text-green-600 font-medium">
-                                                Так
-                                            </span>
-                                        ) : (
-                                            <span className="text-red-600 font-medium">
-                                                Ні
-                                            </span>
-                                        )}
                                     </td>
                                 </tr>
                             ))}

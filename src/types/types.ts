@@ -137,13 +137,17 @@ export type DraftData = {
 
 export interface DailyReport {
     date: string;
-    income: number;
+    morningBalance: number;
+    additionalBalance: number;
+    cashRegister: number;
     expenses: number;
     expectedBalance: number;
     actualBalance: number | null;
     difference: number;
     confirmed: boolean;
     expensesByCategory: Record<string, number>;
+    userId: string;
+    createdAt: Date;
 }
 
 export interface StatsResponse {
@@ -162,12 +166,11 @@ export interface RevenueChart {
     data: {
         formattedDate: string;
         date: string;
-        income: number;
+        cashRegister: number;
         expenses: number;
         expectedBalance: number;
         actualBalance: number | null;
         difference: number;
-        confirmed: boolean;
     }[];
 }
 
@@ -183,11 +186,12 @@ export interface DailyReportsTable {
     data: {
         formattedDate: string;
         date: string;
-        income: number;
+        morningBalance: number;
+        additionalBalance: number;
+        cashRegister: number;
         expenses: number;
         expectedBalance: number;
         actualBalance: number | null;
         difference: number;
-        confirmed: boolean;
     }[];
 }

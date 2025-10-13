@@ -15,7 +15,7 @@ import type { RevenueChart } from "@/types/types";
 export default function RevenueChart({ data }: RevenueChart) {
     const tooltipFormatter = (value: number, name: string) => {
         let label;
-        if (name === "income") label = "Доходи";
+        if (name === "cashRegister") label = "Доходи";
         else if (name === "expenses") label = "Витрати";
         else label = name;
         return [`${value} ₴`, label];
@@ -35,7 +35,7 @@ export default function RevenueChart({ data }: RevenueChart) {
                         <Tooltip formatter={tooltipFormatter} />
                         <Area
                             type="monotone"
-                            dataKey="income"
+                            dataKey="cashRegister"
                             stroke="#2563eb"
                             fill="#2563eb"
                         />
