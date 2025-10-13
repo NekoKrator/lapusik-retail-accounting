@@ -53,6 +53,51 @@ export default function StatsPage() {
         fetchData();
     }, []);
 
+    function sumAllUsersByDate(dailyStats: any[]) {
+        if (!dailyStats || dailyStats.length === 0) return [];
+
+        const aggregated = new Map<string, any>();
+
+        for (const entry of dailyStats) {
+            const key = entry.date;
+
+            if (!aggregated.has(key)) {
+                aggregated.set(key, {
+                    date: entry.date,
+                    morningBalance: 0,
+                    additionalBalance: 0,
+                    cashRegister: 0,
+                    expenses: 0,
+                    difference: 0,
+                    expectedBalance: 0,
+                    actualBalance: 0,
+                    expensesByCategory: {},
+                });
+            }
+
+            const dayAgg = aggregated.get(key);
+
+            // Сумуємо всі числові поля
+            dayAgg.morningBalance += entry.morningBalance ?? 0;
+            dayAgg.additionalBalance += entry.additionalBalance ?? 0;
+            dayAgg.cashRegister += entry.cashRegister ?? 0;
+            dayAgg.expenses += entry.expenses ?? 0;
+            dayAgg.difference += entry.difference ?? 0;
+            dayAgg.expectedBalance += entry.expectedBalance ?? 0;
+            dayAgg.actualBalance += entry.actualBalance ?? 0;
+
+            // Сумуємо витрати по категоріях
+            for (const [cat, val] of Object.entries(
+                entry.expensesByCategory || {}
+            )) {
+                dayAgg.expensesByCategory[cat] =
+                    (dayAgg.expensesByCategory[cat] || 0) + (val as number);
+            }
+        }
+
+        return Array.from(aggregated.values());
+    }
+
     // обробка і фільтрація статистики
     const filteredStats = useMemo(() => {
         if (!allStats) return null;
@@ -78,14 +123,11 @@ export default function StatsPage() {
         const groupedMap = new Map<string, any>();
 
         for (const entry of filtered) {
-            const key =
-                selectedUser === "all"
-                    ? `${entry.date}`
-                    : `${entry.userId}-${entry.date}`;
+            const key = `${entry.userId}-${entry.date}`;
 
             if (!groupedMap.has(key)) {
                 groupedMap.set(key, {
-                    userId: selectedUser === "all" ? "all" : entry.userId,
+                    userId: entry.userId,
                     date: entry.date,
                     morningBalance: entry.morningBalance ?? 0,
                     additionalBalance: 0,
@@ -133,7 +175,11 @@ export default function StatsPage() {
             }
         }
 
-        const aggregatedDaily = Array.from(groupedMap.values());
+        let aggregatedDaily = Array.from(groupedMap.values());
+
+        if (selectedUser === "all") {
+            aggregatedDaily = sumAllUsersByDate(aggregatedDaily);
+        }
 
         // загальна статистика
         const expensesByCategory: Record<string, number> = {};
