@@ -7,9 +7,9 @@ const prisma = new PrismaClient();
 export async function GET(req: NextRequest) {
     const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
 
-    // if (!token || token.role !== "admin") {
-    //     return NextResponse.json({ error: "Access denied" }, { status: 403 });
-    // }
+    if (!token /*|| token.role !== "admin"*/) {
+        return NextResponse.json({ error: "Access denied" }, { status: 403 });
+    }
 
     try {
         const suppliers = await prisma.supplier.findMany();

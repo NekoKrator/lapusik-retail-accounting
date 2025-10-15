@@ -15,7 +15,7 @@ import type { ExpensesBarChart } from "@/types/types";
 export default function ExpensesBarChart({ data }: ExpensesBarChart) {
     const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"];
 
-    const tooltipFormatter = (value: number, name: string) => {
+    const tooltipFormatter = (value: number) => {
         return [`${value} ₴`];
     };
 

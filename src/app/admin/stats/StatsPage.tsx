@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useMemo } from "react";
 import { expenseCategories } from "@/lib/constants/expense-categories";
-import { StatsResponse, User } from "@/types/types";
+import { DailyReport, StatsResponse, User } from "@/types/types";
 import DashboardPeriodSelector from "./components/DashboardPeriodSelector";
 import DashboardCards from "./components/DashboardCards";
 import RevenueChart from "./components/RevenueChart";
@@ -53,10 +53,10 @@ export default function StatsPage() {
         fetchData();
     }, []);
 
-    function sumAllUsersByDate(dailyStats: any[]) {
+    function sumAllUsersByDate(dailyStats: DailyReport[]): DailyReport[] {
         if (!dailyStats || dailyStats.length === 0) return [];
 
-        const aggregated = new Map<string, any>();
+        const aggregated = new Map<string, DailyReport>();
 
         for (const entry of dailyStats) {
             const key = entry.date;
@@ -72,10 +72,16 @@ export default function StatsPage() {
                     expectedBalance: 0,
                     actualBalance: 0,
                     expensesByCategory: {},
+                    firstRecordTime: new Date(
+                        entry.createdAt || entry.date
+                    ).getTime(),
+                    lastRecordTime: new Date(
+                        entry.createdAt || entry.date
+                    ).getTime(),
                 });
             }
 
-            const dayAgg = aggregated.get(key);
+            const dayAgg = aggregated.get(key)!;
 
             // Сумуємо всі числові поля
             dayAgg.morningBalance += entry.morningBalance ?? 0;
@@ -120,7 +126,7 @@ export default function StatsPage() {
         }
 
         // групування за userId + date
-        const groupedMap = new Map<string, any>();
+        const groupedMap = new Map<string, DailyReport>();
 
         for (const entry of filtered) {
             const key = `${entry.userId}-${entry.date}`;
@@ -146,7 +152,7 @@ export default function StatsPage() {
                 });
             }
 
-            const agg = groupedMap.get(key);
+            const agg = groupedMap.get(key)!;
             const entryTime = new Date(entry.createdAt || entry.date).getTime();
 
             // сумування числових показників
@@ -163,8 +169,9 @@ export default function StatsPage() {
 
             // якщо пізніший — оновлюємо evening balances
             if (entryTime > agg.lastRecordTime) {
-                agg.expectedBalance = entry.expectedBalance ?? null;
-                agg.actualBalance = entry.actualBalance ?? null;
+                agg.expectedBalance =
+                    entry.expectedBalance ?? agg.expectedBalance;
+                agg.actualBalance = entry.actualBalance ?? agg.actualBalance;
                 agg.lastRecordTime = entryTime;
             }
 

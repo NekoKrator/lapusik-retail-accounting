@@ -1,7 +1,14 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
+import {
+    Tooltip,
+    ResponsiveContainer,
+    PieChart,
+    Pie,
+    Cell,
+    PieLabelRenderProps,
+} from "recharts";
 import type { ExpensesPieChart } from "@/types/types";
 
 export default function ExpensesPieChart({ data }: ExpensesPieChart) {
@@ -10,17 +17,17 @@ export default function ExpensesPieChart({ data }: ExpensesPieChart) {
 
     const filteredData = data.filter((item) => item.value !== 0);
 
-    const renderCustomizedLabel = ({
-        cx,
-        cy,
-        midAngle,
-        innerRadius,
-        outerRadius,
-        percent,
-    }: any) => {
+    const renderCustomizedLabel = (props: PieLabelRenderProps) => {
+        const cx = Number(props.cx ?? 0);
+        const cy = Number(props.cy ?? 0);
+        const midAngle = Number(props.midAngle ?? 0);
+        const innerRadius = Number(props.innerRadius ?? 0);
+        const outerRadius = Number(props.outerRadius ?? 0);
+        const percent = Number(props.percent ?? 0);
+
         const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
-        const x = cx + radius * Math.cos(-(midAngle ?? 0) * RADIAN);
-        const y = cy + radius * Math.sin(-(midAngle ?? 0) * RADIAN);
+        const x = cx + radius * Math.cos(-midAngle * RADIAN);
+        const y = cy + radius * Math.sin(-midAngle * RADIAN);
 
         return (
             <text
@@ -30,7 +37,7 @@ export default function ExpensesPieChart({ data }: ExpensesPieChart) {
                 textAnchor={x > cx ? "start" : "end"}
                 dominantBaseline="central"
             >
-                {`${((percent ?? 1) * 100).toFixed(0)}%`}
+                {`${(percent * 100).toFixed(0)}%`}
             </text>
         );
     };

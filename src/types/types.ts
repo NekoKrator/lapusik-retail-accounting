@@ -136,18 +136,19 @@ export type DraftData = {
 };
 
 export interface DailyReport {
+    userId?: string;
     date: string;
     morningBalance: number;
     additionalBalance: number;
     cashRegister: number;
     expenses: number;
-    expectedBalance: number;
-    actualBalance: number | null;
     difference: number;
-    confirmed: boolean;
+    expectedBalance: number;
+    actualBalance: number;
     expensesByCategory: Record<string, number>;
-    userId: string;
-    createdAt: Date;
+    createdAt?: string;
+    firstRecordTime: number;
+    lastRecordTime: number;
 }
 
 export interface StatsResponse {
