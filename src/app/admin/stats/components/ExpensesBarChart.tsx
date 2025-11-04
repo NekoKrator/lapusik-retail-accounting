@@ -20,7 +20,7 @@ export default function ExpensesBarChart({ data }: ExpensesBarChart) {
     };
 
     return (
-        <Card className="shadow-xl border-0 bg-white/95 backdrop-blur">
+        <Card className="shadow-xl border-0 bg-white/95">
             <CardHeader>
                 <CardTitle>Витрати по категоріях</CardTitle>
             </CardHeader>

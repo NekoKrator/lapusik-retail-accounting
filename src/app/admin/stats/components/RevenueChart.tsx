@@ -22,7 +22,7 @@ export default function RevenueChart({ data }: RevenueChart) {
     };
 
     return (
-        <Card className="shadow-xl border-0 bg-white/95 backdrop-blur">
+        <Card className="shadow-xl border-0 bg-white/95">
             <CardHeader>
                 <CardTitle>Динаміка доходів/витрат</CardTitle>
             </CardHeader>

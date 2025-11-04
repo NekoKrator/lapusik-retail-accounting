@@ -47,7 +47,7 @@ export default function ExpensesPieChart({ data }: ExpensesPieChart) {
     };
 
     return (
-        <Card className="shadow-xl border-0 bg-white/95 backdrop-blur">
+        <Card className="shadow-xl border-0 bg-white/95">
             <CardHeader>
                 <CardTitle>Структура витрат</CardTitle>
             </CardHeader>
