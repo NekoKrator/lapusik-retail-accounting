@@ -35,7 +35,7 @@ export default function StatsPage() {
             try {
                 const [statsRes, usersRes] = await Promise.all([
                     fetch(`/api/dashboard/stats`),
-                    fetch(`/api/users?role=user`),
+                    fetch(`/api/users`),
                 ]);
 
                 const statsData = await statsRes.json();

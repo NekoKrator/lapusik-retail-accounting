@@ -29,7 +29,7 @@ export interface LoadingScreenProps {
 export type UserRole = "admin" | "user";
 
 export interface RoleGuardProps {
-    requiredRole: UserRole;
+    requiredRoles: UserRole[];
     children: React.ReactNode;
     loadingMessage?: string;
     redirectMessage?: string;

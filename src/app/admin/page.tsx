@@ -5,7 +5,7 @@ import AdminDashboardPage from "./AdminDashboard";
 export default function AdminPage() {
     return (
         <RoleGuard
-            requiredRole="admin"
+            requiredRoles={["admin"]}
             loadingMessage="Перевірка адмін доступу..."
         >
             <AdminDashboardPage />

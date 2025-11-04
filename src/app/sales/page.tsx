@@ -5,7 +5,7 @@ import SalesDashboardPage from "./SalesPage";
 export default function SalesPage() {
     return (
         <RoleGuard
-            requiredRole="user"
+            requiredRoles={["user", "admin"]}
             loadingMessage="Перевірка доступу до продажів..."
         >
             <SalesDashboardPage />

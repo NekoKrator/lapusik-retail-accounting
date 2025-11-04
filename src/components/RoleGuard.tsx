@@ -1,13 +1,13 @@
 "use client";
 
+import { useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
 import LoadingScreen from "@/components/LoadingScreen";
-import type { RoleGuardProps } from "@/types/types";
+import type { RoleGuardProps, UserRole } from "@/types/types";
 
 export default function RoleGuard({
-    requiredRole,
+    requiredRoles,
     children,
     loadingMessage = "Перевірка доступу...",
     redirectMessage = "Перенаправлення...",
@@ -15,19 +15,21 @@ export default function RoleGuard({
     const { data: session, status } = useSession();
     const router = useRouter();
 
+    const userRole = session?.user?.role as UserRole | undefined;
+
     useEffect(() => {
         if (status === "loading") return;
 
-        if (!session || session.user.role !== requiredRole) {
-            router.push("/login");
+        if (!userRole || !requiredRoles.includes(userRole)) {
+            router.replace("/login");
         }
-    }, [session, status, router, requiredRole]);
+    }, [session, status, userRole, router, requiredRoles]);
 
     if (status === "loading") {
         return <LoadingScreen message={loadingMessage} />;
     }
 
-    if (!session || session.user.role !== requiredRole) {
+    if (!userRole || !requiredRoles.includes(userRole)) {
         return <LoadingScreen message={redirectMessage} />;
     }
 
