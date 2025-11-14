@@ -1,24 +1,23 @@
 import { NextRequest, NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
-import { getToken } from "next-auth/jwt";
+import { requireAuth } from "@/lib/auth-utils";
+import z from "zod";
 
 const prisma = new PrismaClient();
 
-export async function GET(req: NextRequest) {
-    const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
+const debtorSchema = z.object({
+    name: z.string().trim().min(1),
+    currentDebt: z.number().positive(),
+});
 
-    if (!token) {
-        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+export async function GET(req: NextRequest) {
+    const { token, error } = await requireAuth(req);
+    if (error) return error;
 
     try {
         const debtors = await prisma.debtor.findMany({
-            where: {
-                userId: token.id as string,
-            },
-            orderBy: {
-                createdAt: "desc",
-            },
+            where: { userId: token.id as string },
+            orderBy: { createdAt: "desc" },
         });
 
         return NextResponse.json(debtors);
@@ -32,43 +31,35 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-    const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
-
-    if (!token) {
-        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    const { token, error } = await requireAuth(req);
+    if (error) return error;
 
     try {
         const body = await req.json();
-        const { name, amount } = body;
+        const parsed = debtorSchema.safeParse(body);
 
-        if (!name || typeof name !== "string" || name.trim().length === 0) {
+        if (!parsed.success) {
             return NextResponse.json(
-                { error: "Invalid debtor name" },
+                { error: z.flattenError(parsed.error) },
                 { status: 400 }
             );
         }
 
-        if (typeof amount !== "number" || amount <= 0) {
-            return NextResponse.json(
-                { error: "Invalid debt amount" },
-                { status: 400 }
-            );
-        }
+        const { name, currentDebt } = parsed.data;
 
-        const existing = await prisma.debtor.findFirst({
+        const debtor = await prisma.debtor.findFirst({
             where: {
-                name: name.trim(),
                 userId: token.id as string,
+                name: name.trim(),
             },
         });
 
-        if (existing) {
+        if (debtor) {
             const updated = await prisma.debtor.update({
-                where: { id: existing.id },
+                where: { userId: token.id as string, id: debtor.id },
                 data: {
-                    amount: existing.amount + amount,
-                    updatedAt: new Date(),
+                    currentDebt: { increment: currentDebt },
+                    totalDebt: { increment: currentDebt },
                 },
             });
             return NextResponse.json(updated, { status: 200 });
@@ -76,9 +67,10 @@ export async function POST(req: NextRequest) {
 
         const newDebtor = await prisma.debtor.create({
             data: {
-                name: name.trim(),
-                amount: amount,
                 userId: token.id as string,
+                name: name.trim(),
+                currentDebt: currentDebt,
+                totalDebt: currentDebt,
             },
         });
 

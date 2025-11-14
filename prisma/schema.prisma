@@ -14,68 +14,66 @@ datasource db {
 }
 
 model User {
-  id              String            @id @default(uuid())
-  username        String            @unique
-  password        String
-  role            String            @default("user") // 'admin' or 'user'
-  DailyCashReport DailyCashReport[]
-  debtors         Debtor[]
-  payment 		  SupplierPayment[]
+  id                 String            @id @default(uuid())
+  username           String            @unique
+  password           String
+  role               String            @default("user") // 'admin' or 'user'
+  shifts             Shift[]
+  debtors            Debtor[]
+  supplierDeliveries SupplierDelivery[]
 }
 
 model Supplier {
-  id        String            @id @default(uuid())
-  name      String            @unique
-  totalDebt Float             @default(0) // total outstanding debt owed to supplier
-  payments  SupplierPayment[]
+  id         String             @id @default(uuid())
+  name       String             @unique
+  deliveries SupplierDelivery[]
 }
 
-enum PaymentType {
-  CASH // payment made in cash (from store register)
-  OWNER // payment made by owner personally
+model SupplierDelivery {
+  id            String              @id @default(uuid())
+  supplierId    String
+  supplier      Supplier            @relation(fields: [supplierId], references: [id], onDelete: Cascade)
+  userId        String
+  user          User                @relation(fields: [userId], references: [id])
+
+  totalPrice    Float               // total cost of delivery
+  paidByCashier Float   @default(0) // the amount paid by the cashier
+  paidByOwner   Float   @default(0) // the amount paid by the owner
+  debt          Float   @default(0)
+
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
 }
 
-model SupplierPayment {
-  id          String      @id @default(uuid())
-  supplierId  String
-  supplier    Supplier    @relation(fields: [supplierId], references: [id])
-  userId 	  String
-  user        User        @relation(fields: [userId], references: [id])
-
-  totalPrice  Float
-  debt        Float
-  paymentType PaymentType @default(CASH)
-  paidOff 	  Boolean     @default(false)
-
-  date        DateTime    @default(now())
+enum PaymentSource {
+  CASHIER
+  OWNER
 }
 
-model DailyCashReport {
-  id     String   @id @default(uuid())
-  userId String
-  user   User     @relation(fields: [userId], references: [id])
-  date   DateTime
+model Shift {
+  id                       String   @id @default(uuid())
+  userId                   String
+  user                     User     @relation(fields: [userId], references: [id])
 
-  morningBalance           Float // cash in register at the start of the day
-  additionalBalance        Float // additional cash receipts
-  totalCashRegister        Float // total income received during the day (cash + card)
-  totalAvailable           Float // morningBalance + totalCashRegister
-  totalExpenses            Float // total amount of all expenses from breakdown
-  calculatedEveningBalance Float // totalAvailable - totalExpenses (expected balance)
-  actualEveningBalance     Float? // actual cash counted in register at end of day
-  isConfirmed              Boolean @default(false) // whether cashier confirmed actual count
-  difference               Float   @default(0) // calculatedEveningBalance - actualEveningBalance
+  openedAt                 DateTime  @default(now())
+  closedAt                 DateTime?
 
-  breakdown CashReportBreakdown? // optional detailed breakdown of expenses and payments\
+  isClosed                 Boolean   @default(false)
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  openingBalance           Float // cash in register at the start of the day
+  additionalBalance        Float? // additional cash receipts
+  totalCashRegister        Float? // total income received during the day (cash + card)
+  expensesBalance          Float? // total amount of all expenses from breakdown
+  calculatedClosingBalance Float? // expected cash counted in register at end of day
+  actualClosingBalance     Float? // actual cash counted in register at end of day
+
+  breakdown                ExpensesReportBreakdown? // optional detailed breakdown of expenses and payments
 }
 
-model CashReportBreakdown {
-  id       String          @id @default(uuid())
-  reportId String          @unique
-  report   DailyCashReport @relation(fields: [reportId], references: [id])
+model ExpensesReportBreakdown {
+  id       String        @id @default(uuid())
+  shiftId  String        @unique
+  shift    Shift         @relation(fields: [shiftId], references: [id])
 
   terminalExpenses Float @default(0) // payments made by card (terminal)
   rent             Float @default(0) // rent expenses
@@ -89,14 +87,16 @@ model CashReportBreakdown {
 }
 
 model Debtor {
-  id     String   @id @default(uuid())
-  name   String
-  amount Float    @default(0)
-  date   DateTime @default(now())
+  id          String   @id @default(uuid())
+  name        String
+  currentDebt Float    @default(0)
+  totalDebt   Float    @default(0)
 
-  userId String
-  user   User   @relation(fields: [userId], references: [id])
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
+
+

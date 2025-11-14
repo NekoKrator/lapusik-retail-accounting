@@ -1,15 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
-import { getToken } from "next-auth/jwt";
+import { requireAuth } from "@/lib/auth-utils";
+import z from "zod";
 
 const prisma = new PrismaClient();
 
-export async function GET(req: NextRequest) {
-    const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
+const supplierSchema = z.object({
+    name: z.string().trim().min(1),
+});
 
-    if (!token /*|| token.role !== "admin"*/) {
-        return NextResponse.json({ error: "Access denied" }, { status: 403 });
-    }
+export async function GET(req: NextRequest) {
+    const { error } = await requireAuth(req);
+    if (error) return error;
 
     try {
         const suppliers = await prisma.supplier.findMany();
@@ -24,31 +26,39 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-    const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
-
-    if (!token || token.role !== "admin") {
-        return NextResponse.json({ error: "Access denied" }, { status: 403 });
-    }
-
-    const body = await req.json();
-    const { name, totalDebt } = body;
-
-    if (!name || typeof name !== "string") {
-        return NextResponse.json(
-            { error: "Invalid supplier name" },
-            { status: 400 }
-        );
-    }
+    const { error } = await requireAuth(req, ["admin"]);
+    if (error) return error;
 
     try {
+        const body = await req.json();
+        const parsed = supplierSchema.safeParse(body);
+
+        if (!parsed.success) {
+            return NextResponse.json(
+                { error: z.flattenError(parsed.error) },
+                { status: 400 }
+            );
+        }
+
+        const { name } = parsed.data;
+
         const newSupplier = await prisma.supplier.create({
             data: {
                 name,
-                totalDebt: totalDebt ?? 0,
             },
         });
 
-        return NextResponse.json(newSupplier);
+        const result = {
+            supplierId: newSupplier.id,
+            supplierName: newSupplier.name,
+            operationsCount: 0,
+            paidByCashier: 0,
+            paidByOwner: 0,
+            totalPaid: 0,
+            currentDebt: 0,
+        };
+
+        return NextResponse.json(result);
     } catch (error) {
         console.error("Failed to create supplier:", error);
         return NextResponse.json(

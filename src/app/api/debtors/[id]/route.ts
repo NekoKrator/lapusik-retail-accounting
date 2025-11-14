@@ -1,26 +1,52 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getToken } from "next-auth/jwt";
 import { PrismaClient } from "@prisma/client";
+import { requireAuth } from "@/lib/auth-utils";
+import z from "zod";
 
 const prisma = new PrismaClient();
 
-export async function DELETE(req: NextRequest) {
-    const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
+const idSchema = z.object({
+    id: z.uuid(),
+});
 
-    if (!token) {
-        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+const updateDebtorSchema = z.object({
+    currentDebt: z.number().nonnegative().optional(),
+    totalDebt: z.number().nonnegative().optional(),
+});
+
+export async function PATCH(
+    req: NextRequest,
+    context: { params: Promise<{ id: string }> }
+) {
+    const { token, error } = await requireAuth(req);
+    if (error) return error;
+
+    const { id } = await context.params;
+    const idCheck = idSchema.safeParse({ id });
+
+    if (!idCheck.success) {
+        return NextResponse.json(
+            { error: z.flattenError(idCheck.error) },
+            { status: 400 }
+        );
     }
 
     try {
-        const url = new URL(req.url);
-        const id = url.pathname.split("/").pop();
+        const body = await req.json();
+        const parsed = updateDebtorSchema.safeParse(body);
 
-        if (!id) {
-            return NextResponse.json({ error: "Missing ID" }, { status: 400 });
+        if (!parsed.success) {
+            console.log(z.flattenError(parsed.error));
+            return NextResponse.json(
+                { error: z.flattenError(parsed.error) },
+                { status: 400 }
+            );
         }
 
-        const debtor = await prisma.debtor.findFirst({
-            where: { id, userId: token.id as string },
+        const { currentDebt, totalDebt } = parsed.data;
+
+        const debtor = await prisma.debtor.findUnique({
+            where: { userId: token.id as string, id },
         });
 
         if (!debtor) {
@@ -30,66 +56,11 @@ export async function DELETE(req: NextRequest) {
             );
         }
 
-        await prisma.debtor.delete({ where: { id } });
-
-        return NextResponse.json({
-            message: "Debtor deleted successfully",
-            debtAmount: debtor.amount,
-            debtorName: debtor.name,
-        });
-    } catch (err) {
-        console.error(err);
-        return NextResponse.json(
-            { error: "Internal server error" },
-            { status: 500 }
-        );
-    }
-}
-
-export async function PATCH(req: NextRequest) {
-    const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
-
-    if (!token) {
-        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
-    try {
-        const url = new URL(req.url);
-        const id = url.pathname.split("/").pop();
-
-        if (!id) {
-            return NextResponse.json({ error: "Missing ID" }, { status: 400 });
-        }
-
-        const body = await req.json();
-        const { amount } = body;
-
-        if (typeof amount !== "number" || amount < 0) {
-            return NextResponse.json(
-                { error: "Invalid debt amount" },
-                { status: 400 }
-            );
-        }
-
-        const existingDebtor = await prisma.debtor.findFirst({
-            where: {
-                id,
-                userId: token.id as string,
-            },
-        });
-
-        if (!existingDebtor) {
-            return NextResponse.json(
-                { error: "Debtor not found" },
-                { status: 404 }
-            );
-        }
-
         const updatedDebtor = await prisma.debtor.update({
-            where: { id },
+            where: { userId: token.id as string, id },
             data: {
-                amount,
-                updatedAt: new Date(),
+                currentDebt: currentDebt ?? debtor.currentDebt,
+                totalDebt: totalDebt ?? debtor.totalDebt,
             },
         });
 
@@ -98,6 +69,51 @@ export async function PATCH(req: NextRequest) {
         console.error("Failed to update debtor:", error);
         return NextResponse.json(
             { error: "Failed to update debtor" },
+            { status: 500 }
+        );
+    }
+}
+
+export async function DELETE(
+    req: NextRequest,
+    context: { params: Promise<{ id: string }> }
+) {
+    const { token, error } = await requireAuth(req);
+    if (error) return error;
+
+    const { id } = await context.params;
+    const idCheck = idSchema.safeParse({ id });
+
+    if (!idCheck.success) {
+        return NextResponse.json(
+            { error: z.flattenError(idCheck.error) },
+            { status: 400 }
+        );
+    }
+
+    try {
+        const debtor = await prisma.debtor.findUnique({
+            where: { userId: token.id as string, id },
+        });
+
+        if (!debtor) {
+            return NextResponse.json(
+                { error: "Debtor not found" },
+                { status: 404 }
+            );
+        }
+
+        await prisma.debtor.delete({
+            where: { userId: token.id as string, id },
+        });
+
+        return NextResponse.json({
+            message: "Debtor deleted successfully",
+        });
+    } catch (err) {
+        console.error(err);
+        return NextResponse.json(
+            { error: "Internal server error" },
             { status: 500 }
         );
     }

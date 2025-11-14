@@ -1,100 +1,191 @@
+import { User } from "@/types/types";
 import { useState, useCallback } from "react";
-import type { DebtorItem } from "@/types/types";
 
-export function useDebtors(handleError: (msg: string) => void) {
+export type DebtorItem = {
+    id: string;
+    name: string;
+    currentDebt: number;
+    totalDebt: number;
+
+    userId: string;
+    user?: User;
+
+    createdAt: Date;
+    updatedAt: Date;
+};
+
+export type CreateDebtorInput = {
+    name: string;
+    currentDebt: number;
+};
+
+export type UpdateDeliveryInput = {
+    id: string;
+    currentDebt?: number;
+    totalDebt?: number;
+};
+
+export function useDebtors() {
     const [debtors, setDebtors] = useState<DebtorItem[]>([]);
+    const [loading, setLoading] = useState(false);
+    const [refreshing, setRefreshing] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
     const fetchDebtors = useCallback(async () => {
         try {
+            setLoading(true);
+            setError(null);
+
             const res = await fetch("/api/debtors");
-            if (!res.ok) throw new Error("Failed to fetch debtors");
+            if (!res.ok) throw new Error("Не вдалося завантажити боржників");
+
             const data: DebtorItem[] = await res.json();
-
-            const normalized = data.map((d) => ({
-                ...d,
-                createdAt: new Date(d.createdAt),
-            }));
-
-            setDebtors(normalized);
-        } catch {
-            handleError("Не вдалося завантажити боржників");
+            setDebtors(data);
+        } catch (err) {
+            setError(
+                err instanceof Error ? err.message : "Помилка завантаження"
+            );
+        } finally {
+            setLoading(false);
         }
-    }, [handleError]);
-
-    const addOrUpdateDebtor = useCallback((newDebtor: DebtorItem) => {
-        if (!newDebtor) {
-            console.warn("addOrUpdateDebtor called with undefined or null");
-            return;
-        }
-        setDebtors((prev) => {
-            const idx = prev.findIndex((d) => d.id === newDebtor.id);
-            if (idx !== -1) {
-                const updated = [...prev];
-                updated[idx] = newDebtor;
-                return updated;
-            }
-            return [...prev, newDebtor];
-        });
     }, []);
 
-    const addDebtor = useCallback(
-        async (debtor: Omit<DebtorItem, "id">) => {
-            try {
-                const res = await fetch("/api/debtors", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        ...debtor,
-                        date: new Date().toISOString().split("T")[0],
-                    }),
-                });
-                if (!res.ok) {
-                    const err = await res.json();
-                    throw new Error(
-                        err.error || "Помилка при створенні боржника"
-                    );
+    const refresh = useCallback(async () => {
+        setRefreshing(true);
+        await fetchDebtors();
+        setRefreshing(false);
+    }, [fetchDebtors]);
+
+    const addDebtor = useCallback(async (data: CreateDebtorInput) => {
+        try {
+            setError(null);
+
+            const res = await fetch("/api/debtors", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(data),
+            });
+
+            if (!res.ok) {
+                const body = await res.json();
+                throw new Error(body.error || "Помилка при створенні боржника");
+            }
+
+            const newDebtor: DebtorItem = await res.json();
+
+            setDebtors((prev) => {
+                const idx = prev.findIndex((d) => d.id === newDebtor.id);
+                if (idx !== -1) {
+                    const updated = [...prev];
+                    updated[idx] = newDebtor;
+                    return updated;
                 }
-                const created = await res.json();
-                addOrUpdateDebtor({
-                    ...created,
-                    createdAt: new Date(created.createdAt),
+                return [...prev, newDebtor];
+            });
+
+            return newDebtor;
+        } catch (err) {
+            setError(err instanceof Error ? err.message : "Помилка створення");
+            throw err;
+        }
+    }, []);
+
+    const updateDebtor = useCallback(
+        async ({ id, ...data }: UpdateDeliveryInput) => {
+            try {
+                setError(null);
+
+                const res = await fetch(`/api/debtors/${id}`, {
+                    method: "PATCH",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(data),
                 });
-            } catch (error) {
-                handleError(
-                    error instanceof Error ? error.message : "Невідома помилка"
+
+                if (!res.ok) {
+                    const body = await res.json();
+                    throw new Error(body.error || "Помилка оновлення боржника");
+                }
+
+                const updated: DebtorItem = await res.json();
+
+                setDebtors((prev) =>
+                    prev.map((d) => (d.id === id ? { ...d, ...updated } : d))
                 );
+
+                return updated;
+            } catch (err) {
+                setError(
+                    err instanceof Error ? err.message : "Помилка оновлення"
+                );
+                throw err;
             }
         },
-        [addOrUpdateDebtor, handleError]
+        []
     );
 
-    const removeDebtor = useCallback(
-        async (id: string) => {
+    const writeOffDebtor = useCallback(
+        async ({ id, ...data }: UpdateDeliveryInput) => {
             try {
-                const res = await fetch(`/api/debtors/${id}`, {
-                    method: "DELETE",
+                setError(null);
+
+                const res = await fetch(`/api/debtors/${id}/writeoff`, {
+                    method: "PATCH",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(data),
                 });
+
                 if (!res.ok) {
-                    const err = await res.json();
-                    throw new Error(
-                        err.error || "Помилка при видаленні боржника"
-                    );
+                    const body = await res.json();
+                    throw new Error(body.error || "Помилка списання боргу");
                 }
-                setDebtors((prev) => prev.filter((d) => d.id !== id));
-            } catch (error) {
-                handleError(
-                    error instanceof Error ? error.message : "Невідома помилка"
+
+                const updated: DebtorItem = await res.json();
+
+                setDebtors((prev) =>
+                    prev.map((d) => (d.id === id ? { ...d, ...updated } : d))
                 );
+
+                return updated;
+            } catch (err) {
+                setError(
+                    err instanceof Error ? err.message : "Помилка оновлення"
+                );
+                throw err;
             }
         },
-        [handleError]
+        []
     );
+
+    const deleteDebtor = useCallback(async (id: string) => {
+        try {
+            setError(null);
+
+            const res = await fetch(`/api/debtors/${id}`, {
+                method: "DELETE",
+            });
+
+            if (!res.ok) {
+                const body = await res.json();
+                throw new Error(body.error || "Помилка видалення боржника");
+            }
+
+            setDebtors((prev) => prev.filter((d) => d.id !== id));
+        } catch (err) {
+            setError(err instanceof Error ? err.message : "Помилка видалення");
+            throw err;
+        }
+    }, []);
 
     return {
         debtors,
+        loading,
+        refreshing,
+        error,
         fetchDebtors,
         addDebtor,
-        removeDebtor,
-        addOrUpdateDebtor,
+        updateDebtor,
+        writeOffDebtor,
+        deleteDebtor,
+        refresh,
     };
 }

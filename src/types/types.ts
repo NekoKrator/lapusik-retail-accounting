@@ -1,8 +1,8 @@
-export interface User {
+export type User = {
     id: string;
     username: string;
     role: string;
-}
+};
 
 export type Expenses = {
     terminalExpenses: number;
@@ -19,7 +19,6 @@ export type Expenses = {
 export type Supplier = {
     id: string;
     name: string;
-    totalDebt: number;
 };
 
 export interface LoadingScreenProps {
@@ -41,13 +40,6 @@ export interface ExpenseItem {
     category: string;
 }
 
-export interface DebtorItem {
-    id: string;
-    name: string;
-    amount: number;
-    createdAt: Date;
-}
-
 export type PaymentType = "CASH" | "OWNER";
 
 export interface SupplierItem {
@@ -67,10 +59,10 @@ export interface BalanceItem {
     category: string;
 }
 
-export interface PreviousDayInfo {
+export interface PreviousDayData {
     date: string;
-    actualEveningBalance?: number;
-    calculatedEveningBalance: number;
+    actualEveningBalance: number;
+    calculatedEveningBalance?: number;
 }
 
 export interface MorningBalanceProps {
@@ -83,17 +75,9 @@ export interface MorningBalanceProps {
     onAddBalance: () => void;
     onRemoveBalance: (id: string) => void;
     totalMorningBalance: number;
-    previousDayInfo?: PreviousDayInfo | null;
+    previousDayInfo?: PreviousDayData | null;
     isLoading?: boolean;
 }
-
-export type DebtorsSectionProps = {
-    debtors: DebtorItem[];
-    onAddDebtor: (debtor: Omit<DebtorItem, "id">) => Promise<void> | void;
-    onRemoveDebtor: (id: string) => Promise<void> | void;
-    onWriteOffDebtor: (id: string, amount: number) => Promise<void> | void;
-    onError: (errorMessage: string) => void;
-};
 
 export interface SuppliersSectionProps {
     suppliers: Supplier[];
@@ -106,12 +90,6 @@ export interface SuppliersSectionProps {
     onRemoveSupplier: (id: string) => void;
     onAddExpense: (expense: Omit<ExpenseItem, "id">) => void;
     onError: (error: string) => void;
-}
-
-export interface PreviousDayData {
-    date: string;
-    actualEveningBalance?: number;
-    calculatedEveningBalance: number;
 }
 
 export interface LocalStorageData {

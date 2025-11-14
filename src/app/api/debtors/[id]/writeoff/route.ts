@@ -1,65 +1,72 @@
 import { NextRequest, NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
-import { getToken } from "next-auth/jwt";
+import { requireAuth } from "@/lib/auth-utils";
+import z from "zod";
 
 const prisma = new PrismaClient();
+
+const idSchema = z.object({
+    id: z.uuid(),
+});
+
+const writeoffDebtorSchema = z.object({
+    currentDebt: z.number().positive(),
+});
 
 export async function PATCH(
     req: NextRequest,
     context: { params: Promise<{ id: string }> }
 ) {
-    const params = await context.params;
-    const { id } = params;
+    const { token, error } = await requireAuth(req);
+    if (error) return error;
 
-    const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
+    const { id } = await context.params;
+    const idCheck = idSchema.safeParse({ id });
 
-    if (!token) {
-        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
-    if (!id) {
+    if (!idCheck.success) {
         return NextResponse.json(
-            { error: "Debtor ID is required" },
+            { error: z.flattenError(idCheck.error) },
             { status: 400 }
         );
     }
 
     try {
         const body = await req.json();
-        const { amount } = body;
+        const parsed = writeoffDebtorSchema.safeParse(body);
 
-        if (typeof amount !== "number" || amount <= 0) {
+        if (!parsed.success) {
             return NextResponse.json(
-                { error: "Invalid amount" },
+                { error: z.flattenError(parsed.error) },
                 { status: 400 }
             );
         }
 
-        const debtor = await prisma.debtor.findUnique({ where: { id } });
+        const { currentDebt } = parsed.data;
 
-        if (!debtor || debtor.userId !== token.id) {
+        const debtor = await prisma.debtor.findUnique({
+            where: { userId: token.id as string, id },
+        });
+
+        if (!debtor) {
             return NextResponse.json(
-                { error: "Debtor not found or unauthorized" },
+                { error: "Debtor not found" },
                 { status: 404 }
             );
         }
 
-        if (amount > debtor.amount) {
+        if (currentDebt > debtor.currentDebt) {
             return NextResponse.json(
-                { error: "Amount exceeds debtor balance" },
+                { error: "currentDebt exceeds debtor debt" },
                 { status: 400 }
             );
         }
 
-        const updatedDebtor = await prisma.debtor.update({
-            where: { id },
-            data: {
-                amount: debtor.amount - amount,
-                updatedAt: new Date(),
-            },
+        const updated = await prisma.debtor.update({
+            where: { userId: token.id as string, id },
+            data: { currentDebt: { decrement: currentDebt } },
         });
 
-        return NextResponse.json({ updatedDebtor, amountWrittenOff: amount });
+        return NextResponse.json(updated);
     } catch (error) {
         console.error("Failed to write off debt:", error);
         return NextResponse.json(

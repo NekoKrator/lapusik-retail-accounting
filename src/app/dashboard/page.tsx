@@ -14,13 +14,12 @@ export default function RedirectPage() {
                 router.push("/login");
                 return;
             }
-
             switch (session.user.role) {
                 case "admin":
-                    router.push("/admin");
+                    router.push("/admin/suppliers");
                     break;
                 case "user":
-                    router.push("/sales");
+                    router.push("/shift");
                     break;
                 default:
                     router.push("/login");
@@ -32,7 +31,5 @@ export default function RedirectPage() {
         return <LoadingScreen message="Перевірка авторизації..." />;
     }
 
-    return (
-        <LoadingScreen message="Перенаправлення, будь ласка, зачекайте..." />
-    );
+    return <LoadingScreen message="Перенаправлення..." />;
 }

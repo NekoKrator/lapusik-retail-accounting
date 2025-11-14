@@ -1,21 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
-import { getToken } from "next-auth/jwt";
+import { requireAuth } from "@/lib/auth-utils";
 
 const prisma = new PrismaClient();
 
 export async function GET(req: NextRequest) {
-    const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
-
-    if (!token || token.role !== "admin") {
-        return NextResponse.json({ error: "Access denied" }, { status: 403 });
-    }
+    const { error } = await requireAuth(req, ["admin"]);
+    if (error) return error;
 
     try {
         const { searchParams } = new URL(req.url);
         const role = searchParams.get("role");
 
-        const where = role ? { role } : {}; // якщо не передано роль — повертаємо всіх
+        const where = role ? { role } : {};
 
         const users = await prisma.user.findMany({
             where,
@@ -28,10 +25,10 @@ export async function GET(req: NextRequest) {
         });
 
         return NextResponse.json(users);
-    } catch (error) {
-        console.error("Error fetching users:", error);
+    } catch (err) {
+        console.error("Failed to fetch users:", err);
         return NextResponse.json(
-            { error: "Не вдалося отримати користувачів" },
+            { error: "Internal server error" },
             { status: 500 }
         );
     }

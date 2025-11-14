@@ -4,19 +4,25 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
     Card,
-    CardDescription,
     CardContent,
+    CardDescription,
     CardHeader,
     CardTitle,
 } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Loader2, User, Lock } from "lucide-react";
+import { User, Lock, AlertCircleIcon } from "lucide-react";
 import LoadingScreen from "@/components/LoadingScreen";
 import { signIn, useSession } from "next-auth/react";
+import { Field, FieldGroup, FieldLabel, FieldSet } from "@/components/ui/field";
+import {
+    InputGroup,
+    InputGroupAddon,
+    InputGroupInput,
+} from "@/components/ui/input-group";
+import { Spinner } from "@/components/ui/spinner";
+import { TypographyMuted } from "@/components/ui/typography";
 
 export default function LoginPage() {
     const [username, setUsername] = useState("");
@@ -66,117 +72,116 @@ export default function LoginPage() {
     }
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 to-yellow-50 p-4">
+        <div className="min-h-screen flex items-center justify-center p-4">
             <div className="w-full max-w-md space-y-8">
                 {/* Logo Section */}
-                <div className="text-center">
-                    <div className="flex justify-center mb-6">
-                        <Image
-                            src="/lapusik-logo.png"
-                            alt="Зоомагазин Лапусик"
-                            width={300}
-                            height={120}
-                            className="h-auto max-w-full"
-                            priority
-                        />
-                    </div>
+                <div className="flex justify-center">
+                    <Image
+                        src="/lapusik-logo.png"
+                        alt="Зоомагазин Лапусик"
+                        width={300}
+                        height={120}
+                        className="h-auto max-w-full"
+                        priority
+                    />
                 </div>
 
                 {/* Login Card */}
-                <Card className="shadow-xl border-0 bg-white/95 backdrop-blur">
-                    <CardHeader className="space-y-1 text-center">
-                        <CardTitle className="text-2xl font-bold text-gray-800">
+                <Card>
+                    <CardHeader className="text-center">
+                        <CardTitle className="text-2xl font-bold">
                             Вхід для співробітників
                         </CardTitle>
-                        <CardDescription className="text-gray-600">
+                        <CardDescription>
                             Введіть дані для доступу до системи
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <form onSubmit={handleSubmit} className="space-y-4">
-                            <div className="space-y-2">
-                                <Label
-                                    htmlFor="username"
-                                    className="text-sm font-medium text-gray-700"
-                                >
-                                    Логін відділення
-                                </Label>
-                                <div className="relative">
-                                    <User className="absolute left-4 top-4 h-4 w-4 text-gray-400" />
-                                    <Input
-                                        id="username"
-                                        type="text"
-                                        placeholder="Введіть логін відділення магазину"
-                                        value={username}
-                                        onChange={(e) =>
-                                            setUsername(e.target.value)
-                                        }
-                                        disabled={loading}
-                                        required
-                                        className="pl-10 h-12 border-gray-200 focus:border-green-500 focus:ring-green-500"
-                                    />
-                                </div>
-                            </div>
+                        <form onSubmit={handleSubmit}>
+                            <FieldSet>
+                                <FieldGroup>
+                                    {error && (
+                                        <Field>
+                                            <Alert
+                                                variant="destructive"
+                                                className="bg-destructive/10 border-destructive/20"
+                                            >
+                                                <AlertCircleIcon />
+                                                <AlertDescription className="text-red-700">
+                                                    {error}
+                                                </AlertDescription>
+                                            </Alert>
+                                        </Field>
+                                    )}
 
-                            <div className="space-y-2">
-                                <Label
-                                    htmlFor="password"
-                                    className="text-sm font-medium text-gray-700"
-                                >
-                                    Пароль
-                                </Label>
-                                <div className="relative">
-                                    <Lock className="absolute left-4 top-4 h-4 w-4 text-gray-400" />
-                                    <Input
-                                        id="password"
-                                        type="password"
-                                        placeholder="Введіть пароль відділення магазину"
-                                        value={password}
-                                        onChange={(e) =>
-                                            setPassword(e.target.value)
-                                        }
-                                        disabled={loading}
-                                        required
-                                        className="pl-10 h-12 border-gray-200 focus:border-green-500 focus:ring-green-500"
-                                    />
-                                </div>
-                            </div>
+                                    <Field>
+                                        <FieldLabel>
+                                            Логін відділення
+                                        </FieldLabel>
+                                        <InputGroup>
+                                            <InputGroupInput
+                                                id="username"
+                                                type="text"
+                                                placeholder="Введіть логін відділення магазину"
+                                                value={username}
+                                                onChange={(e) =>
+                                                    setUsername(e.target.value)
+                                                }
+                                                disabled={loading}
+                                                required
+                                            />
+                                            <InputGroupAddon>
+                                                <User />
+                                            </InputGroupAddon>
+                                        </InputGroup>
+                                    </Field>
 
-                            {error && (
-                                <Alert
-                                    variant="destructive"
-                                    className="bg-red-50 border-red-200"
-                                >
-                                    <AlertDescription className="text-red-700">
-                                        {error}
-                                    </AlertDescription>
-                                </Alert>
-                            )}
+                                    <Field>
+                                        <FieldLabel>Пароль</FieldLabel>
+                                        <InputGroup>
+                                            <InputGroupInput
+                                                id="password"
+                                                type="password"
+                                                placeholder="Введіть пароль відділення магазину"
+                                                value={password}
+                                                onChange={(e) =>
+                                                    setPassword(e.target.value)
+                                                }
+                                                disabled={loading}
+                                                required
+                                            />
+                                            <InputGroupAddon>
+                                                <Lock />
+                                            </InputGroupAddon>
+                                        </InputGroup>
+                                    </Field>
 
-                            <Button
-                                type="submit"
-                                disabled={loading}
-                                className="w-full h-12 bg-green-600 hover:bg-green-700 text-white font-medium transition-colors"
-                            >
-                                {loading ? (
-                                    <>
-                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                        Вхід...
-                                    </>
-                                ) : (
-                                    "Увійти"
-                                )}
-                            </Button>
+                                    <Field>
+                                        <Button
+                                            type="submit"
+                                            variant="default"
+                                            disabled={loading}
+                                        >
+                                            {loading ? (
+                                                <>
+                                                    <Spinner />
+                                                    Вхід...
+                                                </>
+                                            ) : (
+                                                "Увійти"
+                                            )}
+                                        </Button>
+                                    </Field>
+                                </FieldGroup>
+                            </FieldSet>
                         </form>
                     </CardContent>
                 </Card>
 
                 {/* Footer */}
-                <div className="text-center text-sm text-gray-500">
-                    <p>
-                        © 2025 Зоомагазин Лапусик. Система для співробітників.
-                    </p>
-                </div>
+                <TypographyMuted className="text-center">
+                    © 2025 Зоомагазин Лапусик. Система для співробітників.
+                </TypographyMuted>
             </div>
         </div>
     );
