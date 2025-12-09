@@ -1,18 +1,17 @@
-"use client";
+import { redirect } from "next/navigation";
+import { getServerSession } from "@/lib/get-session";
 
-import RoleGuard from "@/components/RoleGuard";
-
-export default function ShiftLayout({
-    children,
+export default async function ShiftLayout({
+  children,
 }: {
-    children: React.ReactNode;
+  children: React.ReactNode;
 }) {
-    return (
-        <RoleGuard
-            requiredRoles={["user"]}
-            loadingMessage="Перевірка доступу до продажів..."
-        >
-            {children}
-        </RoleGuard>
-    );
+  const session = await getServerSession();
+  const user = session?.user;
+
+  if (!user || user.role !== "user") {
+    redirect("/unauthorized");
+  }
+
+  return <>{children}</>;
 }

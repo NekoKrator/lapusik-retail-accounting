@@ -1,13 +1,14 @@
-"use client";
+import { redirect } from "next/navigation";
+import { signOut } from "@/lib/actions/auth-actions";
+import { getServerSession } from "@/lib/get-session";
 
-import { useEffect } from "react";
-import { signOut } from "next-auth/react";
-import LoadingScreen from "@/components/LoadingScreen";
+export default async function LogoutPage() {
+  const session = await getServerSession();
 
-export default function LogoutPage() {
-    useEffect(() => {
-        signOut({ callbackUrl: "/login" });
-    }, []);
-
-    return <LoadingScreen message="Вихід з облікового запису..." />;
+  if (session) {
+    await signOut();
+    redirect("/auth");
+  } else {
+    redirect("/dashboard");
+  }
 }

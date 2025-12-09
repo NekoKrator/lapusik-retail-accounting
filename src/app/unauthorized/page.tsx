@@ -1,23 +1,39 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+
 import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { TypographyH1, TypographyMuted } from "@/components/ui/typography";
 
 export default function UnauthorizedPage() {
-    const router = useRouter();
+  const router = useRouter();
 
-    return (
-        <div className="min-h-screen flex items-center justify-center text-center">
-            <div className="flex flex-col items-center justify-center gap-4">
-                <TypographyH1>Доступ заборонено</TypographyH1>
-                <TypographyMuted className="text-base">
-                    У вас немає прав доступу до цієї сторінки.
-                </TypographyMuted>
-                <Button onClick={() => router.push("/dashboard")}>
-                    Повернутися до обліку
-                </Button>
-            </div>
-        </div>
-    );
+  return (
+    <div className="flex min-h-screen items-center justify-center p-4">
+      <Card className="w-full max-w-sm p-8">
+        <CardHeader>
+          <CardTitle>
+            <TypographyH1>Доступ заборонено</TypographyH1>
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <TypographyMuted className="text-center text-base">
+            У вас немає прав доступу до цієї сторінки.
+          </TypographyMuted>
+        </CardContent>
+        <CardFooter>
+          <Button className="w-full" onClick={() => router.push("/dashboard")}>
+            Повернутися до обліку
+          </Button>
+        </CardFooter>
+      </Card>
+    </div>
+  );
 }

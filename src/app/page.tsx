@@ -1,23 +1,15 @@
-"use client";
+import { headers } from "next/headers";
+import { redirect } from "next/navigation";
+import { auth } from "@/lib/auth";
 
-import { useSession } from "next-auth/react";
-import LoadingScreen from "@/components/LoadingScreen";
-import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+export default async function Home() {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
 
-export default function Home() {
-    const { status } = useSession();
-    const router = useRouter();
+  if (!session) {
+    redirect("/auth");
+  }
 
-    useEffect(() => {
-        if (status === "unauthenticated") {
-            router.replace("/login");
-        }
-    }, [status, router]);
-
-    if (status === "loading") {
-        return <LoadingScreen message="Перенаправлення..." />;
-    } else {
-        router.replace("/dashboard");
-    }
+  redirect("/dashboard");
 }

@@ -1,35 +1,26 @@
-"use client";
-import { useSession } from "next-auth/react";
-import LoadingScreen from "@/components/LoadingScreen";
-import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { redirect } from "next/navigation";
+import LoadingScreen from "@/components/loading-screen";
+import { getServerSession } from "@/lib/get-session";
 
-export default function RedirectPage() {
-    const { data: session, status } = useSession();
-    const router = useRouter();
+export default async function RedirectPage() {
+  const session = await getServerSession();
 
-    useEffect(() => {
-        if (status !== "loading") {
-            if (!session?.user?.role) {
-                router.push("/login");
-                return;
-            }
-            switch (session.user.role) {
-                case "admin":
-                    router.push("/admin/suppliers");
-                    break;
-                case "user":
-                    router.push("/shift");
-                    break;
-                default:
-                    router.push("/login");
-            }
-        }
-    }, [status, session, router]);
-
-    if (status === "loading") {
-        return <LoadingScreen message="Перевірка авторизації..." />;
+  if (session) {
+    switch (session.user.role) {
+      case "admin":
+        redirect("/admin/suppliers");
+        break;
+      case "user":
+        redirect("/shift");
+        break;
+      default:
+        redirect("/logout");
     }
+  }
 
-    return <LoadingScreen message="Перенаправлення..." />;
+  if (!session) {
+    redirect("/auth");
+  }
+
+  return <LoadingScreen message="Перенаправлення..." />;
 }

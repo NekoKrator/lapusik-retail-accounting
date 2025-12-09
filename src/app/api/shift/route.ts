@@ -1,44 +1,44 @@
-import { NextRequest, NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
+import type { NextRequest } from "next/server";
+import { NextResponse } from "next/server";
 import { requireAuth } from "@/lib/auth-utils";
+import { prisma } from "@/lib/prisma";
+import { handlePrismaError } from "@/utils/error-handlers";
 
-const prisma = new PrismaClient();
-
-interface ShiftFilters {
-    userId?: string;
-    isClosed?: boolean;
-}
+type GetShiftWhere = {
+  userId?: string;
+  isClosed?: boolean;
+};
 
 export async function GET(req: NextRequest) {
-    const { token, error } = await requireAuth(req);
-    if (error) return error;
+  const { session, error } = await requireAuth();
+  if (error) {
+    return error;
+  }
 
-    try {
-        const { searchParams } = new URL(req.url);
-        const userId = searchParams.get("userId");
-        const isClosed = searchParams.get("isClosed");
+  try {
+    const searchParams = req.nextUrl.searchParams;
+    const userId = searchParams.get("userId");
+    const isClosed = searchParams.get("isEnded");
 
-        const filters: ShiftFilters = {};
+    const where: GetShiftWhere = {};
 
-        if (token.role === "admin") {
-            if (userId) filters.userId = userId;
-        } else {
-            filters.userId = token.id as string;
-        }
-
-        if (isClosed !== null) filters.isClosed = isClosed === "true";
-
-        const shifts = await prisma.shift.findMany({
-            where: filters,
-            orderBy: { openedAt: "desc" },
-        });
-
-        return NextResponse.json(shifts);
-    } catch (err) {
-        console.error("Failed to fetch shift:", err);
-        return NextResponse.json(
-            { error: "Internal Server Error" },
-            { status: 500 }
-        );
+    if (session.user.role === "admin" && userId) {
+      where.userId = userId;
+    } else if (session.user.role !== "admin") {
+      where.userId = session.user.id;
     }
+
+    if (isClosed != null) {
+      where.isClosed = isClosed === "true";
+    }
+
+    const shifts = await prisma.shift.findMany({
+      where,
+      orderBy: { closedAt: "desc" },
+    });
+
+    return NextResponse.json(shifts);
+  } catch (err) {
+    return handlePrismaError(err);
+  }
 }

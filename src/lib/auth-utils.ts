@@ -1,29 +1,23 @@
-import { getToken } from "next-auth/jwt";
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
+import { getServerSession } from "./get-session";
 
-export async function requireAuth(req: NextRequest, roles?: string[]) {
-    const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
+export async function requireAuth(roles?: string[]) {
+  const session = await getServerSession();
 
-    if (!token) {
-        return {
-            error: NextResponse.json(
-                { error: "Unauthorized" },
-                { status: 401 }
-            ),
-        };
+  if (!session) {
+    return {
+      error: NextResponse.json({ error: "Unauthorized" }, { status: 401 }),
+    };
+  }
+
+  if (roles && roles.length > 0) {
+    const userRole = session.user.role;
+    if (!(userRole && roles.includes(userRole))) {
+      return {
+        error: NextResponse.json({ error: "Forbidden" }, { status: 403 }),
+      };
     }
+  }
 
-    if (roles && roles.length > 0) {
-        const role = token.role as string | undefined;
-        if (!role || !roles.includes(role)) {
-            return {
-                error: NextResponse.json(
-                    { error: "Forbidden" },
-                    { status: 403 }
-                ),
-            };
-        }
-    }
-
-    return { token };
+  return { session };
 }

@@ -1,55 +1,45 @@
-import { NextRequest, NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
-import { requireAuth } from "@/lib/auth-utils";
+import type { NextRequest } from "next/server";
+import { NextResponse } from "next/server";
 import z from "zod";
-
-const prisma = new PrismaClient();
-
-const openShiftSchema = z.object({
-    openingBalance: z.number().min(0),
-});
+import { requireAuth } from "@/lib/auth-utils";
+import { prisma } from "@/lib/prisma";
+import { ShiftOpenSchema } from "@/schemas/shift-schema";
+import { handlePrismaError } from "@/utils/error-handlers";
 
 export async function POST(req: NextRequest) {
-    const { token, error } = await requireAuth(req);
-    if (error) return error;
+  const { session, error } = await requireAuth();
+  if (error) {
+    return error;
+  }
 
-    try {
-        const body = await req.json();
-        const parsed = openShiftSchema.safeParse(body);
+  try {
+    const existingShift = await prisma.shift.findFirst({
+      where: { userId: session.user.id, isClosed: false },
+    });
 
-        if (!parsed.success) {
-            return NextResponse.json(
-                { error: z.flattenError(parsed.error) },
-                { status: 400 }
-            );
-        }
-
-        const { openingBalance } = parsed.data;
-
-        const result = await prisma.$transaction(async (tx) => {
-            const existing = await tx.shift.findFirst({
-                where: { userId: token.id as string, isClosed: false },
-                select: { id: true },
-            });
-
-            if (existing) {
-                return NextResponse.json(
-                    { error: "The user already has one open shift" },
-                    { status: 400 }
-                );
-            }
-
-            return await tx.shift.create({
-                data: { userId: token.id as string, openingBalance },
-            });
-        });
-
-        return NextResponse.json(result, { status: 201 });
-    } catch (err) {
-        console.error("Failed to open shift:", err);
-        return NextResponse.json(
-            { error: "Internal server error" },
-            { status: 500 }
-        );
+    if (existingShift) {
+      return NextResponse.json(
+        { error: "У користувача вже є розпочата зміна" },
+        { status: 400 }
+      );
     }
+
+    const body = await req.json();
+    const parsed = ShiftOpenSchema.safeParse(body);
+
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: z.flattenError(parsed.error) },
+        { status: 400 }
+      );
+    }
+
+    const result = await prisma.shift.create({
+      data: { ...parsed.data, user: { connect: { id: session.user.id } } },
+    });
+
+    return NextResponse.json(result, { status: 201 });
+  } catch (err) {
+    return handlePrismaError(err);
+  }
 }

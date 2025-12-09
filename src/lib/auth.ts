@@ -1,85 +1,45 @@
-import "dotenv/config";
-import CredentialsProvider from "next-auth/providers/credentials";
-import { PrismaClient } from "@prisma/client";
-import type { User } from "@/types/types";
-import bcrypt from "bcrypt";
+import { APIError, betterAuth } from "better-auth";
+import { prismaAdapter } from "better-auth/adapters/prisma";
+import { nextCookies } from "better-auth/next-js";
+import { admin, createAuthMiddleware, username } from "better-auth/plugins";
+import { prisma } from "./prisma";
 
-import type { JWT } from "next-auth/jwt";
-import type { Session, SessionStrategy } from "next-auth";
+export const auth = betterAuth({
+  database: prismaAdapter(prisma, {
+    provider: "postgresql",
+  }),
 
-const prisma = new PrismaClient();
+  emailAndPassword: {
+    enabled: true,
+  },
 
-export const authOptions = {
-    session: {
-        strategy: "jwt" as SessionStrategy,
-        maxAge: Number(process.env.NEXTAUTH_JWT_MAX_AGE),
-    },
-    providers: [
-        CredentialsProvider({
-            name: "Credentials",
-            credentials: {
-                username: {
-                    label: "Логін відділення магазину",
-                    type: "text",
-                    placeholder: "Введіть логін відділення магазину",
-                },
-                password: {
-                    label: "Пароль",
-                    type: "password",
-                    placeholder: "Введіть пароль відділення магазину",
-                },
-            },
-            async authorize(credentials): Promise<User | null> {
-                if (!credentials) return null;
+  advanced: { disableOriginCheck: true },
 
-                const user = await prisma.user.findUnique({
-                    where: { username: credentials.username },
-                });
+  hooks: {
+    after: createAuthMiddleware(async (ctx) => {
+      const response = (await ctx.context.returned) as APIError;
 
-                if (!user) {
-                    throw new Error("User not found");
-                }
-                const valid = await bcrypt.compare(
-                    credentials.password,
-                    user.password
-                );
+      if (ctx.path.startsWith("/sign-up")) {
+        throw new APIError("BAD_REQUEST", {
+          message: "Endpoint not allowed",
+        });
+      }
 
-                if (!valid) {
-                    throw new Error("Invalid password");
-                }
+      if (response?.body?.code === "INVALID_USERNAME_OR_PASSWORD") {
+        throw new APIError("UNAUTHORIZED", {
+          ...response.body,
+          message: "Недійсне ім'я користувача або пароль",
+        });
+      }
 
-                return {
-                    id: user.id,
-                    username: user.username,
-                    role: user.role,
-                };
-            },
-        }),
-    ],
-    callbacks: {
-        async jwt({ token, user }: { token: JWT; user?: User }) {
-            if (user) {
-                token.id = user.id;
-                token.username = user.username;
-                token.role = user.role;
-            }
-            return token;
-        },
+      if (response?.body?.code === "USERNAME_IS_TOO_SHORT") {
+        throw new APIError("BAD_REQUEST", {
+          ...response.body,
+          message: "Ім'я користувача занадто коротке",
+        });
+      }
+    }),
+  },
 
-        async session({ session, token }: { session: Session; token: JWT }) {
-            if (token) {
-                session.user = {
-                    ...session.user,
-                    id: token.id as string,
-                    username: token.username as string,
-                    role: token.role as string,
-                };
-            }
-            return session;
-        },
-    },
-    pages: {
-        signIn: "/login",
-    },
-    secret: process.env.NEXTAUTH_SECRET,
-};
+  plugins: [username(), admin(), nextCookies()],
+});

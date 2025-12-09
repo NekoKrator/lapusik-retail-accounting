@@ -1,12 +1,12 @@
 import "@tanstack/react-table";
 
 declare module "@tanstack/react-table" {
-    interface TableMeta<TData> {
-        onDelete?: (id: string) => Promise<void>;
-        isDeleting?: (id: string) => boolean;
-    }
+  type TableMeta<TData, TUpdateData> = {
+    onUpdate?: (id: string, payload: TUpdateData) => Promise<void>;
+    onDelete?: (id: string) => Promise<void>;
+  };
 
-    interface ColumnMeta<TData> {
-        label?: string;
-    }
+  type ColumnMeta<TData> = {
+    label?: string;
+  };
 }

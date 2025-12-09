@@ -1,102 +1,181 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
-  provider = "prisma-client-js"
+  provider               = "prisma-client"
+  output                 = "../src/generated/prisma"
+  generatedFileExtension = "ts"
+  importFileExtension    = "ts"
 }
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
 model User {
-  id                 String            @id @default(uuid())
-  username           String            @unique
-  password           String
-  role               String            @default("user") // 'admin' or 'user'
-  shifts             Shift[]
+  id                 String             @id
+  name               String
+  email              String             @unique
+  emailVerified      Boolean            @default(false)
+  image              String?
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+  username           String?            @unique
+  displayUsername    String?
+  role               String?
+  banned             Boolean?           @default(false)
+  banReason          String?
+  banExpires         DateTime?
+  accounts           Account[]
   debtors            Debtor[]
+  sessions           Session[]
+  shifts             Shift[]
   supplierDeliveries SupplierDelivery[]
+
+  @@map("user")
+}
+
+model Session {
+  id             String   @id
+  expiresAt      DateTime
+  token          String   @unique
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  ipAddress      String?
+  userAgent      String?
+  userId         String
+  impersonatedBy String?
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("account")
+}
+
+model Verification {
+  id         String   @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@map("verification")
+}
+
+model Shift {
+  id                     String             @id @default(uuid())
+  userId                 String
+  isClosed               Boolean            @default(false)
+  totalCashRegister      Float?             @default(0)
+  totalAdditionalIncome  Float?             @default(0)
+  totalExpenses          Float?             @default(0)
+  closedAt               DateTime?
+  openedAt               DateTime           @default(now())
+  actualClosingBalance   Float?             @default(0)
+  expectedClosingBalance Float?             @default(0)
+  openingBalance         Float
+  additionalIncome       AdditionalIncome[]
+  expenses               Expense[]
+  user                   User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("shift")
 }
 
 model Supplier {
   id         String             @id @default(uuid())
   name       String             @unique
   deliveries SupplierDelivery[]
+
+  @@map("supplier")
 }
 
 model SupplierDelivery {
-  id            String              @id @default(uuid())
+  id            String    @id @default(uuid())
   supplierId    String
-  supplier      Supplier            @relation(fields: [supplierId], references: [id], onDelete: Cascade)
   userId        String
-  user          User                @relation(fields: [userId], references: [id])
+  paidByCashier Float?    @default(0)
+  paidByOwner   Float?    @default(0)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  price         Float
+  isPaidOff     Boolean   @default(false)
+  expenses      Expense[]
+  supplier      Supplier  @relation(fields: [supplierId], references: [id], onDelete: Cascade)
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  totalPrice    Float               // total cost of delivery
-  paidByCashier Float   @default(0) // the amount paid by the cashier
-  paidByOwner   Float   @default(0) // the amount paid by the owner
-  debt          Float   @default(0)
-
-  createdAt     DateTime            @default(now())
-  updatedAt     DateTime            @updatedAt
-}
-
-enum PaymentSource {
-  CASHIER
-  OWNER
-}
-
-model Shift {
-  id                       String   @id @default(uuid())
-  userId                   String
-  user                     User     @relation(fields: [userId], references: [id])
-
-  openedAt                 DateTime  @default(now())
-  closedAt                 DateTime?
-
-  isClosed                 Boolean   @default(false)
-
-  openingBalance           Float // cash in register at the start of the day
-  additionalBalance        Float? // additional cash receipts
-  totalCashRegister        Float? // total income received during the day (cash + card)
-  expensesBalance          Float? // total amount of all expenses from breakdown
-  calculatedClosingBalance Float? // expected cash counted in register at end of day
-  actualClosingBalance     Float? // actual cash counted in register at end of day
-
-  breakdown                ExpensesReportBreakdown? // optional detailed breakdown of expenses and payments
-}
-
-model ExpensesReportBreakdown {
-  id       String        @id @default(uuid())
-  shiftId  String        @unique
-  shift    Shift         @relation(fields: [shiftId], references: [id])
-
-  terminalExpenses Float @default(0) // payments made by card (terminal)
-  rent             Float @default(0) // rent expenses
-  salaries         Float @default(0) // salaries paid
-  utilities        Float @default(0) // utility bills
-  supplierPayments Float @default(0) // payments made to suppliers
-  goodsWriteOff    Float @default(0) // value of inventory written off due to damage, loss, or expiration
-  ownerWithdrawal  Float @default(0) // cash withdrawn by owner
-  piggyBank        Float @default(0) // amount of cash set aside into the piggy bank (considered an expense)
-  otherExpenses    Float @default(0)
+  @@map("supplier_delivery")
 }
 
 model Debtor {
-  id          String   @id @default(uuid())
-  name        String
-  currentDebt Float    @default(0)
-  totalDebt   Float    @default(0)
+  id               String             @id @default(uuid())
+  name             String             @unique
+  userId           String
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+  isPaidOff        Boolean            @default(false)
+  debt             Float              @default(0)
+  paid             Float              @default(0)
+  additionalIncome AdditionalIncome[]
+  user             User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expenses         Expense[]
 
-  userId      String
-  user        User     @relation(fields: [userId], references: [id])
-
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  @@map("debtor")
 }
 
+model AdditionalIncome {
+  id        String   @id @default(uuid())
+  shiftId   String
+  category  String
+  amount    Float
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  debtorId  String?
+  debtor    Debtor?  @relation(fields: [debtorId], references: [id], onDelete: Cascade)
+  shift     Shift    @relation(fields: [shiftId], references: [id], onDelete: Cascade)
 
+  @@map("additional_income")
+}
+
+model Expense {
+  id                 String            @id @default(uuid())
+  shiftId            String
+  category           ExpenseCategory
+  amount             Float
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime          @updatedAt
+  supplierDeliveryId String?
+  debtorId           String?
+  debtor             Debtor?           @relation(fields: [debtorId], references: [id], onDelete: Cascade)
+  shift              Shift             @relation(fields: [shiftId], references: [id], onDelete: Cascade)
+  supplierDelivery   SupplierDelivery? @relation(fields: [supplierDeliveryId], references: [id], onDelete: Cascade)
+
+  @@map("expense")
+}
+
+enum ExpenseCategory {
+  TERMINAL
+  RENT
+  SALARY
+  UTILITY
+  GOODS_WRITE_OFF
+  SUPPLIER_PAYMENT
+  OWNER_WITHDRAWAL
+  PIGGY_BANK
+  DEBTOR
+  OTHER
+}
