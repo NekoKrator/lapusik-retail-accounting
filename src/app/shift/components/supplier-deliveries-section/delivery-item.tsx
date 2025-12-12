@@ -72,7 +72,7 @@ export default function DeliveryItem({ delivery }: DeliveryItemProps) {
           </ResponsiveTooltip>
         </ItemTitle>
         <ItemDescription className="line-clamp-1 truncate">
-          {format(delivery.updatedAt, "dd.MM.yy, kk:mm")}
+          {format(delivery.updatedAt, "dd.MM.yy, HH:mm")}
         </ItemDescription>
       </ItemContent>
 

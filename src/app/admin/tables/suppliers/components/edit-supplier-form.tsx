@@ -12,15 +12,17 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
+import type { Supplier } from "@/generated/prisma/client";
 import {
   type SupplierStats,
-  SupplierUpdateInput,
+  type SupplierUpdateInput,
+  SupplierUpdateSchema,
 } from "@/schemas/supplier-schema";
 
 type EditSupplierFormProps = {
   initialData: SupplierStats;
   setIsOpen: Dispatch<SetStateAction<boolean>>;
-  onUpdate: (data: SupplierUpdateInput) => Promise<void>;
+  onUpdate: (payload: SupplierUpdateInput) => Promise<Supplier>;
 };
 
 export function EditSupplierForm({
@@ -28,15 +30,15 @@ export function EditSupplierForm({
   setIsOpen,
   onUpdate,
 }: EditSupplierFormProps) {
-  const form = useForm<z.infer<typeof SupplierUpdateInput>>({
-    resolver: zodResolver(SupplierUpdateInput),
+  const form = useForm<z.infer<typeof SupplierUpdateSchema>>({
+    resolver: zodResolver(SupplierUpdateSchema),
     defaultValues: {
       name: initialData?.name,
     },
   });
 
   const isLoading = form.formState.isSubmitting;
-  const onSubmit = async (data: z.infer<typeof SupplierUpdateInput>) => {
+  const onSubmit = async (data: z.infer<typeof SupplierUpdateSchema>) => {
     try {
       await onUpdate(data);
       setIsOpen(false);

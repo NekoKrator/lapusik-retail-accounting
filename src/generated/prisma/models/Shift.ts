@@ -28,33 +28,33 @@ export type AggregateShift = {
 
 export type ShiftAvgAggregateOutputType = {
   openingBalance: number | null
-  actualClosingBalance: number | null
-  expectedClosingBalance: number | null
   totalAdditionalIncome: number | null
-  totalCashRegister: number | null
   totalExpenses: number | null
+  totalCashRegister: number | null
+  expectedClosingBalance: number | null
+  actualClosingBalance: number | null
 }
 
 export type ShiftSumAggregateOutputType = {
   openingBalance: number | null
-  actualClosingBalance: number | null
-  expectedClosingBalance: number | null
   totalAdditionalIncome: number | null
-  totalCashRegister: number | null
   totalExpenses: number | null
+  totalCashRegister: number | null
+  expectedClosingBalance: number | null
+  actualClosingBalance: number | null
 }
 
 export type ShiftMinAggregateOutputType = {
   id: string | null
   isClosed: boolean | null
   openingBalance: number | null
-  actualClosingBalance: number | null
-  expectedClosingBalance: number | null
   totalAdditionalIncome: number | null
-  totalCashRegister: number | null
   totalExpenses: number | null
-  openedAt: Date | null
+  totalCashRegister: number | null
+  expectedClosingBalance: number | null
+  actualClosingBalance: number | null
   closedAt: Date | null
+  openedAt: Date | null
   userId: string | null
 }
 
@@ -62,13 +62,13 @@ export type ShiftMaxAggregateOutputType = {
   id: string | null
   isClosed: boolean | null
   openingBalance: number | null
-  actualClosingBalance: number | null
-  expectedClosingBalance: number | null
   totalAdditionalIncome: number | null
-  totalCashRegister: number | null
   totalExpenses: number | null
-  openedAt: Date | null
+  totalCashRegister: number | null
+  expectedClosingBalance: number | null
+  actualClosingBalance: number | null
   closedAt: Date | null
+  openedAt: Date | null
   userId: string | null
 }
 
@@ -76,13 +76,13 @@ export type ShiftCountAggregateOutputType = {
   id: number
   isClosed: number
   openingBalance: number
-  actualClosingBalance: number
-  expectedClosingBalance: number
   totalAdditionalIncome: number
-  totalCashRegister: number
   totalExpenses: number
-  openedAt: number
+  totalCashRegister: number
+  expectedClosingBalance: number
+  actualClosingBalance: number
   closedAt: number
+  openedAt: number
   userId: number
   _all: number
 }
@@ -90,33 +90,33 @@ export type ShiftCountAggregateOutputType = {
 
 export type ShiftAvgAggregateInputType = {
   openingBalance?: true
-  actualClosingBalance?: true
-  expectedClosingBalance?: true
   totalAdditionalIncome?: true
-  totalCashRegister?: true
   totalExpenses?: true
+  totalCashRegister?: true
+  expectedClosingBalance?: true
+  actualClosingBalance?: true
 }
 
 export type ShiftSumAggregateInputType = {
   openingBalance?: true
-  actualClosingBalance?: true
-  expectedClosingBalance?: true
   totalAdditionalIncome?: true
-  totalCashRegister?: true
   totalExpenses?: true
+  totalCashRegister?: true
+  expectedClosingBalance?: true
+  actualClosingBalance?: true
 }
 
 export type ShiftMinAggregateInputType = {
   id?: true
   isClosed?: true
   openingBalance?: true
-  actualClosingBalance?: true
-  expectedClosingBalance?: true
   totalAdditionalIncome?: true
-  totalCashRegister?: true
   totalExpenses?: true
-  openedAt?: true
+  totalCashRegister?: true
+  expectedClosingBalance?: true
+  actualClosingBalance?: true
   closedAt?: true
+  openedAt?: true
   userId?: true
 }
 
@@ -124,13 +124,13 @@ export type ShiftMaxAggregateInputType = {
   id?: true
   isClosed?: true
   openingBalance?: true
-  actualClosingBalance?: true
-  expectedClosingBalance?: true
   totalAdditionalIncome?: true
-  totalCashRegister?: true
   totalExpenses?: true
-  openedAt?: true
+  totalCashRegister?: true
+  expectedClosingBalance?: true
+  actualClosingBalance?: true
   closedAt?: true
+  openedAt?: true
   userId?: true
 }
 
@@ -138,13 +138,13 @@ export type ShiftCountAggregateInputType = {
   id?: true
   isClosed?: true
   openingBalance?: true
-  actualClosingBalance?: true
-  expectedClosingBalance?: true
   totalAdditionalIncome?: true
-  totalCashRegister?: true
   totalExpenses?: true
-  openedAt?: true
+  totalCashRegister?: true
+  expectedClosingBalance?: true
+  actualClosingBalance?: true
   closedAt?: true
+  openedAt?: true
   userId?: true
   _all?: true
 }
@@ -239,13 +239,13 @@ export type ShiftGroupByOutputType = {
   id: string
   isClosed: boolean
   openingBalance: number
-  actualClosingBalance: number | null
-  expectedClosingBalance: number | null
   totalAdditionalIncome: number | null
-  totalCashRegister: number | null
   totalExpenses: number | null
-  openedAt: Date
+  totalCashRegister: number | null
+  expectedClosingBalance: number | null
+  actualClosingBalance: number | null
   closedAt: Date | null
+  openedAt: Date
   userId: string
   _count: ShiftCountAggregateOutputType | null
   _avg: ShiftAvgAggregateOutputType | null
@@ -276,34 +276,34 @@ export type ShiftWhereInput = {
   id?: Prisma.StringFilter<"Shift"> | string
   isClosed?: Prisma.BoolFilter<"Shift"> | boolean
   openingBalance?: Prisma.FloatFilter<"Shift"> | number
-  actualClosingBalance?: Prisma.FloatNullableFilter<"Shift"> | number | null
-  expectedClosingBalance?: Prisma.FloatNullableFilter<"Shift"> | number | null
   totalAdditionalIncome?: Prisma.FloatNullableFilter<"Shift"> | number | null
-  totalCashRegister?: Prisma.FloatNullableFilter<"Shift"> | number | null
   totalExpenses?: Prisma.FloatNullableFilter<"Shift"> | number | null
-  openedAt?: Prisma.DateTimeFilter<"Shift"> | Date | string
+  totalCashRegister?: Prisma.FloatNullableFilter<"Shift"> | number | null
+  expectedClosingBalance?: Prisma.FloatNullableFilter<"Shift"> | number | null
+  actualClosingBalance?: Prisma.FloatNullableFilter<"Shift"> | number | null
   closedAt?: Prisma.DateTimeNullableFilter<"Shift"> | Date | string | null
+  openedAt?: Prisma.DateTimeFilter<"Shift"> | Date | string
   userId?: Prisma.StringFilter<"Shift"> | string
-  user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   additionalIncome?: Prisma.AdditionalIncomeListRelationFilter
   expenses?: Prisma.ExpenseListRelationFilter
+  user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
 }
 
 export type ShiftOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   isClosed?: Prisma.SortOrder
   openingBalance?: Prisma.SortOrder
-  actualClosingBalance?: Prisma.SortOrderInput | Prisma.SortOrder
-  expectedClosingBalance?: Prisma.SortOrderInput | Prisma.SortOrder
   totalAdditionalIncome?: Prisma.SortOrderInput | Prisma.SortOrder
-  totalCashRegister?: Prisma.SortOrderInput | Prisma.SortOrder
   totalExpenses?: Prisma.SortOrderInput | Prisma.SortOrder
-  openedAt?: Prisma.SortOrder
+  totalCashRegister?: Prisma.SortOrderInput | Prisma.SortOrder
+  expectedClosingBalance?: Prisma.SortOrderInput | Prisma.SortOrder
+  actualClosingBalance?: Prisma.SortOrderInput | Prisma.SortOrder
   closedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  openedAt?: Prisma.SortOrder
   userId?: Prisma.SortOrder
-  user?: Prisma.UserOrderByWithRelationInput
   additionalIncome?: Prisma.AdditionalIncomeOrderByRelationAggregateInput
   expenses?: Prisma.ExpenseOrderByRelationAggregateInput
+  user?: Prisma.UserOrderByWithRelationInput
 }
 
 export type ShiftWhereUniqueInput = Prisma.AtLeast<{
@@ -313,30 +313,30 @@ export type ShiftWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.ShiftWhereInput | Prisma.ShiftWhereInput[]
   isClosed?: Prisma.BoolFilter<"Shift"> | boolean
   openingBalance?: Prisma.FloatFilter<"Shift"> | number
-  actualClosingBalance?: Prisma.FloatNullableFilter<"Shift"> | number | null
-  expectedClosingBalance?: Prisma.FloatNullableFilter<"Shift"> | number | null
   totalAdditionalIncome?: Prisma.FloatNullableFilter<"Shift"> | number | null
-  totalCashRegister?: Prisma.FloatNullableFilter<"Shift"> | number | null
   totalExpenses?: Prisma.FloatNullableFilter<"Shift"> | number | null
-  openedAt?: Prisma.DateTimeFilter<"Shift"> | Date | string
+  totalCashRegister?: Prisma.FloatNullableFilter<"Shift"> | number | null
+  expectedClosingBalance?: Prisma.FloatNullableFilter<"Shift"> | number | null
+  actualClosingBalance?: Prisma.FloatNullableFilter<"Shift"> | number | null
   closedAt?: Prisma.DateTimeNullableFilter<"Shift"> | Date | string | null
+  openedAt?: Prisma.DateTimeFilter<"Shift"> | Date | string
   userId?: Prisma.StringFilter<"Shift"> | string
-  user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   additionalIncome?: Prisma.AdditionalIncomeListRelationFilter
   expenses?: Prisma.ExpenseListRelationFilter
+  user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
 }, "id">
 
 export type ShiftOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   isClosed?: Prisma.SortOrder
   openingBalance?: Prisma.SortOrder
-  actualClosingBalance?: Prisma.SortOrderInput | Prisma.SortOrder
-  expectedClosingBalance?: Prisma.SortOrderInput | Prisma.SortOrder
   totalAdditionalIncome?: Prisma.SortOrderInput | Prisma.SortOrder
-  totalCashRegister?: Prisma.SortOrderInput | Prisma.SortOrder
   totalExpenses?: Prisma.SortOrderInput | Prisma.SortOrder
-  openedAt?: Prisma.SortOrder
+  totalCashRegister?: Prisma.SortOrderInput | Prisma.SortOrder
+  expectedClosingBalance?: Prisma.SortOrderInput | Prisma.SortOrder
+  actualClosingBalance?: Prisma.SortOrderInput | Prisma.SortOrder
   closedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  openedAt?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   _count?: Prisma.ShiftCountOrderByAggregateInput
   _avg?: Prisma.ShiftAvgOrderByAggregateInput
@@ -352,13 +352,13 @@ export type ShiftScalarWhereWithAggregatesInput = {
   id?: Prisma.StringWithAggregatesFilter<"Shift"> | string
   isClosed?: Prisma.BoolWithAggregatesFilter<"Shift"> | boolean
   openingBalance?: Prisma.FloatWithAggregatesFilter<"Shift"> | number
-  actualClosingBalance?: Prisma.FloatNullableWithAggregatesFilter<"Shift"> | number | null
-  expectedClosingBalance?: Prisma.FloatNullableWithAggregatesFilter<"Shift"> | number | null
   totalAdditionalIncome?: Prisma.FloatNullableWithAggregatesFilter<"Shift"> | number | null
-  totalCashRegister?: Prisma.FloatNullableWithAggregatesFilter<"Shift"> | number | null
   totalExpenses?: Prisma.FloatNullableWithAggregatesFilter<"Shift"> | number | null
-  openedAt?: Prisma.DateTimeWithAggregatesFilter<"Shift"> | Date | string
+  totalCashRegister?: Prisma.FloatNullableWithAggregatesFilter<"Shift"> | number | null
+  expectedClosingBalance?: Prisma.FloatNullableWithAggregatesFilter<"Shift"> | number | null
+  actualClosingBalance?: Prisma.FloatNullableWithAggregatesFilter<"Shift"> | number | null
   closedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Shift"> | Date | string | null
+  openedAt?: Prisma.DateTimeWithAggregatesFilter<"Shift"> | Date | string
   userId?: Prisma.StringWithAggregatesFilter<"Shift"> | string
 }
 
@@ -366,29 +366,29 @@ export type ShiftCreateInput = {
   id?: string
   isClosed?: boolean
   openingBalance: number
-  actualClosingBalance?: number | null
-  expectedClosingBalance?: number | null
   totalAdditionalIncome?: number | null
-  totalCashRegister?: number | null
   totalExpenses?: number | null
-  openedAt?: Date | string
+  totalCashRegister?: number | null
+  expectedClosingBalance?: number | null
+  actualClosingBalance?: number | null
   closedAt?: Date | string | null
-  user: Prisma.UserCreateNestedOneWithoutShiftsInput
+  openedAt?: Date | string
   additionalIncome?: Prisma.AdditionalIncomeCreateNestedManyWithoutShiftInput
   expenses?: Prisma.ExpenseCreateNestedManyWithoutShiftInput
+  user: Prisma.UserCreateNestedOneWithoutShiftsInput
 }
 
 export type ShiftUncheckedCreateInput = {
   id?: string
   isClosed?: boolean
   openingBalance: number
-  actualClosingBalance?: number | null
-  expectedClosingBalance?: number | null
   totalAdditionalIncome?: number | null
-  totalCashRegister?: number | null
   totalExpenses?: number | null
-  openedAt?: Date | string
+  totalCashRegister?: number | null
+  expectedClosingBalance?: number | null
+  actualClosingBalance?: number | null
   closedAt?: Date | string | null
+  openedAt?: Date | string
   userId: string
   additionalIncome?: Prisma.AdditionalIncomeUncheckedCreateNestedManyWithoutShiftInput
   expenses?: Prisma.ExpenseUncheckedCreateNestedManyWithoutShiftInput
@@ -398,29 +398,29 @@ export type ShiftUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   isClosed?: Prisma.BoolFieldUpdateOperationsInput | boolean
   openingBalance?: Prisma.FloatFieldUpdateOperationsInput | number
-  actualClosingBalance?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  expectedClosingBalance?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   totalAdditionalIncome?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  totalCashRegister?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   totalExpenses?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  openedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  totalCashRegister?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  expectedClosingBalance?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  actualClosingBalance?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   closedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  user?: Prisma.UserUpdateOneRequiredWithoutShiftsNestedInput
+  openedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   additionalIncome?: Prisma.AdditionalIncomeUpdateManyWithoutShiftNestedInput
   expenses?: Prisma.ExpenseUpdateManyWithoutShiftNestedInput
+  user?: Prisma.UserUpdateOneRequiredWithoutShiftsNestedInput
 }
 
 export type ShiftUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   isClosed?: Prisma.BoolFieldUpdateOperationsInput | boolean
   openingBalance?: Prisma.FloatFieldUpdateOperationsInput | number
-  actualClosingBalance?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  expectedClosingBalance?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   totalAdditionalIncome?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  totalCashRegister?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   totalExpenses?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  openedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  totalCashRegister?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  expectedClosingBalance?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  actualClosingBalance?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   closedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  openedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   additionalIncome?: Prisma.AdditionalIncomeUncheckedUpdateManyWithoutShiftNestedInput
   expenses?: Prisma.ExpenseUncheckedUpdateManyWithoutShiftNestedInput
@@ -430,13 +430,13 @@ export type ShiftCreateManyInput = {
   id?: string
   isClosed?: boolean
   openingBalance: number
-  actualClosingBalance?: number | null
-  expectedClosingBalance?: number | null
   totalAdditionalIncome?: number | null
-  totalCashRegister?: number | null
   totalExpenses?: number | null
-  openedAt?: Date | string
+  totalCashRegister?: number | null
+  expectedClosingBalance?: number | null
+  actualClosingBalance?: number | null
   closedAt?: Date | string | null
+  openedAt?: Date | string
   userId: string
 }
 
@@ -444,26 +444,26 @@ export type ShiftUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   isClosed?: Prisma.BoolFieldUpdateOperationsInput | boolean
   openingBalance?: Prisma.FloatFieldUpdateOperationsInput | number
-  actualClosingBalance?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  expectedClosingBalance?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   totalAdditionalIncome?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  totalCashRegister?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   totalExpenses?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  openedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  totalCashRegister?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  expectedClosingBalance?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  actualClosingBalance?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   closedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  openedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type ShiftUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   isClosed?: Prisma.BoolFieldUpdateOperationsInput | boolean
   openingBalance?: Prisma.FloatFieldUpdateOperationsInput | number
-  actualClosingBalance?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  expectedClosingBalance?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   totalAdditionalIncome?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  totalCashRegister?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   totalExpenses?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  openedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  totalCashRegister?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  expectedClosingBalance?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  actualClosingBalance?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   closedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  openedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
@@ -481,36 +481,36 @@ export type ShiftCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   isClosed?: Prisma.SortOrder
   openingBalance?: Prisma.SortOrder
-  actualClosingBalance?: Prisma.SortOrder
-  expectedClosingBalance?: Prisma.SortOrder
   totalAdditionalIncome?: Prisma.SortOrder
-  totalCashRegister?: Prisma.SortOrder
   totalExpenses?: Prisma.SortOrder
-  openedAt?: Prisma.SortOrder
+  totalCashRegister?: Prisma.SortOrder
+  expectedClosingBalance?: Prisma.SortOrder
+  actualClosingBalance?: Prisma.SortOrder
   closedAt?: Prisma.SortOrder
+  openedAt?: Prisma.SortOrder
   userId?: Prisma.SortOrder
 }
 
 export type ShiftAvgOrderByAggregateInput = {
   openingBalance?: Prisma.SortOrder
-  actualClosingBalance?: Prisma.SortOrder
-  expectedClosingBalance?: Prisma.SortOrder
   totalAdditionalIncome?: Prisma.SortOrder
-  totalCashRegister?: Prisma.SortOrder
   totalExpenses?: Prisma.SortOrder
+  totalCashRegister?: Prisma.SortOrder
+  expectedClosingBalance?: Prisma.SortOrder
+  actualClosingBalance?: Prisma.SortOrder
 }
 
 export type ShiftMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   isClosed?: Prisma.SortOrder
   openingBalance?: Prisma.SortOrder
-  actualClosingBalance?: Prisma.SortOrder
-  expectedClosingBalance?: Prisma.SortOrder
   totalAdditionalIncome?: Prisma.SortOrder
-  totalCashRegister?: Prisma.SortOrder
   totalExpenses?: Prisma.SortOrder
-  openedAt?: Prisma.SortOrder
+  totalCashRegister?: Prisma.SortOrder
+  expectedClosingBalance?: Prisma.SortOrder
+  actualClosingBalance?: Prisma.SortOrder
   closedAt?: Prisma.SortOrder
+  openedAt?: Prisma.SortOrder
   userId?: Prisma.SortOrder
 }
 
@@ -518,23 +518,23 @@ export type ShiftMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   isClosed?: Prisma.SortOrder
   openingBalance?: Prisma.SortOrder
-  actualClosingBalance?: Prisma.SortOrder
-  expectedClosingBalance?: Prisma.SortOrder
   totalAdditionalIncome?: Prisma.SortOrder
-  totalCashRegister?: Prisma.SortOrder
   totalExpenses?: Prisma.SortOrder
-  openedAt?: Prisma.SortOrder
+  totalCashRegister?: Prisma.SortOrder
+  expectedClosingBalance?: Prisma.SortOrder
+  actualClosingBalance?: Prisma.SortOrder
   closedAt?: Prisma.SortOrder
+  openedAt?: Prisma.SortOrder
   userId?: Prisma.SortOrder
 }
 
 export type ShiftSumOrderByAggregateInput = {
   openingBalance?: Prisma.SortOrder
-  actualClosingBalance?: Prisma.SortOrder
-  expectedClosingBalance?: Prisma.SortOrder
   totalAdditionalIncome?: Prisma.SortOrder
-  totalCashRegister?: Prisma.SortOrder
   totalExpenses?: Prisma.SortOrder
+  totalCashRegister?: Prisma.SortOrder
+  expectedClosingBalance?: Prisma.SortOrder
+  actualClosingBalance?: Prisma.SortOrder
 }
 
 export type ShiftScalarRelationFilter = {
@@ -632,13 +632,13 @@ export type ShiftCreateWithoutUserInput = {
   id?: string
   isClosed?: boolean
   openingBalance: number
-  actualClosingBalance?: number | null
-  expectedClosingBalance?: number | null
   totalAdditionalIncome?: number | null
-  totalCashRegister?: number | null
   totalExpenses?: number | null
-  openedAt?: Date | string
+  totalCashRegister?: number | null
+  expectedClosingBalance?: number | null
+  actualClosingBalance?: number | null
   closedAt?: Date | string | null
+  openedAt?: Date | string
   additionalIncome?: Prisma.AdditionalIncomeCreateNestedManyWithoutShiftInput
   expenses?: Prisma.ExpenseCreateNestedManyWithoutShiftInput
 }
@@ -647,13 +647,13 @@ export type ShiftUncheckedCreateWithoutUserInput = {
   id?: string
   isClosed?: boolean
   openingBalance: number
-  actualClosingBalance?: number | null
-  expectedClosingBalance?: number | null
   totalAdditionalIncome?: number | null
-  totalCashRegister?: number | null
   totalExpenses?: number | null
-  openedAt?: Date | string
+  totalCashRegister?: number | null
+  expectedClosingBalance?: number | null
+  actualClosingBalance?: number | null
   closedAt?: Date | string | null
+  openedAt?: Date | string
   additionalIncome?: Prisma.AdditionalIncomeUncheckedCreateNestedManyWithoutShiftInput
   expenses?: Prisma.ExpenseUncheckedCreateNestedManyWithoutShiftInput
 }
@@ -691,13 +691,13 @@ export type ShiftScalarWhereInput = {
   id?: Prisma.StringFilter<"Shift"> | string
   isClosed?: Prisma.BoolFilter<"Shift"> | boolean
   openingBalance?: Prisma.FloatFilter<"Shift"> | number
-  actualClosingBalance?: Prisma.FloatNullableFilter<"Shift"> | number | null
-  expectedClosingBalance?: Prisma.FloatNullableFilter<"Shift"> | number | null
   totalAdditionalIncome?: Prisma.FloatNullableFilter<"Shift"> | number | null
-  totalCashRegister?: Prisma.FloatNullableFilter<"Shift"> | number | null
   totalExpenses?: Prisma.FloatNullableFilter<"Shift"> | number | null
-  openedAt?: Prisma.DateTimeFilter<"Shift"> | Date | string
+  totalCashRegister?: Prisma.FloatNullableFilter<"Shift"> | number | null
+  expectedClosingBalance?: Prisma.FloatNullableFilter<"Shift"> | number | null
+  actualClosingBalance?: Prisma.FloatNullableFilter<"Shift"> | number | null
   closedAt?: Prisma.DateTimeNullableFilter<"Shift"> | Date | string | null
+  openedAt?: Prisma.DateTimeFilter<"Shift"> | Date | string
   userId?: Prisma.StringFilter<"Shift"> | string
 }
 
@@ -705,28 +705,28 @@ export type ShiftCreateWithoutAdditionalIncomeInput = {
   id?: string
   isClosed?: boolean
   openingBalance: number
-  actualClosingBalance?: number | null
-  expectedClosingBalance?: number | null
   totalAdditionalIncome?: number | null
-  totalCashRegister?: number | null
   totalExpenses?: number | null
-  openedAt?: Date | string
+  totalCashRegister?: number | null
+  expectedClosingBalance?: number | null
+  actualClosingBalance?: number | null
   closedAt?: Date | string | null
-  user: Prisma.UserCreateNestedOneWithoutShiftsInput
+  openedAt?: Date | string
   expenses?: Prisma.ExpenseCreateNestedManyWithoutShiftInput
+  user: Prisma.UserCreateNestedOneWithoutShiftsInput
 }
 
 export type ShiftUncheckedCreateWithoutAdditionalIncomeInput = {
   id?: string
   isClosed?: boolean
   openingBalance: number
-  actualClosingBalance?: number | null
-  expectedClosingBalance?: number | null
   totalAdditionalIncome?: number | null
-  totalCashRegister?: number | null
   totalExpenses?: number | null
-  openedAt?: Date | string
+  totalCashRegister?: number | null
+  expectedClosingBalance?: number | null
+  actualClosingBalance?: number | null
   closedAt?: Date | string | null
+  openedAt?: Date | string
   userId: string
   expenses?: Prisma.ExpenseUncheckedCreateNestedManyWithoutShiftInput
 }
@@ -751,28 +751,28 @@ export type ShiftUpdateWithoutAdditionalIncomeInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   isClosed?: Prisma.BoolFieldUpdateOperationsInput | boolean
   openingBalance?: Prisma.FloatFieldUpdateOperationsInput | number
-  actualClosingBalance?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  expectedClosingBalance?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   totalAdditionalIncome?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  totalCashRegister?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   totalExpenses?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  openedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  totalCashRegister?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  expectedClosingBalance?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  actualClosingBalance?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   closedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  user?: Prisma.UserUpdateOneRequiredWithoutShiftsNestedInput
+  openedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   expenses?: Prisma.ExpenseUpdateManyWithoutShiftNestedInput
+  user?: Prisma.UserUpdateOneRequiredWithoutShiftsNestedInput
 }
 
 export type ShiftUncheckedUpdateWithoutAdditionalIncomeInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   isClosed?: Prisma.BoolFieldUpdateOperationsInput | boolean
   openingBalance?: Prisma.FloatFieldUpdateOperationsInput | number
-  actualClosingBalance?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  expectedClosingBalance?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   totalAdditionalIncome?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  totalCashRegister?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   totalExpenses?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  openedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  totalCashRegister?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  expectedClosingBalance?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  actualClosingBalance?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   closedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  openedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   expenses?: Prisma.ExpenseUncheckedUpdateManyWithoutShiftNestedInput
 }
@@ -781,28 +781,28 @@ export type ShiftCreateWithoutExpensesInput = {
   id?: string
   isClosed?: boolean
   openingBalance: number
-  actualClosingBalance?: number | null
-  expectedClosingBalance?: number | null
   totalAdditionalIncome?: number | null
-  totalCashRegister?: number | null
   totalExpenses?: number | null
-  openedAt?: Date | string
+  totalCashRegister?: number | null
+  expectedClosingBalance?: number | null
+  actualClosingBalance?: number | null
   closedAt?: Date | string | null
-  user: Prisma.UserCreateNestedOneWithoutShiftsInput
+  openedAt?: Date | string
   additionalIncome?: Prisma.AdditionalIncomeCreateNestedManyWithoutShiftInput
+  user: Prisma.UserCreateNestedOneWithoutShiftsInput
 }
 
 export type ShiftUncheckedCreateWithoutExpensesInput = {
   id?: string
   isClosed?: boolean
   openingBalance: number
-  actualClosingBalance?: number | null
-  expectedClosingBalance?: number | null
   totalAdditionalIncome?: number | null
-  totalCashRegister?: number | null
   totalExpenses?: number | null
-  openedAt?: Date | string
+  totalCashRegister?: number | null
+  expectedClosingBalance?: number | null
+  actualClosingBalance?: number | null
   closedAt?: Date | string | null
+  openedAt?: Date | string
   userId: string
   additionalIncome?: Prisma.AdditionalIncomeUncheckedCreateNestedManyWithoutShiftInput
 }
@@ -827,28 +827,28 @@ export type ShiftUpdateWithoutExpensesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   isClosed?: Prisma.BoolFieldUpdateOperationsInput | boolean
   openingBalance?: Prisma.FloatFieldUpdateOperationsInput | number
-  actualClosingBalance?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  expectedClosingBalance?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   totalAdditionalIncome?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  totalCashRegister?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   totalExpenses?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  openedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  totalCashRegister?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  expectedClosingBalance?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  actualClosingBalance?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   closedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  user?: Prisma.UserUpdateOneRequiredWithoutShiftsNestedInput
+  openedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   additionalIncome?: Prisma.AdditionalIncomeUpdateManyWithoutShiftNestedInput
+  user?: Prisma.UserUpdateOneRequiredWithoutShiftsNestedInput
 }
 
 export type ShiftUncheckedUpdateWithoutExpensesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   isClosed?: Prisma.BoolFieldUpdateOperationsInput | boolean
   openingBalance?: Prisma.FloatFieldUpdateOperationsInput | number
-  actualClosingBalance?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  expectedClosingBalance?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   totalAdditionalIncome?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  totalCashRegister?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   totalExpenses?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  openedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  totalCashRegister?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  expectedClosingBalance?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  actualClosingBalance?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   closedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  openedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
   additionalIncome?: Prisma.AdditionalIncomeUncheckedUpdateManyWithoutShiftNestedInput
 }
@@ -857,26 +857,26 @@ export type ShiftCreateManyUserInput = {
   id?: string
   isClosed?: boolean
   openingBalance: number
-  actualClosingBalance?: number | null
-  expectedClosingBalance?: number | null
   totalAdditionalIncome?: number | null
-  totalCashRegister?: number | null
   totalExpenses?: number | null
-  openedAt?: Date | string
+  totalCashRegister?: number | null
+  expectedClosingBalance?: number | null
+  actualClosingBalance?: number | null
   closedAt?: Date | string | null
+  openedAt?: Date | string
 }
 
 export type ShiftUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   isClosed?: Prisma.BoolFieldUpdateOperationsInput | boolean
   openingBalance?: Prisma.FloatFieldUpdateOperationsInput | number
-  actualClosingBalance?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  expectedClosingBalance?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   totalAdditionalIncome?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  totalCashRegister?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   totalExpenses?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  openedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  totalCashRegister?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  expectedClosingBalance?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  actualClosingBalance?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   closedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  openedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   additionalIncome?: Prisma.AdditionalIncomeUpdateManyWithoutShiftNestedInput
   expenses?: Prisma.ExpenseUpdateManyWithoutShiftNestedInput
 }
@@ -885,13 +885,13 @@ export type ShiftUncheckedUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   isClosed?: Prisma.BoolFieldUpdateOperationsInput | boolean
   openingBalance?: Prisma.FloatFieldUpdateOperationsInput | number
-  actualClosingBalance?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  expectedClosingBalance?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   totalAdditionalIncome?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  totalCashRegister?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   totalExpenses?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  openedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  totalCashRegister?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  expectedClosingBalance?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  actualClosingBalance?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   closedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  openedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   additionalIncome?: Prisma.AdditionalIncomeUncheckedUpdateManyWithoutShiftNestedInput
   expenses?: Prisma.ExpenseUncheckedUpdateManyWithoutShiftNestedInput
 }
@@ -900,13 +900,13 @@ export type ShiftUncheckedUpdateManyWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   isClosed?: Prisma.BoolFieldUpdateOperationsInput | boolean
   openingBalance?: Prisma.FloatFieldUpdateOperationsInput | number
-  actualClosingBalance?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  expectedClosingBalance?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   totalAdditionalIncome?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  totalCashRegister?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   totalExpenses?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  openedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  totalCashRegister?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  expectedClosingBalance?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  actualClosingBalance?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   closedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  openedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -953,17 +953,17 @@ export type ShiftSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   id?: boolean
   isClosed?: boolean
   openingBalance?: boolean
-  actualClosingBalance?: boolean
-  expectedClosingBalance?: boolean
   totalAdditionalIncome?: boolean
-  totalCashRegister?: boolean
   totalExpenses?: boolean
-  openedAt?: boolean
+  totalCashRegister?: boolean
+  expectedClosingBalance?: boolean
+  actualClosingBalance?: boolean
   closedAt?: boolean
+  openedAt?: boolean
   userId?: boolean
-  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   additionalIncome?: boolean | Prisma.Shift$additionalIncomeArgs<ExtArgs>
   expenses?: boolean | Prisma.Shift$expensesArgs<ExtArgs>
+  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   _count?: boolean | Prisma.ShiftCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["shift"]>
 
@@ -971,13 +971,13 @@ export type ShiftSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   id?: boolean
   isClosed?: boolean
   openingBalance?: boolean
-  actualClosingBalance?: boolean
-  expectedClosingBalance?: boolean
   totalAdditionalIncome?: boolean
-  totalCashRegister?: boolean
   totalExpenses?: boolean
-  openedAt?: boolean
+  totalCashRegister?: boolean
+  expectedClosingBalance?: boolean
+  actualClosingBalance?: boolean
   closedAt?: boolean
+  openedAt?: boolean
   userId?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["shift"]>
@@ -986,13 +986,13 @@ export type ShiftSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   id?: boolean
   isClosed?: boolean
   openingBalance?: boolean
-  actualClosingBalance?: boolean
-  expectedClosingBalance?: boolean
   totalAdditionalIncome?: boolean
-  totalCashRegister?: boolean
   totalExpenses?: boolean
-  openedAt?: boolean
+  totalCashRegister?: boolean
+  expectedClosingBalance?: boolean
+  actualClosingBalance?: boolean
   closedAt?: boolean
+  openedAt?: boolean
   userId?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["shift"]>
@@ -1001,21 +1001,21 @@ export type ShiftSelectScalar = {
   id?: boolean
   isClosed?: boolean
   openingBalance?: boolean
-  actualClosingBalance?: boolean
-  expectedClosingBalance?: boolean
   totalAdditionalIncome?: boolean
-  totalCashRegister?: boolean
   totalExpenses?: boolean
-  openedAt?: boolean
+  totalCashRegister?: boolean
+  expectedClosingBalance?: boolean
+  actualClosingBalance?: boolean
   closedAt?: boolean
+  openedAt?: boolean
   userId?: boolean
 }
 
-export type ShiftOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "isClosed" | "openingBalance" | "actualClosingBalance" | "expectedClosingBalance" | "totalAdditionalIncome" | "totalCashRegister" | "totalExpenses" | "openedAt" | "closedAt" | "userId", ExtArgs["result"]["shift"]>
+export type ShiftOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "isClosed" | "openingBalance" | "totalAdditionalIncome" | "totalExpenses" | "totalCashRegister" | "expectedClosingBalance" | "actualClosingBalance" | "closedAt" | "openedAt" | "userId", ExtArgs["result"]["shift"]>
 export type ShiftInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   additionalIncome?: boolean | Prisma.Shift$additionalIncomeArgs<ExtArgs>
   expenses?: boolean | Prisma.Shift$expensesArgs<ExtArgs>
+  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   _count?: boolean | Prisma.ShiftCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type ShiftIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1028,21 +1028,21 @@ export type ShiftIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extens
 export type $ShiftPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Shift"
   objects: {
-    user: Prisma.$UserPayload<ExtArgs>
     additionalIncome: Prisma.$AdditionalIncomePayload<ExtArgs>[]
     expenses: Prisma.$ExpensePayload<ExtArgs>[]
+    user: Prisma.$UserPayload<ExtArgs>
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     isClosed: boolean
     openingBalance: number
-    actualClosingBalance: number | null
-    expectedClosingBalance: number | null
     totalAdditionalIncome: number | null
-    totalCashRegister: number | null
     totalExpenses: number | null
-    openedAt: Date
+    totalCashRegister: number | null
+    expectedClosingBalance: number | null
+    actualClosingBalance: number | null
     closedAt: Date | null
+    openedAt: Date
     userId: string
   }, ExtArgs["result"]["shift"]>
   composites: {}
@@ -1438,9 +1438,9 @@ readonly fields: ShiftFieldRefs;
  */
 export interface Prisma__ShiftClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  user<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   additionalIncome<T extends Prisma.Shift$additionalIncomeArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Shift$additionalIncomeArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AdditionalIncomePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   expenses<T extends Prisma.Shift$expensesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Shift$expensesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ExpensePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  user<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1473,13 +1473,13 @@ export interface ShiftFieldRefs {
   readonly id: Prisma.FieldRef<"Shift", 'String'>
   readonly isClosed: Prisma.FieldRef<"Shift", 'Boolean'>
   readonly openingBalance: Prisma.FieldRef<"Shift", 'Float'>
-  readonly actualClosingBalance: Prisma.FieldRef<"Shift", 'Float'>
-  readonly expectedClosingBalance: Prisma.FieldRef<"Shift", 'Float'>
   readonly totalAdditionalIncome: Prisma.FieldRef<"Shift", 'Float'>
-  readonly totalCashRegister: Prisma.FieldRef<"Shift", 'Float'>
   readonly totalExpenses: Prisma.FieldRef<"Shift", 'Float'>
-  readonly openedAt: Prisma.FieldRef<"Shift", 'DateTime'>
+  readonly totalCashRegister: Prisma.FieldRef<"Shift", 'Float'>
+  readonly expectedClosingBalance: Prisma.FieldRef<"Shift", 'Float'>
+  readonly actualClosingBalance: Prisma.FieldRef<"Shift", 'Float'>
   readonly closedAt: Prisma.FieldRef<"Shift", 'DateTime'>
+  readonly openedAt: Prisma.FieldRef<"Shift", 'DateTime'>
   readonly userId: Prisma.FieldRef<"Shift", 'String'>
 }
     

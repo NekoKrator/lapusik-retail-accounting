@@ -2,36 +2,59 @@ import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import z from "zod";
 import type { ExpenseCategory } from "@/generated/prisma/client";
-import { requireAuth } from "@/lib/auth-utils";
+import { getServerSession } from "@/lib/get-session";
 import { prisma } from "@/lib/prisma";
+import { validateRequest } from "@/lib/validate-request";
 import { SupplierDeliveryCreateSchema } from "@/schemas/supplier-delivery-schema";
 import { handlePrismaError } from "@/utils/error-handlers";
 
-type GetSupplierDeliveryWhere = {
-  userId: string;
-  isPaidOff?: boolean;
-};
+const GetQuerySchema = z.object({
+  isPaidOff: z.string().min(1).optional(),
+  page: z.string().min(1).optional(),
+  limit: z.string().min(1).optional(),
+});
 
 export async function GET(req: NextRequest) {
-  const { session, error } = await requireAuth();
-  if (error) {
-    return error;
-  }
-
   try {
-    const searchParams = req.nextUrl.searchParams;
-    const isPaidOff = searchParams.get("isPaidOff");
+    const session = await getServerSession();
 
-    const baseWhere = { userId: session.user.id };
-    const whereFilter: GetSupplierDeliveryWhere = { ...baseWhere };
+    const validate = validateRequest({
+      querySchema: GetQuerySchema,
+    });
 
-    if (isPaidOff && isPaidOff.toLowerCase() === "false") {
-      whereFilter.isPaidOff = false;
+    const { error, data } = await validate(req);
+    if (error) {
+      return error;
+    }
+
+    const { query } = data;
+
+    const where = {
+      userId: session?.user.id,
+      isPaidOff: query.isPaidOff
+        ? String(query.isPaidOff).toLowerCase() === "true"
+        : undefined,
+    };
+
+    const include = { supplier: true };
+
+    if (query.page && query.limit) {
+      const page = Number(query.page);
+      const limit = Number(query.limit);
+
+      const result = await prisma.supplierDelivery.paginate({
+        page,
+        limit,
+        where,
+        include,
+      });
+
+      return NextResponse.json(result);
     }
 
     const deliveries = await prisma.supplierDelivery.findMany({
-      where: whereFilter,
-      include: { supplier: true },
+      where,
+      include,
       orderBy: { createdAt: "desc" },
     });
 
@@ -41,35 +64,34 @@ export async function GET(req: NextRequest) {
   }
 }
 
+const PostQuerySchema = z.object({
+  shiftId: z.string().min(1).optional(),
+});
+
 export async function POST(req: NextRequest) {
-  const { session, error } = await requireAuth();
-  if (error) {
-    return error;
-  }
-
   try {
-    const searchParams = req.nextUrl.searchParams;
-    const shiftId = searchParams.get("shiftId");
+    const session = await getServerSession();
+    const validate = validateRequest({
+      bodySchema: SupplierDeliveryCreateSchema,
+      querySchema: PostQuerySchema,
+    });
 
-    const body = await req.json();
-    const parsed = SupplierDeliveryCreateSchema.safeParse(body);
-
-    if (!parsed.success) {
-      return NextResponse.json(
-        { error: z.flattenError(parsed.error) },
-        { status: 400 }
-      );
+    const { error, data } = await validate(req);
+    if (error) {
+      return error;
     }
 
+    const { body, query } = data;
+
     const newExpenseCreate =
-      shiftId && parsed.data.paidByCashier
+      query.shiftId && body.paidByCashier
         ? {
             create: {
               category: "SUPPLIER_PAYMENT" as ExpenseCategory,
-              amount: parsed.data.paidByCashier,
+              amount: body.paidByCashier,
               shift: {
                 connect: {
-                  id: shiftId,
+                  id: query.shiftId,
                 },
               },
             },
@@ -78,11 +100,11 @@ export async function POST(req: NextRequest) {
 
     const createdDelivery = await prisma.supplierDelivery.create({
       data: {
-        ...parsed.data,
+        ...body,
         isPaidOff: false,
         user: {
           connect: {
-            id: session.user.id,
+            id: session?.user.id,
           },
         },
         expenses: newExpenseCreate,

@@ -3,6 +3,7 @@ import { PrismaClientKnownRequestError } from "@/generated/prisma/internal/prism
 import type { ApiErrorResponse } from "@/types/api-errors";
 
 export function handlePrismaError(err: unknown): NextResponse {
+  console.log(err);
   if (err instanceof PrismaClientKnownRequestError) {
     let details: ApiErrorResponse;
     let status: number;

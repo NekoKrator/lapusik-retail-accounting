@@ -2,12 +2,12 @@
 
 import LoadingScreen from "@/components/loading-screen";
 import { ShiftProvider } from "@/context/shift-context";
-import { useShift } from "../../hooks/api/shift/use-shift";
+import { useShiftCurrent } from "../../hooks/api/shift/use-shift-current";
 import OpenShift from "./components/open-shift";
 import SalesPage from "./components/sales-page";
 
 export default function ShiftPage() {
-  const { isLoading, data: shift } = useShift();
+  const { isLoading, data: shift } = useShiftCurrent();
 
   if (isLoading) {
     return <LoadingScreen message="Перевірка активної зміни..." />;

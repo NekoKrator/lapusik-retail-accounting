@@ -1,4 +1,4 @@
-import type { Row, Table, TableMeta } from "@tanstack/react-table";
+import type { Row } from "@tanstack/react-table";
 import { MoreHorizontal, SquarePen, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { ResponsiveAlertDialog } from "@/components/responsive-alert-dialog";
@@ -12,36 +12,23 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import type {
-  SupplierStats,
-  SupplierUpdateInput,
-} from "@/schemas/supplier-schema";
+import { useDeleteSupplier } from "@/hooks/api/supplier/use-delete-supplier";
+import { useUpdateSupplier } from "@/hooks/api/supplier/use-update-supplier";
+import type { SupplierStats } from "@/schemas/supplier-schema";
 import { EditSupplierForm } from "./edit-supplier-form";
 
 type ActionsCellProps = {
   row: Row<SupplierStats>;
-  table: Table<SupplierStats>;
 };
 
-export const ActionsCell: React.FC<ActionsCellProps> = ({ row, table }) => {
+export const ActionsCell: React.FC<ActionsCellProps> = ({ row }) => {
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
 
   const s = row.original;
-  const meta = table.options.meta as TableMeta<
-    SupplierStats,
-    SupplierUpdateInput
-  >;
 
-  const onUpdate = meta.onUpdate;
-  const onDelete = meta.onDelete;
-
-  const handleUpdate = (data: SupplierUpdateInput) => {
-    if (onUpdate) {
-      return onUpdate(s.id, data);
-    }
-    return Promise.resolve();
-  };
+  const { mutateAsync: updateSupplier } = useUpdateSupplier();
+  const { mutateAsync: deleteSupplier } = useDeleteSupplier();
 
   return (
     <>
@@ -53,7 +40,7 @@ export const ActionsCell: React.FC<ActionsCellProps> = ({ row, table }) => {
       >
         <EditSupplierForm
           initialData={s}
-          onUpdate={handleUpdate}
+          onUpdate={(payload) => updateSupplier({ id: s.id, payload })}
           setIsOpen={setIsEditOpen}
         />
       </ResponsiveDialog>
@@ -64,12 +51,7 @@ export const ActionsCell: React.FC<ActionsCellProps> = ({ row, table }) => {
         cancelButtonName="Скасувати"
         description="Ця дія є безповоротною. Це призведе до остаточного видалення даних про постачальника та всіх пов'язаних операцій."
         isOpen={isDeleteOpen}
-        onApply={() => {
-          if (onDelete) {
-            return onDelete(s.id);
-          }
-          return Promise.resolve();
-        }}
+        onApply={() => deleteSupplier(s.id)}
         setIsOpen={setIsDeleteOpen}
         title="Ви впевнені, що хочете видалити цього постачальника?"
       />
@@ -77,7 +59,7 @@ export const ActionsCell: React.FC<ActionsCellProps> = ({ row, table }) => {
       {/* Dropdown Menu */}
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button size="icon-sm" variant="ghost">
+          <Button className="size-5 rounded-sm" size="icon-sm" variant="ghost">
             <MoreHorizontal />
           </Button>
         </DropdownMenuTrigger>

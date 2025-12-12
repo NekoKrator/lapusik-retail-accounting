@@ -1,5 +1,7 @@
 import { redirect } from "next/navigation";
+import { SidebarProvider } from "@/components/ui/sidebar";
 import { getServerSession } from "@/lib/get-session";
+import { SidebarAdmin } from "./components/sidebar-admin";
 
 export default async function AdminLayout({
   children,
@@ -14,8 +16,9 @@ export default async function AdminLayout({
   }
 
   return (
-    <div className="min-h-screen p-4">
-      <div className="mx-auto max-w-6xl space-y-6">{children}</div>
-    </div>
+    <SidebarProvider>
+      <SidebarAdmin />
+      <main className="w-screen overflow-hidden">{children}</main>
+    </SidebarProvider>
   );
 }

@@ -11,7 +11,6 @@ import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { TypographyH3 } from "@/components/ui/typography";
 import { formatCurrency } from "@/lib/formatters";
 import type { SupplierDeliveryWithSupplier } from "@/schemas/supplier-delivery-schema";
-import type { RefetchTanstackQuery } from "@/types/types";
 import { CreateDeliveryForm } from "./create-delivery-form";
 import DeliveriesEmpty from "./deliveries-empty";
 import SuppliersSkeleton from "./deliveries-skeleton";
@@ -20,7 +19,7 @@ import DeliveryItem from "./delivery-item";
 type DeliveriesSectionProps = {
   deliveries: SupplierDeliveryWithSupplier[] | undefined;
   isLoadingDeliveries: boolean;
-  onFetchDelivery: RefetchTanstackQuery<SupplierDeliveryWithSupplier[]>;
+  onFetchDelivery: () => unknown;
 };
 
 export default function DeliveriesSection({

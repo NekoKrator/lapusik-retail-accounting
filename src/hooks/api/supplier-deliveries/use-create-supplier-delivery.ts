@@ -1,51 +1,41 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { Expense } from "@/generated/prisma/client";
-import axios from "@/lib/axios";
 import { API_ENDPOINTS } from "@/lib/constants/api-endpoints";
+import { postData } from "@/lib/requests";
 import type {
   SupplierDeliveryCreateInput,
   SupplierDeliveryWithSupplierAndExpenses,
 } from "@/schemas/supplier-delivery-schema";
 
-async function postSupplierDelivery(
-  payload: SupplierDeliveryCreateInput,
-  shiftId: string
-) {
-  const res = await axios.post<SupplierDeliveryWithSupplierAndExpenses>(
-    `${API_ENDPOINTS.SUPPLIER_DELIVERY}?shiftId=${shiftId}`,
-    payload
-  );
-  return res.data;
-}
+type CreateSupplierDeliverySearchParams = {
+  shiftId: string;
+};
 
-export function useCreateSupplierDelivery(shiftId: string) {
+export function useCreateSupplierDelivery(
+  params: CreateSupplierDeliverySearchParams
+) {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: (payload: SupplierDeliveryCreateInput) =>
-      postSupplierDelivery(payload, shiftId),
+      postData<SupplierDeliveryWithSupplierAndExpenses>(
+        API_ENDPOINTS.SUPPLIER_DELIVERY,
+        payload,
+        params
+      ),
     onSuccess: (response) => {
       queryClient.setQueryData<SupplierDeliveryWithSupplierAndExpenses[]>(
         [API_ENDPOINTS.SUPPLIER_DELIVERY],
-        (previous) => {
-          if (!previous) {
-            return [response];
-          }
-          return [response, ...previous];
-        }
+        (previous = []) => [response, ...previous]
       );
 
       queryClient.setQueryData<Expense[]>(
         [API_ENDPOINTS.EXPENSE],
-        (previous) => {
+        (previous = []) => {
           const expense = response.expenses.at(-1);
 
           if (expense === undefined) {
-            return previous || [];
-          }
-
-          if (!previous) {
-            return [expense];
+            return previous;
           }
 
           return [expense, ...previous];

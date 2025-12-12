@@ -37,9 +37,9 @@ export function CreateAdditionalIncomeForm() {
   }, [isSubmitSuccessful, reset]);
 
   const { currentShift } = useShiftContext();
-  const { mutateAsync: createAdditionalIncome } = useCreateAdditionalIncome(
-    currentShift.id
-  );
+  const { mutateAsync: createAdditionalIncome } = useCreateAdditionalIncome({
+    shiftId: currentShift.id,
+  });
 
   const onSubmit = async (payload: AdditionalIncomeCreateInput) => {
     await createAdditionalIncome(payload);

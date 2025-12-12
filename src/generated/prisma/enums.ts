@@ -9,6 +9,15 @@
 * 🟢 You can import this file directly.
 */
 
+export const DebtStatus = {
+  ACTIVE: 'ACTIVE',
+  PAID: 'PAID',
+  CANCELED: 'CANCELED'
+} as const
+
+export type DebtStatus = (typeof DebtStatus)[keyof typeof DebtStatus]
+
+
 export const ExpenseCategory = {
   TERMINAL: 'TERMINAL',
   RENT: 'RENT',

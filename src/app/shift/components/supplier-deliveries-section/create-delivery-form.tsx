@@ -24,9 +24,9 @@ type CreateDeliveryFormProps = {
 
 export function CreateDeliveryForm({ isLoading }: CreateDeliveryFormProps) {
   const { currentShift } = useShiftContext();
-  const { mutateAsync: createSupplierDelivery } = useCreateSupplierDelivery(
-    currentShift.id
-  );
+  const { mutateAsync: createSupplierDelivery } = useCreateSupplierDelivery({
+    shiftId: currentShift.id,
+  });
 
   const {
     formState: { isSubmitting, isSubmitSuccessful },

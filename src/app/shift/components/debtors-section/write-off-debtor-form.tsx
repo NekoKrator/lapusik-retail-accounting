@@ -39,14 +39,14 @@ export function WriteOffDebtorForm({ onWriteOff }: WriteOffDebtorFormProps) {
         <FieldGroup>
           <Controller
             control={control}
-            name="paid"
+            name="writeOffAmount"
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid}>
-                <Label htmlFor="paid">Сума списання*</Label>
+                <Label htmlFor="writeOffAmount">Сума списання*</Label>
                 <Input
                   {...field}
                   aria-invalid={fieldState.invalid}
-                  id="paid"
+                  id="writeOffAmount"
                   placeholder="0,00"
                   type="number"
                   value={field.value ?? ""}

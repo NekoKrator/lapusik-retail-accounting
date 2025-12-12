@@ -10,17 +10,14 @@ import {
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
-  getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { RefreshCw, SearchIcon } from "lucide-react";
-import type { JSX } from "react";
+import { RefreshCw } from "lucide-react";
 import { useState } from "react";
 import { DataTablePagination } from "@/components/data-table-pagination";
 import { DataTableViewOptions } from "@/components/data-table-view-options";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
   Table,
   TableBody,
@@ -30,32 +27,36 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import type { RefetchTanstackQuery } from "@/types/types";
+import { ResponsiveTooltip } from "./responsive-tooltip";
 
-type DataTableProps<TData, TValue, TUpdateData> = {
+type DataTableProps<TData, TValue> = {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
-  onFetch?: RefetchTanstackQuery<unknown[]>;
-  onUpdate?: (id: string, payload: TUpdateData) => Promise<void>;
-  onDelete?: (id: string) => Promise<unknown>;
   isLoading?: boolean;
-  emptyComponent?: () => JSX.Element;
+  emptyComponent?: React.ReactNode;
+
+  pagination: {
+    page: number;
+    limit: number;
+    totalPages: number;
+  };
+
+  onPageChange: (page: number) => void;
+  onPageSizeChange: (size: number) => void;
+
+  onFetch?: () => unknown;
 };
 
-export function DataTable<TData, TValue, TUpdateData>({
+export function DataTable<TData, TValue>({
   columns,
   data,
-  onFetch,
-  onUpdate,
-  onDelete,
+  pagination,
+  onPageChange,
+  onPageSizeChange,
   isLoading,
   emptyComponent,
-}: DataTableProps<TData, TValue, TUpdateData>) {
+  onFetch,
+}: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
@@ -66,7 +67,20 @@ export function DataTable<TData, TValue, TUpdateData>({
     columns,
     columnResizeMode: "onChange",
     getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
+    manualPagination: true,
+    pageCount: pagination.totalPages,
+    onPaginationChange: (updater) => {
+      const next =
+        typeof updater === "function"
+          ? updater({
+              pageIndex: pagination.page - 1,
+              limit: pagination.limit,
+            })
+          : updater;
+
+      onPageChange(next.pageIndex + 1);
+      onPageSizeChange(next.limit);
+    },
     onSortingChange: setSorting,
     getSortedRowModel: getSortedRowModel(),
     onColumnFiltersChange: setColumnFilters,
@@ -74,6 +88,7 @@ export function DataTable<TData, TValue, TUpdateData>({
     onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: setRowSelection,
     defaultColumn: {
+      size: 200,
       minSize: 100,
     },
     state: {
@@ -81,46 +96,28 @@ export function DataTable<TData, TValue, TUpdateData>({
       columnFilters,
       columnVisibility,
       rowSelection,
-    },
-    meta: {
-      onUpdate,
-      onDelete,
+      pagination: {
+        pageIndex: pagination.page - 1,
+        limit: pagination.limit,
+      },
     },
   });
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex items-center gap-3">
-        <div className="relative w-1/3">
-          <Input
-            className="pl-9"
-            onChange={(event) =>
-              table.getColumn("name")?.setFilterValue(event.target.value)
-            }
-            placeholder="Пошук за назвою..."
-            value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
-          />
-          <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center justify-center pl-3 text-muted-foreground/80 peer-disabled:opacity-50">
-            <SearchIcon size={16} />
-          </div>
-        </div>
+      <div className="flex justify-between">
         <DataTableViewOptions table={table} />
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              disabled={isLoading}
-              onClick={() => onFetch?.()}
-              size="icon-sm"
-              type="button"
-              variant="outline"
-            >
-              <RefreshCw className={isLoading ? "animate-spin" : ""} />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>Оновити постачальників</p>
-          </TooltipContent>
-        </Tooltip>
+        <ResponsiveTooltip message="Оновити">
+          <Button
+            disabled={isLoading}
+            onClick={() => onFetch?.()}
+            size="icon-sm"
+            type="button"
+            variant="outline"
+          >
+            <RefreshCw className={isLoading ? "animate-spin" : ""} />
+          </Button>
+        </ResponsiveTooltip>
       </div>
 
       <div className="overflow-hidden rounded-md border">
@@ -174,7 +171,7 @@ export function DataTable<TData, TValue, TUpdateData>({
                   key={row.id}
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
+                    <TableCell className="h-8" key={cell.id}>
                       {flexRender(
                         cell.column.columnDef.cell,
                         cell.getContext()
@@ -189,7 +186,7 @@ export function DataTable<TData, TValue, TUpdateData>({
                   className="h-24 text-center"
                   colSpan={columns.length}
                 >
-                  {emptyComponent ? emptyComponent() : "Нічого не знайдено."}
+                  {emptyComponent ? emptyComponent : "Нічого не знайдено."}
                 </TableCell>
               </TableRow>
             )}

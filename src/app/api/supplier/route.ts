@@ -1,39 +1,53 @@
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import z from "zod";
-import { requireAuth } from "@/lib/auth-utils";
+import { getServerSession } from "@/lib/get-session";
 import { prisma } from "@/lib/prisma";
-import { SupplierCreateInput } from "@/schemas/supplier-schema";
+import { validateRequest } from "@/lib/validate-request";
+import { SupplierCreateSchema } from "@/schemas/supplier-schema";
 import { handlePrismaError } from "@/utils/error-handlers";
 
+const GetQuerySchema = z.object({
+  include: z.string().min(1).optional(),
+  page: z.string().min(1).optional(),
+  limit: z.string().min(1).optional(),
+});
+
 export async function GET(req: NextRequest) {
-  const { error, session } = await requireAuth();
-  if (error) {
-    return error;
-  }
-
   try {
-    const searchParams = req.nextUrl.searchParams;
-    const includeDeliveries = searchParams
-      .get("include")
-      ?.includes("deliveries");
+    const validate = validateRequest({
+      querySchema: GetQuerySchema,
+    });
 
-    if (includeDeliveries && session.user.role === "admin") {
-      const suppliersWithDeliveries = await prisma.supplier.findMany({
-        include: {
-          deliveries: {
-            select: {
-              paidByCashier: true,
-              paidByOwner: true,
-              price: true,
-            },
-          },
-        },
-      });
-      return NextResponse.json(suppliersWithDeliveries);
+    const { error, data } = await validate(req);
+    if (error) {
+      return error;
     }
 
-    const suppliers = await prisma.supplier.findMany();
+    const { query } = data;
+
+    const includeDeliveries = query.include?.includes("deliveries");
+
+    const include = {
+      deliveries: includeDeliveries,
+    };
+
+    if (query.page && query.limit) {
+      const page = Number(query.page);
+      const limit = Number(query.limit);
+
+      const result = await prisma.supplier.paginate({
+        page,
+        limit,
+        include,
+      });
+
+      return NextResponse.json(result);
+    }
+
+    const suppliers = await prisma.supplier.findMany({
+      include,
+    });
     return NextResponse.json(suppliers);
   } catch (err) {
     return handlePrismaError(err);
@@ -41,24 +55,26 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const { error } = await requireAuth(["admin"]);
-  if (error) {
-    return error;
-  }
-
   try {
-    const body = await req.json();
-    const parsed = SupplierCreateInput.safeParse(body);
+    const session = await getServerSession();
 
-    if (!parsed.success) {
-      return NextResponse.json(
-        { error: z.flattenError(parsed.error) },
-        { status: 400 }
-      );
+    if (session?.user.role !== "admin") {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
+    const validate = validateRequest({
+      bodySchema: SupplierCreateSchema,
+    });
+
+    const { error, data } = await validate(req);
+    if (error) {
+      return error;
+    }
+
+    const { body } = data;
+
     const createdSupplier = await prisma.supplier.create({
-      data: parsed.data,
+      data: body,
       include: { deliveries: true },
     });
 

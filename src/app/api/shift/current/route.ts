@@ -1,22 +1,18 @@
 import { type NextRequest, NextResponse } from "next/server";
-import { requireAuth } from "@/lib/auth-utils";
+import { getServerSession } from "@/lib/get-session";
 import { prisma } from "@/lib/prisma";
 import { handlePrismaError } from "@/utils/error-handlers";
 
 export async function GET(_req: NextRequest) {
-  const { session, error } = await requireAuth();
-  if (error) {
-    return error;
-  }
-
   try {
+    const session = await getServerSession();
     const currentShift = await prisma.shift.findFirst({
-      where: { userId: session.user.id, isClosed: false },
+      where: { userId: session?.user.id, isClosed: false },
       orderBy: { openedAt: "desc" },
     });
 
     const lastClosedShift = await prisma.shift.findFirst({
-      where: { userId: session.user.id, isClosed: true },
+      where: { userId: session?.user.id, isClosed: true },
       orderBy: { closedAt: "desc" },
     });
 

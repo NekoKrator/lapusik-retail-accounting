@@ -1,25 +1,17 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { AdditionalIncome } from "@/generated/prisma/client";
-import axios from "@/lib/axios";
 import { API_ENDPOINTS } from "@/lib/constants/api-endpoints";
+import { postData } from "@/lib/requests";
 import type {
-  DebtorWithAdditionalIncome,
+  DebtorWithDebtsAndAdditionalIncome,
   DebtorWriteOffInput,
 } from "@/schemas/debtor-schema";
 
-async function writeOffDebtor(
-  id: string,
-  payload: DebtorWriteOffInput,
-  shiftId: string
-) {
-  const res = await axios.patch<DebtorWithAdditionalIncome>(
-    `${API_ENDPOINTS.DEBTOR}/${id}/write-off?shiftId=${shiftId}`,
-    payload
-  );
-  return res.data;
-}
+type WriteOffDebtorSearchParams = {
+  shiftId?: string;
+};
 
-export function useWriteOffDebtor(shiftId: string) {
+export function useWriteOffDebtor(params?: WriteOffDebtorSearchParams) {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -29,38 +21,37 @@ export function useWriteOffDebtor(shiftId: string) {
     }: {
       id: string;
       payload: DebtorWriteOffInput;
-    }) => writeOffDebtor(id, payload, shiftId),
+    }) =>
+      postData<DebtorWithDebtsAndAdditionalIncome>(
+        `${API_ENDPOINTS.DEBTOR}/${id}/write-off`,
+        payload,
+        params
+      ),
     onSuccess: (response) => {
-      queryClient.setQueryData<DebtorWithAdditionalIncome[]>(
+      queryClient.setQueryData<DebtorWithDebtsAndAdditionalIncome[]>(
         [API_ENDPOINTS.DEBTOR],
-        (previous) => {
-          if (!previous) {
-            return [response];
-          }
-
+        (previous = []) => {
           const listWithoutUpdatedItem = previous.filter(
             (p) => p.id !== response.id
           );
 
-          if (response.isPaidOff) {
-            return listWithoutUpdatedItem || [];
-          }
+          const hasActiveDebt = response.debts?.some(
+            (d) => d.status === "ACTIVE"
+          );
 
-          return [response, ...listWithoutUpdatedItem];
+          return hasActiveDebt
+            ? [response, ...listWithoutUpdatedItem]
+            : listWithoutUpdatedItem;
         }
       );
 
       queryClient.setQueryData<AdditionalIncome[]>(
         [API_ENDPOINTS.ADDITIONAL_INCOME],
-        (previous) => {
+        (previous = []) => {
           const additionalIncome = response.additionalIncome.at(-1);
 
           if (additionalIncome === undefined) {
-            return previous || [];
-          }
-
-          if (!previous) {
-            return [additionalIncome];
+            return previous;
           }
 
           return [additionalIncome, ...previous];

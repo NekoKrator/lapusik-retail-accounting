@@ -16,41 +16,50 @@ import {
   ItemTitle,
 } from "@/components/ui/item";
 import { useShiftContext } from "@/context/shift-context";
-import type { Debtor } from "@/generated/prisma/client";
 import { useUpdateDebtor } from "@/hooks/api/debtor/use-update-debtor";
 import { useWriteOffDebtor } from "@/hooks/api/debtor/use-write-off-debtor";
 import { formatCurrency } from "@/lib/formatters";
+import type { DebtorWithDebts } from "@/schemas/debtor-schema";
 import { WriteOffDebtorForm } from "./write-off-debtor-form";
 
 type DebtorItemProps = {
-  debtor: Debtor;
+  debtor: DebtorWithDebts;
 };
 
 export default function DebtorItem({ debtor }: DebtorItemProps) {
   const { currentShift } = useShiftContext();
 
-  const { mutateAsync: writeOffDebtor } = useWriteOffDebtor(currentShift.id);
+  const { mutateAsync: writeOffDebtor } = useWriteOffDebtor({
+    shiftId: currentShift.id,
+  });
   const { mutateAsync: updateDebtor } = useUpdateDebtor();
 
   const currentDebt = useMemo(
-    () => debtor.debt - debtor.paid,
-    [debtor.debt, debtor.paid]
+    () => debtor.debts.reduce((s, d) => s + d.amount - d.paidAmount, 0),
+    [debtor.debts]
   );
 
-  const handleWriteOff = async (payload: { paid: number }) => {
+  const handleWriteOff = async (payload: { writeOffAmount: number }) => {
     await writeOffDebtor({
       id: debtor.id,
       payload,
     });
     toast.success("Списання успішно завершено!", {
-      description: `Створено надходження на ${payload.paid} ₴.`,
+      description: `Створено надходження на ${payload.writeOffAmount} ₴.`,
     });
   };
 
   const handleRemove = async (id: string) => {
     await updateDebtor({
       id,
-      payload: { paid: 0, debt: 0, isPaidOff: true },
+      payload: {
+        debts: {
+          updateMany: {
+            where: { status: "ACTIVE" },
+            data: { status: "CANCELED" },
+          },
+        },
+      },
     });
     toast.success("Боржника успішно видалено!");
   };
@@ -65,7 +74,7 @@ export default function DebtorItem({ debtor }: DebtorItemProps) {
           </ResponsiveTooltip>
         </ItemTitle>
         <ItemDescription className="line-clamp-1 truncate">
-          {format(debtor.createdAt, "dd.MM.yy, kk:mm")}
+          {format(debtor.createdAt, "dd.MM.yy, HH:mm")}
         </ItemDescription>
       </ItemContent>
 

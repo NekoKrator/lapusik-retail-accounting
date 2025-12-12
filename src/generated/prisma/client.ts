@@ -80,6 +80,11 @@ export type SupplierDelivery = Prisma.SupplierDeliveryModel
  */
 export type Debtor = Prisma.DebtorModel
 /**
+ * Model Debt
+ * 
+ */
+export type Debt = Prisma.DebtModel
+/**
  * Model AdditionalIncome
  * 
  */

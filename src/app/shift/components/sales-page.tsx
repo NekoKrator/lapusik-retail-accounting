@@ -76,25 +76,25 @@ export default function SalesPage({ currentShift }: SalesPageProps) {
     isFetching: isLoadingDebtors,
     data: debtors,
     refetch: refetchDebtors,
-  } = useDebtors();
+  } = useDebtors({ status: "ACTIVE" });
 
   const {
     isFetching: isLoadingDeliveries,
     data: deliveries,
     refetch: refetchDeliveries,
-  } = useSupplierDeliveries();
+  } = useSupplierDeliveries({ isPaidOff: "false" });
 
   const {
     isFetching: isLoadingAdditionalIncome,
     data: additionalIncome,
     refetch: refetchAdditionalIncome,
-  } = useAdditionalIncome(currentShift.id);
+  } = useAdditionalIncome({ shiftId: currentShift.id });
 
   const {
     isFetching: isLoadingExpenses,
     data: expenses,
     refetch: refetchExpenses,
-  } = useExpenses(currentShift.id);
+  } = useExpenses({ shiftId: currentShift.id });
 
   // Final calculations
   const {

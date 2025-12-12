@@ -9,10 +9,14 @@ import { Button } from "@/components/ui/button";
 import { Field, FieldError, FieldGroup, FieldSet } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
-import { SupplierCreateInput } from "@/schemas/supplier-schema";
+import type { Supplier } from "@/generated/prisma/client";
+import {
+  type SupplierCreateInput,
+  SupplierCreateSchema,
+} from "@/schemas/supplier-schema";
 
 type CreateSupplierFormProps = {
-  onCreate: (data: SupplierCreateInput) => Promise<void>;
+  onCreate: (data: SupplierCreateInput) => Promise<Supplier>;
 };
 
 export function CreateSupplierForm({ onCreate }: CreateSupplierFormProps) {
@@ -21,8 +25,8 @@ export function CreateSupplierForm({ onCreate }: CreateSupplierFormProps) {
     reset,
     handleSubmit,
     control,
-  } = useForm<z.infer<typeof SupplierCreateInput>>({
-    resolver: zodResolver(SupplierCreateInput),
+  } = useForm<z.infer<typeof SupplierCreateSchema>>({
+    resolver: zodResolver(SupplierCreateSchema),
     defaultValues: {
       name: "",
     },
@@ -58,7 +62,7 @@ export function CreateSupplierForm({ onCreate }: CreateSupplierFormProps) {
 
           <Field>
             <Button
-              className="relative has-[>svg]:px-4"
+              className="relative bg-blue-600 has-[>svg]:px-4"
               disabled={isSubmitting}
               type="submit"
             >

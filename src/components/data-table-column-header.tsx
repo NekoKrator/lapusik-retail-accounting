@@ -25,10 +25,18 @@ export function DataTableColumnHeader<TData, TValue>({
 
   const renderSortIndicator = (isSorted: false | SortDirection) => {
     if (isSorted === "desc") {
-      return <ArrowDownWideNarrow />;
+      return (
+        <span title="За спаданням">
+          <ArrowDownWideNarrow />
+        </span>
+      );
     }
     if (isSorted === "asc") {
-      return <ArrowUpWideNarrow />;
+      return (
+        <span title="За зростанням">
+          <ArrowUpWideNarrow />
+        </span>
+      );
     }
     return <ChevronsUpDown />;
   };
@@ -42,7 +50,9 @@ export function DataTableColumnHeader<TData, TValue>({
       onClick={() => column.toggleSorting()}
       variant="text"
     >
-      <div className="truncate">{title}</div>
+      <div className="truncate" title={title}>
+        {title}
+      </div>
       {renderSortIndicator(column.getIsSorted())}
     </Button>
   );

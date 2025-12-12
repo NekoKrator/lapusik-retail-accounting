@@ -1,109 +1,131 @@
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import z from "zod";
-import type { ExpenseCategory } from "@/generated/prisma/enums";
-import { requireAuth } from "@/lib/auth-utils";
+import type { DebtStatus, ExpenseCategory } from "@/generated/prisma/enums";
+import { getServerSession } from "@/lib/get-session";
 import { prisma } from "@/lib/prisma";
+import { validateRequest } from "@/lib/validate-request";
 import { DebtorCreateSchema } from "@/schemas/debtor-schema";
 import { handlePrismaError } from "@/utils/error-handlers";
 
-type GetDebtorsWhere = {
-  userId: string;
-  isPaidOff?: boolean;
-};
+const GetQuerySchema = z.object({
+  userId: z.string().min(1).optional(),
+  status: z.enum(["ACTIVE", "PAID", "CANCELED"]).optional(),
+  page: z.string().min(1).optional(),
+  limit: z.string().min(1).optional(),
+});
 
 export async function GET(req: NextRequest) {
-  const { session, error } = await requireAuth();
-  if (error) {
-    return error;
-  }
-
   try {
-    const searchParams = req.nextUrl.searchParams;
-    const isPaidOff = searchParams.get("isPaidOff");
-
-    const where: GetDebtorsWhere = { userId: session.user.id };
-
-    if (isPaidOff) {
-      where.isPaidOff = isPaidOff.toLowerCase() === "true";
-    }
-
-    const debtors = await prisma.debtor.findMany({
-      where,
-      orderBy: { updatedAt: "desc" },
+    const session = await getServerSession();
+    const validate = validateRequest({
+      querySchema: GetQuerySchema,
     });
 
-    return NextResponse.json(debtors);
+    const { error, data } = await validate(req);
+    if (error) {
+      return error;
+    }
+
+    const { query } = data;
+
+    const debtFilter = { status: query.status };
+
+    const where = {
+      userId: session?.user.role === "admin" ? query.userId : session?.user.id,
+      debts: { some: debtFilter },
+    };
+
+    if (query.page && query.limit) {
+      const page = Number(query.page);
+      const limit = Number(query.limit);
+
+      const result = await prisma.debtor.paginate({
+        page,
+        limit,
+        where,
+        orderBy: { createdAt: "desc" },
+        include: {
+          debts: { where: debtFilter },
+        },
+      });
+
+      return NextResponse.json(result);
+    }
+
+    const items = await prisma.debtor.findMany({
+      where,
+      orderBy: { createdAt: "desc" },
+      include: {
+        debts: { where: debtFilter },
+      },
+    });
+
+    return NextResponse.json(items);
   } catch (err) {
     return handlePrismaError(err);
   }
 }
 
+const PostQuerySchema = z.object({
+  shiftId: z.string().min(1).optional(),
+});
+
 export async function POST(req: NextRequest) {
-  const { session, error } = await requireAuth();
-  if (error) {
-    return error;
-  }
-
   try {
-    const body = await req.json();
-    const parsed = DebtorCreateSchema.safeParse(body);
+    const session = await getServerSession();
+    const validate = validateRequest({
+      bodySchema: DebtorCreateSchema,
+      querySchema: PostQuerySchema,
+    });
 
-    if (!parsed.success) {
-      return NextResponse.json(
-        { error: z.flattenError(parsed.error) },
-        { status: 400 }
-      );
+    const { error, data } = await validate(req);
+    if (error) {
+      return error;
     }
 
-    const searchParams = req.nextUrl.searchParams;
-    const shiftId = searchParams.get("shiftId");
-    const { name, debt } = parsed.data;
+    const { body, query } = data;
 
-    const newExpenseCreate = shiftId
+    const expenseCreate = query.shiftId
       ? {
           create: {
             category: "DEBTOR" as ExpenseCategory,
-            amount: debt,
-            shift: {
-              connect: {
-                id: shiftId,
-              },
-            },
+            amount: body.newDebtAmount,
+            shift: { connect: { id: query.shiftId } },
           },
         }
       : undefined;
 
-    const existing = await prisma.debtor.findUnique({
-      where: { name },
-    });
-
-    const createdDebtor = await prisma.debtor.upsert({
-      where: {
-        name,
-      },
-      update: {
-        debt: { increment: debt },
-        isPaidOff: false,
-        createdAt: new Date(),
-        expenses: newExpenseCreate,
-      },
+    const debtCreate = {
       create: {
-        ...parsed.data,
-        isPaidOff: false,
-        expenses: newExpenseCreate,
-        user: {
-          connect: {
-            id: session.user.id,
-          },
+        amount: body.newDebtAmount,
+        status: "ACTIVE" as DebtStatus,
+      },
+    };
+
+    const updateDebtorData = {
+      debts: debtCreate,
+      expenses: expenseCreate,
+    };
+
+    const upserted = await prisma.debtor.upsert({
+      where: { name: body.name },
+      update: updateDebtorData,
+      create: {
+        name: body.name,
+        user: { connect: { id: session?.user.id } },
+        ...updateDebtorData,
+      },
+      include: {
+        debts: true,
+        expenses: {
+          where: { shiftId: query.shiftId },
+          include: { debtor: true },
         },
       },
-      include: { expenses: { include: { debtor: true } } },
     });
 
-    const status = existing ? 200 : 201;
-
-    return NextResponse.json(createdDebtor, { status });
+    return NextResponse.json(upserted, { status: 201 });
   } catch (err) {
     return handlePrismaError(err);
   }

@@ -1,20 +1,30 @@
 import { z } from "zod";
 import type { Prisma } from "@/generated/prisma/client";
 
-const debtorExpenseInclude = {
+const debtorDebtsInclude = {
+  debts: true,
+} satisfies Prisma.DebtorInclude;
+
+export type DebtorWithDebts = Prisma.DebtorGetPayload<{
+  include: typeof debtorDebtsInclude;
+}>;
+
+const debtorDebtsAndExpensesInclude = {
+  debts: true,
   expenses: true,
 } satisfies Prisma.DebtorInclude;
 
-const debtorAdditionalIncomeInclude = {
+export type DebtorWithDebtsAndExpenses = Prisma.DebtorGetPayload<{
+  include: typeof debtorDebtsAndExpensesInclude;
+}>;
+
+const debtorDebtsAndAdditionalIncomeInclude = {
+  debts: true,
   additionalIncome: true,
 } satisfies Prisma.DebtorInclude;
 
-export type DebtorWithExpenses = Prisma.DebtorGetPayload<{
-  include: typeof debtorExpenseInclude;
-}>;
-
-export type DebtorWithAdditionalIncome = Prisma.DebtorGetPayload<{
-  include: typeof debtorAdditionalIncomeInclude;
+export type DebtorWithDebtsAndAdditionalIncome = Prisma.DebtorGetPayload<{
+  include: typeof debtorDebtsAndAdditionalIncomeInclude;
 }>;
 
 export const DebtorCreateSchema = z.object({
@@ -26,8 +36,8 @@ export const DebtorCreateSchema = z.object({
       113,
       "Найдовше ім'я в Україні виглядає так: Бронівогневладислав-Едуардолеонардоконстантинослав Володимиренклименжільєнко-Громинревинградинтеменко Миколайович"
     ),
-  debt: z.coerce
-    .number<number>("Введіть суму боргу")
+  newDebtAmount: z.coerce
+    .number<number>("Сума боргу є обов'язковою")
     .positive("Сума боргу повинна бути більше 0 ₴")
     .max(9_999_999, "Сума боргу може бути максимум 9 999 999 ₴"),
 }) satisfies z.ZodType<Prisma.DebtorCreateWithoutUserInput>;
@@ -41,26 +51,29 @@ export const DebtorUpdateSchema = z.object({
     .min(1, "Ім'я має містити щонайменше 1 символ")
     .max(113, "Ім'я може містити максимум 113 символів")
     .optional(),
-  paid: z
-    .number()
-    .min(0, "Нова сума сплати повинна бути щонайменше 0 ₴")
-    .max(9_999_999, "Нова сума сплати може бути максимум 9 999 999 ₴")
+  debts: z
+    .object({
+      updateMany: z
+        .object({
+          where: z.object({
+            status: z.enum(["ACTIVE", "PAID", "CANCELED"]).optional(),
+          }),
+          data: z.object({
+            status: z.enum(["ACTIVE", "PAID", "CANCELED"]).optional(),
+          }),
+        })
+        .optional(),
+    })
     .optional(),
-  debt: z
-    .number()
-    .min(0, "Нова сума боргу повинна бути щонайменше 0 ₴")
-    .max(9_999_999, "Нова сума боргу може бути максимум 9 999 999 ₴")
-    .optional(),
-  isPaidOff: z.boolean().optional(),
 }) satisfies z.ZodType<Prisma.DebtorUpdateInput>;
 
 export type DebtorUpdateInput = z.infer<typeof DebtorUpdateSchema>;
 
 export const DebtorWriteOffSchema = z.object({
-  paid: z.coerce
+  writeOffAmount: z.coerce
     .number<number>("Сума списання є обов'язковою")
     .positive("Сума списання повинна бути більше 0 ₴")
     .max(9_999_999, "Сума списання може бути максимум 9 999 999 ₴"),
-}) satisfies z.ZodType<Prisma.DebtorUpdateInput>;
+});
 
-export type DebtorWriteOffInput = z.input<typeof DebtorWriteOffSchema>;
+export type DebtorWriteOffInput = z.infer<typeof DebtorWriteOffSchema>;

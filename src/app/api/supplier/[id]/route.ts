@@ -1,34 +1,36 @@
 import { type NextRequest, NextResponse } from "next/server";
-import z from "zod";
-import { requireAuth } from "@/lib/auth-utils";
+import { getServerSession } from "@/lib/get-session";
 import { prisma } from "@/lib/prisma";
-import { SupplierUpdateInput } from "@/schemas/supplier-schema";
+import { validateRequest } from "@/lib/validate-request";
+import { SupplierUpdateSchema } from "@/schemas/supplier-schema";
 import { handlePrismaError } from "@/utils/error-handlers";
 
 export async function PATCH(
   req: NextRequest,
   context: { params: Promise<{ id: string }> }
 ) {
-  const { error } = await requireAuth(["admin"]);
-  if (error) {
-    return error;
-  }
-
   try {
-    const { id } = await context.params;
-    const body = await req.json();
-    const parsed = SupplierUpdateInput.safeParse(body);
+    const session = await getServerSession();
 
-    if (!parsed.success) {
-      return NextResponse.json(
-        { error: z.flattenError(parsed.error) },
-        { status: 400 }
-      );
+    if (session?.user.role !== "admin") {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
+
+    const { id } = await context.params;
+    const validate = validateRequest({
+      bodySchema: SupplierUpdateSchema,
+    });
+
+    const { error, data } = await validate(req);
+    if (error) {
+      return error;
+    }
+
+    const { body } = data;
 
     const updatedSupplier = await prisma.supplier.update({
       where: { id },
-      data: parsed.data,
+      data: body,
       include: { deliveries: true },
     });
 
@@ -42,12 +44,13 @@ export async function DELETE(
   _req: NextRequest,
   context: { params: Promise<{ id: string }> }
 ) {
-  const { error } = await requireAuth(["admin"]);
-  if (error) {
-    return error;
-  }
-
   try {
+    const session = await getServerSession();
+
+    if (session?.user.role !== "admin") {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
+
     const { id } = await context.params;
     const deletedSupplier = await prisma.supplier.delete({
       where: { id },

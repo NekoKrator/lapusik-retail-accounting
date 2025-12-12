@@ -24,6 +24,7 @@ model User {
   banReason          String?
   banExpires         DateTime?
   accounts           Account[]
+
   debtors            Debtor[]
   sessions           Session[]
   shifts             Shift[]
@@ -79,43 +80,51 @@ model Verification {
 
 model Shift {
   id                     String             @id @default(uuid())
-  userId                 String
-  isClosed               Boolean            @default(false)
-  totalCashRegister      Float?             @default(0)
+	isClosed               Boolean            @default(false)
+  openingBalance         Float
   totalAdditionalIncome  Float?             @default(0)
   totalExpenses          Float?             @default(0)
-  closedAt               DateTime?
-  openedAt               DateTime           @default(now())
-  actualClosingBalance   Float?             @default(0)
+  totalCashRegister      Float?             @default(0)
   expectedClosingBalance Float?             @default(0)
-  openingBalance         Float
-  additionalIncome       AdditionalIncome[]
+  actualClosingBalance   Float?             @default(0)
+	closedAt               DateTime?
+  openedAt               DateTime           @default(now())
+  
+	additionalIncome       AdditionalIncome[]
   expenses               Expense[]
-  user                   User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+	userId                 String 
+	user                   User               @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("shift")
 }
 
 model Supplier {
-  id         String             @id @default(uuid())
-  name       String             @unique
-  deliveries SupplierDelivery[]
+  id         String   @id @default(uuid())
+  name       String   @unique
+	createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  
+	deliveries SupplierDelivery[]
 
   @@map("supplier")
 }
 
 model SupplierDelivery {
   id            String    @id @default(uuid())
-  supplierId    String
-  userId        String
+  price         Float
+  isPaidOff     Boolean   @default(false)
   paidByCashier Float?    @default(0)
   paidByOwner   Float?    @default(0)
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
-  price         Float
-  isPaidOff     Boolean   @default(false)
-  expenses      Expense[]
+  
+	expenses      Expense[]
+  
+	supplierId    String
   supplier      Supplier  @relation(fields: [supplierId], references: [id], onDelete: Cascade)
+  
+	userId        String
   user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("supplier_delivery")
@@ -124,44 +133,69 @@ model SupplierDelivery {
 model Debtor {
   id               String             @id @default(uuid())
   name             String             @unique
-  userId           String
   createdAt        DateTime           @default(now())
   updatedAt        DateTime           @updatedAt
-  isPaidOff        Boolean            @default(false)
-  debt             Float              @default(0)
-  paid             Float              @default(0)
-  additionalIncome AdditionalIncome[]
-  user             User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  debts            Debt[]
+	additionalIncome AdditionalIncome[]
   expenses         Expense[]
+
+	userId           String
+  user             User               @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("debtor")
 }
 
+model Debt {
+  id               String             @id @default(uuid())
+  amount           Float              @default(0)
+  paidAmount       Float              @default(0)
+	status					 DebtStatus         @default(ACTIVE)
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+  
+	debtorId         String
+  debtor           Debtor             @relation(fields: [debtorId], references: [id], onDelete: Cascade)
+
+  @@map("debt")
+}
+
+enum DebtStatus {
+	ACTIVE
+	PAID
+	CANCELED
+}
+
 model AdditionalIncome {
   id        String   @id @default(uuid())
-  shiftId   String
   category  String
   amount    Float
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  debtorId  String?
-  debtor    Debtor?  @relation(fields: [debtorId], references: [id], onDelete: Cascade)
+
+	shiftId   String
   shift     Shift    @relation(fields: [shiftId], references: [id], onDelete: Cascade)
+  
+	debtorId  String?
+  debtor    Debtor?  @relation(fields: [debtorId], references: [id], onDelete: Cascade)
 
   @@map("additional_income")
 }
 
 model Expense {
   id                 String            @id @default(uuid())
-  shiftId            String
   category           ExpenseCategory
   amount             Float
   createdAt          DateTime          @default(now())
   updatedAt          DateTime          @updatedAt
-  supplierDeliveryId String?
-  debtorId           String?
-  debtor             Debtor?           @relation(fields: [debtorId], references: [id], onDelete: Cascade)
+
+  shiftId            String
   shift              Shift             @relation(fields: [shiftId], references: [id], onDelete: Cascade)
+  
+	debtorId           String?
+  debtor             Debtor?             @relation(fields: [debtorId], references: [id], onDelete: Cascade)
+	
+	supplierDeliveryId String?
   supplierDelivery   SupplierDelivery? @relation(fields: [supplierDeliveryId], references: [id], onDelete: Cascade)
 
   @@map("expense")

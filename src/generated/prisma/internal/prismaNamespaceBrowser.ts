@@ -59,6 +59,7 @@ export const ModelName = {
   Supplier: 'Supplier',
   SupplierDelivery: 'SupplierDelivery',
   Debtor: 'Debtor',
+  Debt: 'Debt',
   AdditionalIncome: 'AdditionalIncome',
   Expense: 'Expense'
 } as const
@@ -148,13 +149,13 @@ export const ShiftScalarFieldEnum = {
   id: 'id',
   isClosed: 'isClosed',
   openingBalance: 'openingBalance',
-  actualClosingBalance: 'actualClosingBalance',
-  expectedClosingBalance: 'expectedClosingBalance',
   totalAdditionalIncome: 'totalAdditionalIncome',
-  totalCashRegister: 'totalCashRegister',
   totalExpenses: 'totalExpenses',
-  openedAt: 'openedAt',
+  totalCashRegister: 'totalCashRegister',
+  expectedClosingBalance: 'expectedClosingBalance',
+  actualClosingBalance: 'actualClosingBalance',
   closedAt: 'closedAt',
+  openedAt: 'openedAt',
   userId: 'userId'
 } as const
 
@@ -163,7 +164,9 @@ export type ShiftScalarFieldEnum = (typeof ShiftScalarFieldEnum)[keyof typeof Sh
 
 export const SupplierScalarFieldEnum = {
   id: 'id',
-  name: 'name'
+  name: 'name',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 } as const
 
 export type SupplierScalarFieldEnum = (typeof SupplierScalarFieldEnum)[keyof typeof SupplierScalarFieldEnum]
@@ -172,13 +175,13 @@ export type SupplierScalarFieldEnum = (typeof SupplierScalarFieldEnum)[keyof typ
 export const SupplierDeliveryScalarFieldEnum = {
   id: 'id',
   price: 'price',
+  isPaidOff: 'isPaidOff',
   paidByCashier: 'paidByCashier',
   paidByOwner: 'paidByOwner',
-  isPaidOff: 'isPaidOff',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
-  userId: 'userId',
-  supplierId: 'supplierId'
+  supplierId: 'supplierId',
+  userId: 'userId'
 } as const
 
 export type SupplierDeliveryScalarFieldEnum = (typeof SupplierDeliveryScalarFieldEnum)[keyof typeof SupplierDeliveryScalarFieldEnum]
@@ -187,15 +190,25 @@ export type SupplierDeliveryScalarFieldEnum = (typeof SupplierDeliveryScalarFiel
 export const DebtorScalarFieldEnum = {
   id: 'id',
   name: 'name',
-  paid: 'paid',
-  debt: 'debt',
-  isPaidOff: 'isPaidOff',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   userId: 'userId'
 } as const
 
 export type DebtorScalarFieldEnum = (typeof DebtorScalarFieldEnum)[keyof typeof DebtorScalarFieldEnum]
+
+
+export const DebtScalarFieldEnum = {
+  id: 'id',
+  amount: 'amount',
+  paidAmount: 'paidAmount',
+  status: 'status',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  debtorId: 'debtorId'
+} as const
+
+export type DebtScalarFieldEnum = (typeof DebtScalarFieldEnum)[keyof typeof DebtScalarFieldEnum]
 
 
 export const AdditionalIncomeScalarFieldEnum = {

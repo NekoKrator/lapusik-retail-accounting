@@ -102,7 +102,9 @@ export default function SupplierPicker({
                   }}
                   value={s.name}
                 >
-                  <p className="truncate">{s.name}</p>
+                  <p className="truncate" title={s.name}>
+                    {s.name}
+                  </p>
                   <Check
                     className={cn(
                       "ml-auto",

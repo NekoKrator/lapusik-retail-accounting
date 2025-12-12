@@ -246,11 +246,11 @@ export type UserWhereInput = {
   banned?: Prisma.BoolNullableFilter<"User"> | boolean | null
   banReason?: Prisma.StringNullableFilter<"User"> | string | null
   banExpires?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
+  accounts?: Prisma.AccountListRelationFilter
   debtors?: Prisma.DebtorListRelationFilter
+  sessions?: Prisma.SessionListRelationFilter
   shifts?: Prisma.ShiftListRelationFilter
   supplierDeliveries?: Prisma.SupplierDeliveryListRelationFilter
-  accounts?: Prisma.AccountListRelationFilter
-  sessions?: Prisma.SessionListRelationFilter
 }
 
 export type UserOrderByWithRelationInput = {
@@ -267,11 +267,11 @@ export type UserOrderByWithRelationInput = {
   banned?: Prisma.SortOrderInput | Prisma.SortOrder
   banReason?: Prisma.SortOrderInput | Prisma.SortOrder
   banExpires?: Prisma.SortOrderInput | Prisma.SortOrder
+  accounts?: Prisma.AccountOrderByRelationAggregateInput
   debtors?: Prisma.DebtorOrderByRelationAggregateInput
+  sessions?: Prisma.SessionOrderByRelationAggregateInput
   shifts?: Prisma.ShiftOrderByRelationAggregateInput
   supplierDeliveries?: Prisma.SupplierDeliveryOrderByRelationAggregateInput
-  accounts?: Prisma.AccountOrderByRelationAggregateInput
-  sessions?: Prisma.SessionOrderByRelationAggregateInput
 }
 
 export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -291,11 +291,11 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   banned?: Prisma.BoolNullableFilter<"User"> | boolean | null
   banReason?: Prisma.StringNullableFilter<"User"> | string | null
   banExpires?: Prisma.DateTimeNullableFilter<"User"> | Date | string | null
+  accounts?: Prisma.AccountListRelationFilter
   debtors?: Prisma.DebtorListRelationFilter
+  sessions?: Prisma.SessionListRelationFilter
   shifts?: Prisma.ShiftListRelationFilter
   supplierDeliveries?: Prisma.SupplierDeliveryListRelationFilter
-  accounts?: Prisma.AccountListRelationFilter
-  sessions?: Prisma.SessionListRelationFilter
 }, "id" | "email" | "username">
 
 export type UserOrderByWithAggregationInput = {
@@ -350,11 +350,11 @@ export type UserCreateInput = {
   banned?: boolean | null
   banReason?: string | null
   banExpires?: Date | string | null
+  accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
   debtors?: Prisma.DebtorCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
   shifts?: Prisma.ShiftCreateNestedManyWithoutUserInput
   supplierDeliveries?: Prisma.SupplierDeliveryCreateNestedManyWithoutUserInput
-  accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
-  sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateInput = {
@@ -371,11 +371,11 @@ export type UserUncheckedCreateInput = {
   banned?: boolean | null
   banReason?: string | null
   banExpires?: Date | string | null
+  accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
   debtors?: Prisma.DebtorUncheckedCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
   shifts?: Prisma.ShiftUncheckedCreateNestedManyWithoutUserInput
   supplierDeliveries?: Prisma.SupplierDeliveryUncheckedCreateNestedManyWithoutUserInput
-  accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
-  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserUpdateInput = {
@@ -392,11 +392,11 @@ export type UserUpdateInput = {
   banned?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   banReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   banExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
   debtors?: Prisma.DebtorUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
   shifts?: Prisma.ShiftUpdateManyWithoutUserNestedInput
   supplierDeliveries?: Prisma.SupplierDeliveryUpdateManyWithoutUserNestedInput
-  accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
-  sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -413,11 +413,11 @@ export type UserUncheckedUpdateInput = {
   banned?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   banReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   banExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
   debtors?: Prisma.DebtorUncheckedUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
   shifts?: Prisma.ShiftUncheckedUpdateManyWithoutUserNestedInput
   supplierDeliveries?: Prisma.SupplierDeliveryUncheckedUpdateManyWithoutUserNestedInput
-  accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
-  sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateManyInput = {
@@ -629,10 +629,10 @@ export type UserCreateWithoutSessionsInput = {
   banned?: boolean | null
   banReason?: string | null
   banExpires?: Date | string | null
+  accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
   debtors?: Prisma.DebtorCreateNestedManyWithoutUserInput
   shifts?: Prisma.ShiftCreateNestedManyWithoutUserInput
   supplierDeliveries?: Prisma.SupplierDeliveryCreateNestedManyWithoutUserInput
-  accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutSessionsInput = {
@@ -649,10 +649,10 @@ export type UserUncheckedCreateWithoutSessionsInput = {
   banned?: boolean | null
   banReason?: string | null
   banExpires?: Date | string | null
+  accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
   debtors?: Prisma.DebtorUncheckedCreateNestedManyWithoutUserInput
   shifts?: Prisma.ShiftUncheckedCreateNestedManyWithoutUserInput
   supplierDeliveries?: Prisma.SupplierDeliveryUncheckedCreateNestedManyWithoutUserInput
-  accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutSessionsInput = {
@@ -685,10 +685,10 @@ export type UserUpdateWithoutSessionsInput = {
   banned?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   banReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   banExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
   debtors?: Prisma.DebtorUpdateManyWithoutUserNestedInput
   shifts?: Prisma.ShiftUpdateManyWithoutUserNestedInput
   supplierDeliveries?: Prisma.SupplierDeliveryUpdateManyWithoutUserNestedInput
-  accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutSessionsInput = {
@@ -705,10 +705,10 @@ export type UserUncheckedUpdateWithoutSessionsInput = {
   banned?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   banReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   banExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
   debtors?: Prisma.DebtorUncheckedUpdateManyWithoutUserNestedInput
   shifts?: Prisma.ShiftUncheckedUpdateManyWithoutUserNestedInput
   supplierDeliveries?: Prisma.SupplierDeliveryUncheckedUpdateManyWithoutUserNestedInput
-  accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutAccountsInput = {
@@ -726,9 +726,9 @@ export type UserCreateWithoutAccountsInput = {
   banReason?: string | null
   banExpires?: Date | string | null
   debtors?: Prisma.DebtorCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
   shifts?: Prisma.ShiftCreateNestedManyWithoutUserInput
   supplierDeliveries?: Prisma.SupplierDeliveryCreateNestedManyWithoutUserInput
-  sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutAccountsInput = {
@@ -746,9 +746,9 @@ export type UserUncheckedCreateWithoutAccountsInput = {
   banReason?: string | null
   banExpires?: Date | string | null
   debtors?: Prisma.DebtorUncheckedCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
   shifts?: Prisma.ShiftUncheckedCreateNestedManyWithoutUserInput
   supplierDeliveries?: Prisma.SupplierDeliveryUncheckedCreateNestedManyWithoutUserInput
-  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutAccountsInput = {
@@ -782,9 +782,9 @@ export type UserUpdateWithoutAccountsInput = {
   banReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   banExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   debtors?: Prisma.DebtorUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
   shifts?: Prisma.ShiftUpdateManyWithoutUserNestedInput
   supplierDeliveries?: Prisma.SupplierDeliveryUpdateManyWithoutUserNestedInput
-  sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAccountsInput = {
@@ -802,9 +802,9 @@ export type UserUncheckedUpdateWithoutAccountsInput = {
   banReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   banExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   debtors?: Prisma.DebtorUncheckedUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
   shifts?: Prisma.ShiftUncheckedUpdateManyWithoutUserNestedInput
   supplierDeliveries?: Prisma.SupplierDeliveryUncheckedUpdateManyWithoutUserNestedInput
-  sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutShiftsInput = {
@@ -821,10 +821,10 @@ export type UserCreateWithoutShiftsInput = {
   banned?: boolean | null
   banReason?: string | null
   banExpires?: Date | string | null
-  debtors?: Prisma.DebtorCreateNestedManyWithoutUserInput
-  supplierDeliveries?: Prisma.SupplierDeliveryCreateNestedManyWithoutUserInput
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
+  debtors?: Prisma.DebtorCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+  supplierDeliveries?: Prisma.SupplierDeliveryCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutShiftsInput = {
@@ -841,10 +841,10 @@ export type UserUncheckedCreateWithoutShiftsInput = {
   banned?: boolean | null
   banReason?: string | null
   banExpires?: Date | string | null
-  debtors?: Prisma.DebtorUncheckedCreateNestedManyWithoutUserInput
-  supplierDeliveries?: Prisma.SupplierDeliveryUncheckedCreateNestedManyWithoutUserInput
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
+  debtors?: Prisma.DebtorUncheckedCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+  supplierDeliveries?: Prisma.SupplierDeliveryUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutShiftsInput = {
@@ -877,10 +877,10 @@ export type UserUpdateWithoutShiftsInput = {
   banned?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   banReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   banExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  debtors?: Prisma.DebtorUpdateManyWithoutUserNestedInput
-  supplierDeliveries?: Prisma.SupplierDeliveryUpdateManyWithoutUserNestedInput
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
+  debtors?: Prisma.DebtorUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+  supplierDeliveries?: Prisma.SupplierDeliveryUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutShiftsInput = {
@@ -897,10 +897,10 @@ export type UserUncheckedUpdateWithoutShiftsInput = {
   banned?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   banReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   banExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  debtors?: Prisma.DebtorUncheckedUpdateManyWithoutUserNestedInput
-  supplierDeliveries?: Prisma.SupplierDeliveryUncheckedUpdateManyWithoutUserNestedInput
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
+  debtors?: Prisma.DebtorUncheckedUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+  supplierDeliveries?: Prisma.SupplierDeliveryUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutSupplierDeliveriesInput = {
@@ -917,10 +917,10 @@ export type UserCreateWithoutSupplierDeliveriesInput = {
   banned?: boolean | null
   banReason?: string | null
   banExpires?: Date | string | null
-  debtors?: Prisma.DebtorCreateNestedManyWithoutUserInput
-  shifts?: Prisma.ShiftCreateNestedManyWithoutUserInput
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
+  debtors?: Prisma.DebtorCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+  shifts?: Prisma.ShiftCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutSupplierDeliveriesInput = {
@@ -937,10 +937,10 @@ export type UserUncheckedCreateWithoutSupplierDeliveriesInput = {
   banned?: boolean | null
   banReason?: string | null
   banExpires?: Date | string | null
-  debtors?: Prisma.DebtorUncheckedCreateNestedManyWithoutUserInput
-  shifts?: Prisma.ShiftUncheckedCreateNestedManyWithoutUserInput
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
+  debtors?: Prisma.DebtorUncheckedCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+  shifts?: Prisma.ShiftUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutSupplierDeliveriesInput = {
@@ -973,10 +973,10 @@ export type UserUpdateWithoutSupplierDeliveriesInput = {
   banned?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   banReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   banExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  debtors?: Prisma.DebtorUpdateManyWithoutUserNestedInput
-  shifts?: Prisma.ShiftUpdateManyWithoutUserNestedInput
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
+  debtors?: Prisma.DebtorUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+  shifts?: Prisma.ShiftUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutSupplierDeliveriesInput = {
@@ -993,10 +993,10 @@ export type UserUncheckedUpdateWithoutSupplierDeliveriesInput = {
   banned?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   banReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   banExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  debtors?: Prisma.DebtorUncheckedUpdateManyWithoutUserNestedInput
-  shifts?: Prisma.ShiftUncheckedUpdateManyWithoutUserNestedInput
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
+  debtors?: Prisma.DebtorUncheckedUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+  shifts?: Prisma.ShiftUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutDebtorsInput = {
@@ -1013,10 +1013,10 @@ export type UserCreateWithoutDebtorsInput = {
   banned?: boolean | null
   banReason?: string | null
   banExpires?: Date | string | null
-  shifts?: Prisma.ShiftCreateNestedManyWithoutUserInput
-  supplierDeliveries?: Prisma.SupplierDeliveryCreateNestedManyWithoutUserInput
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+  shifts?: Prisma.ShiftCreateNestedManyWithoutUserInput
+  supplierDeliveries?: Prisma.SupplierDeliveryCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutDebtorsInput = {
@@ -1033,10 +1033,10 @@ export type UserUncheckedCreateWithoutDebtorsInput = {
   banned?: boolean | null
   banReason?: string | null
   banExpires?: Date | string | null
-  shifts?: Prisma.ShiftUncheckedCreateNestedManyWithoutUserInput
-  supplierDeliveries?: Prisma.SupplierDeliveryUncheckedCreateNestedManyWithoutUserInput
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+  shifts?: Prisma.ShiftUncheckedCreateNestedManyWithoutUserInput
+  supplierDeliveries?: Prisma.SupplierDeliveryUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutDebtorsInput = {
@@ -1069,10 +1069,10 @@ export type UserUpdateWithoutDebtorsInput = {
   banned?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   banReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   banExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  shifts?: Prisma.ShiftUpdateManyWithoutUserNestedInput
-  supplierDeliveries?: Prisma.SupplierDeliveryUpdateManyWithoutUserNestedInput
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+  shifts?: Prisma.ShiftUpdateManyWithoutUserNestedInput
+  supplierDeliveries?: Prisma.SupplierDeliveryUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutDebtorsInput = {
@@ -1089,10 +1089,10 @@ export type UserUncheckedUpdateWithoutDebtorsInput = {
   banned?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   banReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   banExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  shifts?: Prisma.ShiftUncheckedUpdateManyWithoutUserNestedInput
-  supplierDeliveries?: Prisma.SupplierDeliveryUncheckedUpdateManyWithoutUserNestedInput
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+  shifts?: Prisma.ShiftUncheckedUpdateManyWithoutUserNestedInput
+  supplierDeliveries?: Prisma.SupplierDeliveryUncheckedUpdateManyWithoutUserNestedInput
 }
 
 
@@ -1101,19 +1101,19 @@ export type UserUncheckedUpdateWithoutDebtorsInput = {
  */
 
 export type UserCountOutputType = {
+  accounts: number
   debtors: number
+  sessions: number
   shifts: number
   supplierDeliveries: number
-  accounts: number
-  sessions: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  accounts?: boolean | UserCountOutputTypeCountAccountsArgs
   debtors?: boolean | UserCountOutputTypeCountDebtorsArgs
+  sessions?: boolean | UserCountOutputTypeCountSessionsArgs
   shifts?: boolean | UserCountOutputTypeCountShiftsArgs
   supplierDeliveries?: boolean | UserCountOutputTypeCountSupplierDeliveriesArgs
-  accounts?: boolean | UserCountOutputTypeCountAccountsArgs
-  sessions?: boolean | UserCountOutputTypeCountSessionsArgs
 }
 
 /**
@@ -1129,8 +1129,22 @@ export type UserCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensi
 /**
  * UserCountOutputType without action
  */
+export type UserCountOutputTypeCountAccountsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.AccountWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
 export type UserCountOutputTypeCountDebtorsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.DebtorWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountSessionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.SessionWhereInput
 }
 
 /**
@@ -1145,20 +1159,6 @@ export type UserCountOutputTypeCountShiftsArgs<ExtArgs extends runtime.Types.Ext
  */
 export type UserCountOutputTypeCountSupplierDeliveriesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.SupplierDeliveryWhereInput
-}
-
-/**
- * UserCountOutputType without action
- */
-export type UserCountOutputTypeCountAccountsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.AccountWhereInput
-}
-
-/**
- * UserCountOutputType without action
- */
-export type UserCountOutputTypeCountSessionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.SessionWhereInput
 }
 
 
@@ -1176,11 +1176,11 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   banned?: boolean
   banReason?: boolean
   banExpires?: boolean
+  accounts?: boolean | Prisma.User$accountsArgs<ExtArgs>
   debtors?: boolean | Prisma.User$debtorsArgs<ExtArgs>
+  sessions?: boolean | Prisma.User$sessionsArgs<ExtArgs>
   shifts?: boolean | Prisma.User$shiftsArgs<ExtArgs>
   supplierDeliveries?: boolean | Prisma.User$supplierDeliveriesArgs<ExtArgs>
-  accounts?: boolean | Prisma.User$accountsArgs<ExtArgs>
-  sessions?: boolean | Prisma.User$sessionsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -1234,11 +1234,11 @@ export type UserSelectScalar = {
 
 export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "email" | "emailVerified" | "image" | "createdAt" | "updatedAt" | "username" | "displayUsername" | "role" | "banned" | "banReason" | "banExpires", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  accounts?: boolean | Prisma.User$accountsArgs<ExtArgs>
   debtors?: boolean | Prisma.User$debtorsArgs<ExtArgs>
+  sessions?: boolean | Prisma.User$sessionsArgs<ExtArgs>
   shifts?: boolean | Prisma.User$shiftsArgs<ExtArgs>
   supplierDeliveries?: boolean | Prisma.User$supplierDeliveriesArgs<ExtArgs>
-  accounts?: boolean | Prisma.User$accountsArgs<ExtArgs>
-  sessions?: boolean | Prisma.User$sessionsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -1247,11 +1247,11 @@ export type UserIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensi
 export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "User"
   objects: {
+    accounts: Prisma.$AccountPayload<ExtArgs>[]
     debtors: Prisma.$DebtorPayload<ExtArgs>[]
+    sessions: Prisma.$SessionPayload<ExtArgs>[]
     shifts: Prisma.$ShiftPayload<ExtArgs>[]
     supplierDeliveries: Prisma.$SupplierDeliveryPayload<ExtArgs>[]
-    accounts: Prisma.$AccountPayload<ExtArgs>[]
-    sessions: Prisma.$SessionPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1661,11 +1661,11 @@ readonly fields: UserFieldRefs;
  */
 export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  accounts<T extends Prisma.User$accountsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$accountsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AccountPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   debtors<T extends Prisma.User$debtorsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$debtorsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DebtorPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  sessions<T extends Prisma.User$sessionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$sessionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SessionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   shifts<T extends Prisma.User$shiftsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$shiftsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ShiftPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   supplierDeliveries<T extends Prisma.User$supplierDeliveriesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$supplierDeliveriesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SupplierDeliveryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  accounts<T extends Prisma.User$accountsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$accountsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AccountPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  sessions<T extends Prisma.User$sessionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$sessionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SessionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2096,6 +2096,30 @@ export type UserDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Internal
 }
 
 /**
+ * User.accounts
+ */
+export type User$accountsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Account
+   */
+  select?: Prisma.AccountSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Account
+   */
+  omit?: Prisma.AccountOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AccountInclude<ExtArgs> | null
+  where?: Prisma.AccountWhereInput
+  orderBy?: Prisma.AccountOrderByWithRelationInput | Prisma.AccountOrderByWithRelationInput[]
+  cursor?: Prisma.AccountWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.AccountScalarFieldEnum | Prisma.AccountScalarFieldEnum[]
+}
+
+/**
  * User.debtors
  */
 export type User$debtorsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -2117,6 +2141,30 @@ export type User$debtorsArgs<ExtArgs extends runtime.Types.Extensions.InternalAr
   take?: number
   skip?: number
   distinct?: Prisma.DebtorScalarFieldEnum | Prisma.DebtorScalarFieldEnum[]
+}
+
+/**
+ * User.sessions
+ */
+export type User$sessionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Session
+   */
+  select?: Prisma.SessionSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Session
+   */
+  omit?: Prisma.SessionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.SessionInclude<ExtArgs> | null
+  where?: Prisma.SessionWhereInput
+  orderBy?: Prisma.SessionOrderByWithRelationInput | Prisma.SessionOrderByWithRelationInput[]
+  cursor?: Prisma.SessionWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.SessionScalarFieldEnum | Prisma.SessionScalarFieldEnum[]
 }
 
 /**
@@ -2165,54 +2213,6 @@ export type User$supplierDeliveriesArgs<ExtArgs extends runtime.Types.Extensions
   take?: number
   skip?: number
   distinct?: Prisma.SupplierDeliveryScalarFieldEnum | Prisma.SupplierDeliveryScalarFieldEnum[]
-}
-
-/**
- * User.accounts
- */
-export type User$accountsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the Account
-   */
-  select?: Prisma.AccountSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the Account
-   */
-  omit?: Prisma.AccountOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.AccountInclude<ExtArgs> | null
-  where?: Prisma.AccountWhereInput
-  orderBy?: Prisma.AccountOrderByWithRelationInput | Prisma.AccountOrderByWithRelationInput[]
-  cursor?: Prisma.AccountWhereUniqueInput
-  take?: number
-  skip?: number
-  distinct?: Prisma.AccountScalarFieldEnum | Prisma.AccountScalarFieldEnum[]
-}
-
-/**
- * User.sessions
- */
-export type User$sessionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the Session
-   */
-  select?: Prisma.SessionSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the Session
-   */
-  omit?: Prisma.SessionOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.SessionInclude<ExtArgs> | null
-  where?: Prisma.SessionWhereInput
-  orderBy?: Prisma.SessionOrderByWithRelationInput | Prisma.SessionOrderByWithRelationInput[]
-  cursor?: Prisma.SessionWhereUniqueInput
-  take?: number
-  skip?: number
-  distinct?: Prisma.SessionScalarFieldEnum | Prisma.SessionScalarFieldEnum[]
 }
 
 /**

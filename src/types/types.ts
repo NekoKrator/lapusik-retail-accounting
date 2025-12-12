@@ -17,3 +17,11 @@ export type LocalStorageDraft = {
 export type RefetchTanstackQuery<T> = (
   options?: RefetchOptions
 ) => Promise<QueryObserverResult<T, Error>>;
+
+export type PaginatedResponse<T> = {
+  items: T[];
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+};

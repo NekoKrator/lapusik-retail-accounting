@@ -1,20 +1,16 @@
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
-import z from "zod";
-import { requireAuth } from "@/lib/auth-utils";
+import { getServerSession } from "@/lib/get-session";
 import { prisma } from "@/lib/prisma";
+import { validateRequest } from "@/lib/validate-request";
 import { ShiftOpenSchema } from "@/schemas/shift-schema";
 import { handlePrismaError } from "@/utils/error-handlers";
 
 export async function POST(req: NextRequest) {
-  const { session, error } = await requireAuth();
-  if (error) {
-    return error;
-  }
-
   try {
+    const session = await getServerSession();
     const existingShift = await prisma.shift.findFirst({
-      where: { userId: session.user.id, isClosed: false },
+      where: { userId: session?.user.id, isClosed: false },
     });
 
     if (existingShift) {
@@ -24,18 +20,19 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const body = await req.json();
-    const parsed = ShiftOpenSchema.safeParse(body);
+    const validate = validateRequest({
+      bodySchema: ShiftOpenSchema,
+    });
 
-    if (!parsed.success) {
-      return NextResponse.json(
-        { error: z.flattenError(parsed.error) },
-        { status: 400 }
-      );
+    const { error, data } = await validate(req);
+    if (error) {
+      return error;
     }
 
+    const { body } = data;
+
     const result = await prisma.shift.create({
-      data: { ...parsed.data, user: { connect: { id: session.user.id } } },
+      data: { ...body, user: { connect: { id: session?.user.id } } },
     });
 
     return NextResponse.json(result, { status: 201 });

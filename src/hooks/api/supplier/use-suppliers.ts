@@ -1,19 +1,28 @@
 import { useQuery } from "@tanstack/react-query";
-import axios from "axios";
 import { API_ENDPOINTS } from "@/lib/constants/api-endpoints";
+import { getData, getPaginatedData } from "@/lib/requests";
 import type { SupplierWithDeliveries } from "@/schemas/supplier-schema";
 
-async function getSuppliers() {
-  const res = await axios.get<SupplierWithDeliveries[]>(
-    `${API_ENDPOINTS.SUPPLIER}?include=deliveries`
-  );
-  return res.data;
-}
+type SupplierSearchParams = {
+  include?: string;
+  page?: number;
+  limit?: number;
+};
 
-export function useSuppliers() {
+export function useSuppliers(params?: SupplierSearchParams) {
   return useQuery({
     queryKey: [API_ENDPOINTS.SUPPLIER],
-    queryFn: getSuppliers,
-    staleTime: 12 * 60 * 60 * 1000,
+    queryFn: () =>
+      getData<SupplierWithDeliveries[]>(API_ENDPOINTS.SUPPLIER, params),
+    staleTime: 60 * 60 * 1000,
+  });
+}
+
+export function useSuppliersPaginated(params?: SupplierSearchParams) {
+  return useQuery({
+    queryKey: [API_ENDPOINTS.SUPPLIER, params],
+    queryFn: () =>
+      getPaginatedData<SupplierWithDeliveries>(API_ENDPOINTS.SUPPLIER, params),
+    staleTime: 60 * 60 * 1000,
   });
 }

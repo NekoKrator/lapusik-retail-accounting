@@ -42,20 +42,15 @@ export function CreateDebtorForm({ isLoading }: CreateDebtorFormProps) {
   }, [isSubmitSuccessful, reset]);
 
   const { currentShift } = useShiftContext();
-  const { mutateAsync: createDebtor } = useCreateDebtor(currentShift.id);
+  const { mutateAsync: createDebtor } = useCreateDebtor({
+    shiftId: currentShift.id,
+  });
 
   const onSubmit = async (payload: DebtorCreateInput) => {
-    const { status } = await createDebtor(payload);
-
-    if (status === 201) {
-      toast.success("Боржника успішно створено!", {
-        description: `Створено витрату на ${getValues("debt")} ₴.`,
-      });
-    } else if (status === 200) {
-      toast.success("Боржника успішно оновлено!", {
-        description: `Створено витрату на ${getValues("debt")} ₴.`,
-      });
-    }
+    await createDebtor(payload);
+    toast.success("Боржника успішно створено!", {
+      description: `Створено витрату на ${getValues("newDebtAmount")} ₴.`,
+    });
   };
 
   return (
@@ -84,15 +79,15 @@ export function CreateDebtorForm({ isLoading }: CreateDebtorFormProps) {
 
           <Controller
             control={control}
-            name="debt"
+            name="newDebtAmount"
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid}>
-                <Label htmlFor="debt">Сума боргу*</Label>
+                <Label htmlFor="newDebtAmount">Сума боргу*</Label>
                 <Input
                   {...field}
                   aria-invalid={fieldState.invalid}
                   disabled={isLoading}
-                  id="debt"
+                  id="newDebtAmount"
                   placeholder="0,00"
                   type="number"
                   value={field.value ?? ""}

@@ -53,7 +53,7 @@ export default function OpenShift({
           <TypographyMuted className="text-sm">
             {closingDate ? (
               <>
-                {"Закрито: "} {format(closingDate, "dd.MM.yy, kk:mm")}
+                {"Закрито: "} {format(closingDate, "dd.MM.yy, HH:mm")}
               </>
             ) : (
               "Даних про останню закриту зміну не знайдено"

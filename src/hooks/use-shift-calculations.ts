@@ -1,10 +1,11 @@
 import { useMemo } from "react";
-import type { AdditionalIncome, Expense } from "@/generated/prisma/client";
+import type { AdditionalIncomeWithDebtor } from "@/schemas/additional-income-schema";
+import type { ExpenseWithInclude } from "@/schemas/expense-schema";
 
 type UseShiftCalculationsProps = {
   openingBalance: number;
-  additionalIncome: AdditionalIncome[] | undefined;
-  expenses: Expense[] | undefined;
+  additionalIncome: AdditionalIncomeWithDebtor[] | undefined;
+  expenses: ExpenseWithInclude[] | undefined;
   actualClosingBalance: number | null;
   totalCashRegister: number | null;
 };

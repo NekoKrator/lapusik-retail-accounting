@@ -1,44 +1,33 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { Expense } from "@/generated/prisma/client";
-import axios from "@/lib/axios";
 import { API_ENDPOINTS } from "@/lib/constants/api-endpoints";
+import { deleteData } from "@/lib/requests";
 import type { SupplierDeliveryWithSupplierAndExpenses } from "@/schemas/supplier-delivery-schema";
 
-async function deleteSupplierDelivery(id: string, shiftId: string) {
-  const res = await axios.delete<SupplierDeliveryWithSupplierAndExpenses>(
-    `${API_ENDPOINTS.SUPPLIER_DELIVERY}/${id}?shiftId=${shiftId}`
-  );
-  return res.data;
-}
+type DeleteSupplierDeliverySearchParams = {
+  shiftId: string;
+};
 
-export function useDeleteSupplierDelivery(shiftId: string) {
+export function useDeleteSupplierDelivery(
+  params: DeleteSupplierDeliverySearchParams
+) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (id: string) => deleteSupplierDelivery(id, shiftId),
+    mutationFn: (id: string) =>
+      deleteData<SupplierDeliveryWithSupplierAndExpenses>(
+        `${API_ENDPOINTS.SUPPLIER_DELIVERY}/${id}`,
+        params
+      ),
     onSuccess: (response) => {
       queryClient.setQueryData<SupplierDeliveryWithSupplierAndExpenses[]>(
         [API_ENDPOINTS.SUPPLIER_DELIVERY],
-        (previous) => {
-          if (!previous) {
-            return [];
-          }
-
-          return previous.filter((d) => d.id !== response.id);
-        }
+        (previous = []) => previous.filter((d) => d.id !== response.id)
       );
 
       queryClient.setQueryData<Expense[]>(
         [API_ENDPOINTS.EXPENSE],
-        (previous) => {
-          if (!previous) {
-            return [];
-          }
-
-          if (response.isPaidOff) {
-            return previous;
-          }
-
+        (previous = []) => {
           const expenseIdsToDelete = response.expenses.map(
             (expense) => expense.id
           );

@@ -1,24 +1,18 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import axios from "@/lib/axios";
 import { API_ENDPOINTS } from "@/lib/constants/api-endpoints";
+import { patchData } from "@/lib/requests";
 import type {
   SupplierDeliveryWithSupplier,
   SupplierDeliveryWriteOffInput,
 } from "@/schemas/supplier-delivery-schema";
 
-async function writeOffSupplierDelivery(
-  id: string,
-  payload: SupplierDeliveryWriteOffInput,
-  shiftId: string
-) {
-  const res = await axios.patch<SupplierDeliveryWithSupplier>(
-    `${API_ENDPOINTS.SUPPLIER_DELIVERY}/${id}/write-off?shiftId=${shiftId}`,
-    payload
-  );
-  return res.data;
-}
+type WriteOffSupplierDeliverySearchParams = {
+  shiftId: string;
+};
 
-export function useWriteOffSupplierDelivery(shiftId: string) {
+export function useWriteOffSupplierDelivery(
+  params: WriteOffSupplierDeliverySearchParams
+) {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -28,21 +22,22 @@ export function useWriteOffSupplierDelivery(shiftId: string) {
     }: {
       id: string;
       payload: SupplierDeliveryWriteOffInput;
-    }) => writeOffSupplierDelivery(id, payload, shiftId),
+    }) =>
+      patchData<SupplierDeliveryWithSupplier>(
+        `${API_ENDPOINTS.SUPPLIER_DELIVERY}/${id}/write-off`,
+        payload,
+        params
+      ),
     onSuccess: (response) => {
       queryClient.setQueryData<SupplierDeliveryWithSupplier[]>(
         [API_ENDPOINTS.SUPPLIER_DELIVERY],
-        (previous) => {
-          if (!previous) {
-            return [response];
-          }
-
+        (previous = []) => {
           const listWithoutUpdatedItem = previous.filter(
             (p) => p.id !== response.id
           );
 
           if (response.isPaidOff) {
-            return listWithoutUpdatedItem || [];
+            return listWithoutUpdatedItem;
           }
 
           return [response, ...listWithoutUpdatedItem];

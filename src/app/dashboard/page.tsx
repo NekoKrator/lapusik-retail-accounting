@@ -8,7 +8,7 @@ export default async function RedirectPage() {
   if (session) {
     switch (session.user.role) {
       case "admin":
-        redirect("/admin/suppliers");
+        redirect("/admin/stats");
         break;
       case "user":
         redirect("/shift");

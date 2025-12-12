@@ -1,30 +1,22 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import axios from "@/lib/axios";
 import { API_ENDPOINTS } from "@/lib/constants/api-endpoints";
+import { deleteData } from "@/lib/requests";
 import type { ExpenseWithInclude } from "@/schemas/expense-schema";
 
-async function deleteExpense(id: string, shiftId: string) {
-  const res = await axios.delete<ExpenseWithInclude>(
-    `${API_ENDPOINTS.EXPENSE}/${id}?shiftId=${shiftId}`
-  );
-  return res.data;
-}
+type DeleteExpenseSearchParams = {
+  shiftId: string;
+};
 
-export function useDeleteExpense(shiftId: string) {
+export function useDeleteExpense(params: DeleteExpenseSearchParams) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (id: string) => deleteExpense(id, shiftId),
+    mutationFn: (id: string) =>
+      deleteData<ExpenseWithInclude>(`${API_ENDPOINTS.EXPENSE}/${id}`, params),
     onSuccess: (response) => {
       queryClient.setQueryData<ExpenseWithInclude[]>(
         [API_ENDPOINTS.EXPENSE],
-        (previous) => {
-          if (!previous) {
-            return [];
-          }
-
-          return previous.filter((p) => p.id !== response.id);
-        }
+        (previous = []) => previous.filter((p) => p.id !== response.id)
       );
     },
   });

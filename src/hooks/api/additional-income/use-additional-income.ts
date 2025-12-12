@@ -1,18 +1,36 @@
 import { useQuery } from "@tanstack/react-query";
-import axios from "axios";
 import { API_ENDPOINTS } from "@/lib/constants/api-endpoints";
+import { getData, getPaginatedData } from "@/lib/requests";
 import type { AdditionalIncomeWithDebtor } from "@/schemas/additional-income-schema";
 
-async function getAdditionalIncome(shiftId: string) {
-  const res = await axios.get<AdditionalIncomeWithDebtor[]>(
-    `${API_ENDPOINTS.ADDITIONAL_INCOME}?shiftId=${shiftId}`
-  );
-  return res.data;
-}
+type AdditionalIncomeSearchParams = {
+  shiftId?: string;
+  page?: number;
+  limit?: number;
+};
 
-export function useAdditionalIncome(shiftId: string) {
+export function useAdditionalIncome(params?: AdditionalIncomeSearchParams) {
   return useQuery({
     queryKey: [API_ENDPOINTS.ADDITIONAL_INCOME],
-    queryFn: () => getAdditionalIncome(shiftId),
+    queryFn: () =>
+      getData<AdditionalIncomeWithDebtor[]>(
+        API_ENDPOINTS.ADDITIONAL_INCOME,
+        params
+      ),
+    staleTime: 60 * 60 * 1000,
+  });
+}
+
+export function useAdditionalIncomePaginated(
+  params?: AdditionalIncomeSearchParams
+) {
+  return useQuery({
+    queryKey: [API_ENDPOINTS.ADDITIONAL_INCOME, params],
+    queryFn: () =>
+      getPaginatedData<AdditionalIncomeWithDebtor>(
+        API_ENDPOINTS.ADDITIONAL_INCOME,
+        params
+      ),
+    staleTime: 60 * 60 * 1000,
   });
 }

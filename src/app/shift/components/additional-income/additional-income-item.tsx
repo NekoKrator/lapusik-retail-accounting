@@ -24,9 +24,9 @@ export default function AdditionalIncomeItem({
   additionalIncome,
 }: AdditionalIncomeItemProps) {
   const { currentShift } = useShiftContext();
-  const { mutateAsync: deleteAdditionalIncome } = useDeleteAdditionalIncome(
-    currentShift.id
-  );
+  const { mutateAsync: deleteAdditionalIncome } = useDeleteAdditionalIncome({
+    shiftId: currentShift.id,
+  });
 
   const debtorName =
     additionalIncome?.debtor?.name != null ? additionalIncome.debtor.name : "";
@@ -49,7 +49,7 @@ export default function AdditionalIncomeItem({
           </ResponsiveTooltip>
         </ItemTitle>
         <ItemDescription className="line-clamp-1 truncate">
-          {format(additionalIncome.createdAt, "kk:mm")}
+          {format(additionalIncome.createdAt, "HH:mm")}
         </ItemDescription>
       </ItemContent>
 

@@ -1,30 +1,27 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { AdditionalIncome } from "@/generated/prisma/client";
-import axios from "@/lib/axios";
 import { API_ENDPOINTS } from "@/lib/constants/api-endpoints";
+import { deleteData } from "@/lib/requests";
 
-async function deleteAdditionalIncome(id: string, shiftId: string) {
-  const res = await axios.delete<AdditionalIncome>(
-    `${API_ENDPOINTS.ADDITIONAL_INCOME}/${id}?shiftId=${shiftId}`
-  );
-  return res.data;
-}
+type DeleteAdditionalIncomeSearchParams = {
+  shiftId: string;
+};
 
-export function useDeleteAdditionalIncome(shiftId: string) {
+export function useDeleteAdditionalIncome(
+  params: DeleteAdditionalIncomeSearchParams
+) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (id: string) => deleteAdditionalIncome(id, shiftId),
+    mutationFn: (id: string) =>
+      deleteData<AdditionalIncome>(
+        `${API_ENDPOINTS.ADDITIONAL_INCOME}/${id}`,
+        params
+      ),
     onSuccess: (response) => {
       queryClient.setQueryData<AdditionalIncome[]>(
-        [API_ENDPOINTS.ADDITIONAL_INCOME],
-        (previous) => {
-          if (!previous) {
-            return [];
-          }
-
-          return previous.filter((p) => p.id !== response.id);
-        }
+        [API_ENDPOINTS.ADDITIONAL_INCOME, params],
+        (previous = []) => previous.filter((p) => p.id !== response.id)
       );
     },
   });

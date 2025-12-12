@@ -9,18 +9,17 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ItemGroup } from "@/components/ui/item";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { TypographyH3 } from "@/components/ui/typography";
-import type { Debtor } from "@/generated/prisma/client";
 import { formatCurrency } from "@/lib/formatters";
-import type { RefetchTanstackQuery } from "@/types/types";
+import type { DebtorWithDebts } from "@/schemas/debtor-schema";
 import { CreateDebtorForm } from "./create-debtor-form";
 import DebtorItem from "./debtor-item";
 import DebtorsEmpty from "./debtors-empty";
 import DebtorsSkeleton from "./debtors-skeleton";
 
 type DebtorsSectionProps = {
-  debtors: Debtor[] | undefined;
+  debtors: DebtorWithDebts[] | undefined;
   isLoadingDebtors: boolean;
-  onFetchDebtor: RefetchTanstackQuery<Debtor[]>;
+  onFetchDebtor: () => unknown;
 };
 
 export default function DebtorsSection({
@@ -35,7 +34,15 @@ export default function DebtorsSection({
       return 0;
     }
 
-    return debtors.reduce((sum, d) => sum + d.debt - d.paid, 0);
+    return debtors.reduce(
+      (s, debtor) =>
+        s +
+        debtor.debts.reduce(
+          (sum, debt) => sum + debt.amount - debt.paidAmount,
+          0
+        ),
+      0
+    );
   }, [debtors]);
 
   const handleRefresh = async () => {

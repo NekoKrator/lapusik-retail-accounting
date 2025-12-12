@@ -1,34 +1,25 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import axios from "@/lib/axios";
 import { API_ENDPOINTS } from "@/lib/constants/api-endpoints";
+import { postData } from "@/lib/requests";
 import type {
   ExpenseCreateInput,
   ExpenseWithInclude,
 } from "@/schemas/expense-schema";
 
-async function postExpense(payload: ExpenseCreateInput, shiftId: string) {
-  const res = await axios.post<ExpenseWithInclude>(
-    `${API_ENDPOINTS.EXPENSE}?shiftId=${shiftId}`,
-    payload
-  );
-  return res.data;
-}
+type CreateExpenseSearchParams = {
+  shiftId: string;
+};
 
-export function useCreateExpense(shiftId: string) {
+export function useCreateExpense(params: CreateExpenseSearchParams) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (payload: ExpenseCreateInput) => postExpense(payload, shiftId),
+    mutationFn: (payload: ExpenseCreateInput) =>
+      postData<ExpenseWithInclude>(API_ENDPOINTS.EXPENSE, payload, params),
     onSuccess: (response) => {
       queryClient.setQueryData<ExpenseWithInclude[]>(
         [API_ENDPOINTS.EXPENSE],
-        (previous) => {
-          if (!previous) {
-            return [response];
-          }
-
-          return [response, ...previous];
-        }
+        (previous = []) => [response, ...previous]
       );
     },
   });

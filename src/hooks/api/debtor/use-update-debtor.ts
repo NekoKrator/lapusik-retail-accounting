@@ -1,61 +1,42 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import axios from "@/lib/axios";
 import { API_ENDPOINTS } from "@/lib/constants/api-endpoints";
+import { patchData } from "@/lib/requests";
 import type {
   DebtorUpdateInput,
-  DebtorWithExpenses,
+  DebtorWithDebts,
 } from "@/schemas/debtor-schema";
 
-async function updateDebtor(id: string, payload: DebtorUpdateInput) {
-  const res = await axios.patch<DebtorWithExpenses>(
-    `${API_ENDPOINTS.DEBTOR}/${id}`,
-    payload
-  );
-  return res.data;
-}
+type UpdateDebtorSearchParams = {
+  shiftId?: string;
+};
 
-export function useUpdateDebtor() {
+export function useUpdateDebtor(params?: UpdateDebtorSearchParams) {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: ({ id, payload }: { id: string; payload: DebtorUpdateInput }) =>
-      updateDebtor(id, payload),
+      patchData<DebtorWithDebts>(
+        `${API_ENDPOINTS.DEBTOR}/${id}`,
+        payload,
+        params
+      ),
     onSuccess: (response) => {
-      queryClient.setQueryData<DebtorWithExpenses[]>(
-        [API_ENDPOINTS.DEBTOR],
-        (previous) => {
-          if (!previous) {
-            return [response];
-          }
-
+      queryClient.setQueryData<DebtorWithDebts[]>(
+        [API_ENDPOINTS.DEBTOR, params],
+        (previous = []) => {
           const listWithoutUpdatedItem = previous.filter(
             (p) => p.id !== response.id
           );
 
-          if (response.isPaidOff) {
-            return listWithoutUpdatedItem || [];
-          }
+          const hasActiveDebt = response.debts?.some(
+            (d) => d.status === "ACTIVE"
+          );
 
-          return [response, ...listWithoutUpdatedItem];
+          return hasActiveDebt
+            ? [response, ...listWithoutUpdatedItem]
+            : listWithoutUpdatedItem;
         }
       );
-
-      // queryClient.setQueryData<AdditionalIncome[]>(
-      //   [API_ENDPOINTS.ADDITIONAL_INCOME],
-      //   (previous) => {
-      //     const additionalIncome = response.additionalIncome.at(-1);
-
-      //     if (additionalIncome === undefined) {
-      //       return previous || [];
-      //     }
-
-      //     if (!previous) {
-      //       return [additionalIncome];
-      //     }
-
-      //     return [additionalIncome, ...previous];
-      //   }
-      // );
     },
   });
 }

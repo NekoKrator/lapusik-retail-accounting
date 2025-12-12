@@ -1,8 +1,7 @@
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
-import z from "zod";
-import { requireAuth } from "@/lib/auth-utils";
 import { prisma } from "@/lib/prisma";
+import { validateRequest } from "@/lib/validate-request";
 import { DebtorUpdateSchema } from "@/schemas/debtor-schema";
 import { handlePrismaError } from "@/utils/error-handlers";
 
@@ -10,28 +9,23 @@ export async function PATCH(
   req: NextRequest,
   context: { params: Promise<{ id: string }> }
 ) {
-  const { error } = await requireAuth();
-  if (error) {
-    return error;
-  }
-
   try {
-    const body = await req.json();
-    const parsed = DebtorUpdateSchema.safeParse(body);
+    const { id } = await context.params;
+    const validate = validateRequest({
+      bodySchema: DebtorUpdateSchema,
+    });
 
-    if (!parsed.success) {
-      return NextResponse.json(
-        { error: z.flattenError(parsed.error) },
-        { status: 400 }
-      );
+    const { error, data } = await validate(req);
+    if (error) {
+      return error;
     }
 
-    const { id } = await context.params;
+    const { body } = data;
 
     const updatedDebtor = await prisma.debtor.update({
       where: { id },
-      data: parsed.data,
-      include: { expenses: true },
+      data: body,
+      include: { debts: true },
     });
 
     return NextResponse.json(updatedDebtor);
@@ -44,17 +38,11 @@ export async function DELETE(
   _req: NextRequest,
   context: { params: Promise<{ id: string }> }
 ) {
-  const { error } = await requireAuth();
-  if (error) {
-    return error;
-  }
-
   try {
     const { id } = await context.params;
 
     const deletedDebtor = await prisma.debtor.delete({
       where: { id },
-      include: { expenses: true },
     });
 
     return NextResponse.json(deletedDebtor);

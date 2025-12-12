@@ -9,7 +9,6 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { TypographyH3 } from "@/components/ui/typography";
 import { formatCurrency } from "@/lib/formatters";
 import type { ExpenseWithInclude } from "@/schemas/expense-schema";
-import type { RefetchTanstackQuery } from "@/types/types";
 import { CreateExpenseForm } from "./create-expense-form";
 import ExpenseEmpty from "./expense-empty";
 import ExpenseItem from "./expense-item";
@@ -17,7 +16,7 @@ import ExpensesSkeleton from "./expenses-skeleton";
 
 type ExpensesSectionProps = {
   expenses: ExpenseWithInclude[] | undefined;
-  onFetchExpenses: RefetchTanstackQuery<ExpenseWithInclude[]>;
+  onFetchExpenses: () => unknown;
   totalExpenses: number | null;
   isLoadingExpenses: boolean;
 };

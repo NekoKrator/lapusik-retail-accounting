@@ -1,8 +1,8 @@
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
-import z from "zod";
-import { requireAuth } from "@/lib/auth-utils";
+import { getServerSession } from "@/lib/get-session";
 import { prisma } from "@/lib/prisma";
+import { validateRequest } from "@/lib/validate-request";
 import { SupplierDeliveryWriteOffSchema } from "@/schemas/supplier-delivery-schema";
 import { handlePrismaError } from "@/utils/error-handlers";
 
@@ -10,16 +10,23 @@ export async function PATCH(
   req: NextRequest,
   context: { params: Promise<{ id: string }> }
 ) {
-  const { session, error } = await requireAuth();
-  if (error) {
-    return error;
-  }
-
   try {
+    const session = await getServerSession();
     const { id } = await context.params;
 
+    const validate = validateRequest({
+      bodySchema: SupplierDeliveryWriteOffSchema,
+    });
+
+    const { error, data } = await validate(req);
+    if (error) {
+      return error;
+    }
+
+    const { body } = data;
+
     const delivery = await prisma.supplierDelivery.findUnique({
-      where: { userId: session.user.id, id },
+      where: { userId: session?.user.id, id },
     });
 
     if (!delivery) {
@@ -29,17 +36,8 @@ export async function PATCH(
       );
     }
 
-    const body = await req.json();
-    const parsed = SupplierDeliveryWriteOffSchema.safeParse(body);
-
-    if (!parsed.success) {
-      return NextResponse.json(
-        { error: z.flattenError(parsed.error) },
-        { status: 400 }
-      );
-    }
-    const newPaidByCashier = parsed.data.paidByCashier ?? 0;
-    const newPaidByOwner = parsed.data.paidByOwner ?? 0;
+    const newPaidByCashier = body.paidByCashier ?? 0;
+    const newPaidByOwner = body.paidByOwner ?? 0;
     const amountToWriteOff = newPaidByCashier + newPaidByOwner;
     const currentDebt =
       delivery.price -
@@ -56,10 +54,10 @@ export async function PATCH(
     const isPaidOff = amountToWriteOff === currentDebt;
 
     const wroteOffDelivery = await prisma.supplierDelivery.update({
-      where: { userId: session.user.id, id },
+      where: { userId: session?.user.id, id },
       data: {
         isPaidOff,
-        ...parsed.data,
+        ...body,
       },
       include: { supplier: true },
     });

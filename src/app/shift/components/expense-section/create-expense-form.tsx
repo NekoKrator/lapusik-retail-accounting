@@ -45,7 +45,9 @@ export function CreateExpenseForm() {
   }, [isSubmitSuccessful, reset]);
 
   const { currentShift } = useShiftContext();
-  const { mutateAsync: createExpense } = useCreateExpense(currentShift.id);
+  const { mutateAsync: createExpense } = useCreateExpense({
+    shiftId: currentShift.id,
+  });
 
   const onSubmit = async (payload: ExpenseCreateInput) => {
     await createExpense(payload);

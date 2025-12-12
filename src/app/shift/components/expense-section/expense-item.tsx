@@ -27,7 +27,9 @@ type ExpenseItemProps = {
 export default function ExpenseItem({ expense }: ExpenseItemProps) {
   const { currentShift } = useShiftContext();
 
-  const { mutateAsync: deleteExpense } = useDeleteExpense(currentShift.id);
+  const { mutateAsync: deleteExpense } = useDeleteExpense({
+    shiftId: currentShift.id,
+  });
 
   const getCategoryIcon = (category: string) => {
     const cat = expenseCategories.find((c) => c.key === category);
@@ -74,7 +76,7 @@ export default function ExpenseItem({ expense }: ExpenseItemProps) {
           </ResponsiveTooltip>
         </ItemTitle>
         <ItemDescription className="line-clamp-1 truncate">
-          {format(expense.createdAt, "kk:mm")}
+          {format(expense.createdAt, "HH:mm")}
         </ItemDescription>
       </ItemContent>
 

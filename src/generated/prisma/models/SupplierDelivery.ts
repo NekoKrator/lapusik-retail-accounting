@@ -41,37 +41,37 @@ export type SupplierDeliverySumAggregateOutputType = {
 export type SupplierDeliveryMinAggregateOutputType = {
   id: string | null
   price: number | null
+  isPaidOff: boolean | null
   paidByCashier: number | null
   paidByOwner: number | null
-  isPaidOff: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
-  userId: string | null
   supplierId: string | null
+  userId: string | null
 }
 
 export type SupplierDeliveryMaxAggregateOutputType = {
   id: string | null
   price: number | null
+  isPaidOff: boolean | null
   paidByCashier: number | null
   paidByOwner: number | null
-  isPaidOff: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
-  userId: string | null
   supplierId: string | null
+  userId: string | null
 }
 
 export type SupplierDeliveryCountAggregateOutputType = {
   id: number
   price: number
+  isPaidOff: number
   paidByCashier: number
   paidByOwner: number
-  isPaidOff: number
   createdAt: number
   updatedAt: number
-  userId: number
   supplierId: number
+  userId: number
   _all: number
 }
 
@@ -91,37 +91,37 @@ export type SupplierDeliverySumAggregateInputType = {
 export type SupplierDeliveryMinAggregateInputType = {
   id?: true
   price?: true
+  isPaidOff?: true
   paidByCashier?: true
   paidByOwner?: true
-  isPaidOff?: true
   createdAt?: true
   updatedAt?: true
-  userId?: true
   supplierId?: true
+  userId?: true
 }
 
 export type SupplierDeliveryMaxAggregateInputType = {
   id?: true
   price?: true
+  isPaidOff?: true
   paidByCashier?: true
   paidByOwner?: true
-  isPaidOff?: true
   createdAt?: true
   updatedAt?: true
-  userId?: true
   supplierId?: true
+  userId?: true
 }
 
 export type SupplierDeliveryCountAggregateInputType = {
   id?: true
   price?: true
+  isPaidOff?: true
   paidByCashier?: true
   paidByOwner?: true
-  isPaidOff?: true
   createdAt?: true
   updatedAt?: true
-  userId?: true
   supplierId?: true
+  userId?: true
   _all?: true
 }
 
@@ -214,13 +214,13 @@ export type SupplierDeliveryGroupByArgs<ExtArgs extends runtime.Types.Extensions
 export type SupplierDeliveryGroupByOutputType = {
   id: string
   price: number
+  isPaidOff: boolean
   paidByCashier: number | null
   paidByOwner: number | null
-  isPaidOff: boolean
   createdAt: Date
   updatedAt: Date
-  userId: string
   supplierId: string
+  userId: string
   _count: SupplierDeliveryCountAggregateOutputType | null
   _avg: SupplierDeliveryAvgAggregateOutputType | null
   _sum: SupplierDeliverySumAggregateOutputType | null
@@ -249,31 +249,31 @@ export type SupplierDeliveryWhereInput = {
   NOT?: Prisma.SupplierDeliveryWhereInput | Prisma.SupplierDeliveryWhereInput[]
   id?: Prisma.StringFilter<"SupplierDelivery"> | string
   price?: Prisma.FloatFilter<"SupplierDelivery"> | number
+  isPaidOff?: Prisma.BoolFilter<"SupplierDelivery"> | boolean
   paidByCashier?: Prisma.FloatNullableFilter<"SupplierDelivery"> | number | null
   paidByOwner?: Prisma.FloatNullableFilter<"SupplierDelivery"> | number | null
-  isPaidOff?: Prisma.BoolFilter<"SupplierDelivery"> | boolean
   createdAt?: Prisma.DateTimeFilter<"SupplierDelivery"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"SupplierDelivery"> | Date | string
-  userId?: Prisma.StringFilter<"SupplierDelivery"> | string
   supplierId?: Prisma.StringFilter<"SupplierDelivery"> | string
-  user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
-  supplier?: Prisma.XOR<Prisma.SupplierScalarRelationFilter, Prisma.SupplierWhereInput>
+  userId?: Prisma.StringFilter<"SupplierDelivery"> | string
   expenses?: Prisma.ExpenseListRelationFilter
+  supplier?: Prisma.XOR<Prisma.SupplierScalarRelationFilter, Prisma.SupplierWhereInput>
+  user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
 }
 
 export type SupplierDeliveryOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   price?: Prisma.SortOrder
+  isPaidOff?: Prisma.SortOrder
   paidByCashier?: Prisma.SortOrderInput | Prisma.SortOrder
   paidByOwner?: Prisma.SortOrderInput | Prisma.SortOrder
-  isPaidOff?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
-  userId?: Prisma.SortOrder
   supplierId?: Prisma.SortOrder
-  user?: Prisma.UserOrderByWithRelationInput
-  supplier?: Prisma.SupplierOrderByWithRelationInput
+  userId?: Prisma.SortOrder
   expenses?: Prisma.ExpenseOrderByRelationAggregateInput
+  supplier?: Prisma.SupplierOrderByWithRelationInput
+  user?: Prisma.UserOrderByWithRelationInput
 }
 
 export type SupplierDeliveryWhereUniqueInput = Prisma.AtLeast<{
@@ -282,28 +282,28 @@ export type SupplierDeliveryWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.SupplierDeliveryWhereInput[]
   NOT?: Prisma.SupplierDeliveryWhereInput | Prisma.SupplierDeliveryWhereInput[]
   price?: Prisma.FloatFilter<"SupplierDelivery"> | number
+  isPaidOff?: Prisma.BoolFilter<"SupplierDelivery"> | boolean
   paidByCashier?: Prisma.FloatNullableFilter<"SupplierDelivery"> | number | null
   paidByOwner?: Prisma.FloatNullableFilter<"SupplierDelivery"> | number | null
-  isPaidOff?: Prisma.BoolFilter<"SupplierDelivery"> | boolean
   createdAt?: Prisma.DateTimeFilter<"SupplierDelivery"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"SupplierDelivery"> | Date | string
-  userId?: Prisma.StringFilter<"SupplierDelivery"> | string
   supplierId?: Prisma.StringFilter<"SupplierDelivery"> | string
-  user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
-  supplier?: Prisma.XOR<Prisma.SupplierScalarRelationFilter, Prisma.SupplierWhereInput>
+  userId?: Prisma.StringFilter<"SupplierDelivery"> | string
   expenses?: Prisma.ExpenseListRelationFilter
+  supplier?: Prisma.XOR<Prisma.SupplierScalarRelationFilter, Prisma.SupplierWhereInput>
+  user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
 }, "id">
 
 export type SupplierDeliveryOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   price?: Prisma.SortOrder
+  isPaidOff?: Prisma.SortOrder
   paidByCashier?: Prisma.SortOrderInput | Prisma.SortOrder
   paidByOwner?: Prisma.SortOrderInput | Prisma.SortOrder
-  isPaidOff?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
-  userId?: Prisma.SortOrder
   supplierId?: Prisma.SortOrder
+  userId?: Prisma.SortOrder
   _count?: Prisma.SupplierDeliveryCountOrderByAggregateInput
   _avg?: Prisma.SupplierDeliveryAvgOrderByAggregateInput
   _max?: Prisma.SupplierDeliveryMaxOrderByAggregateInput
@@ -317,85 +317,85 @@ export type SupplierDeliveryScalarWhereWithAggregatesInput = {
   NOT?: Prisma.SupplierDeliveryScalarWhereWithAggregatesInput | Prisma.SupplierDeliveryScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"SupplierDelivery"> | string
   price?: Prisma.FloatWithAggregatesFilter<"SupplierDelivery"> | number
+  isPaidOff?: Prisma.BoolWithAggregatesFilter<"SupplierDelivery"> | boolean
   paidByCashier?: Prisma.FloatNullableWithAggregatesFilter<"SupplierDelivery"> | number | null
   paidByOwner?: Prisma.FloatNullableWithAggregatesFilter<"SupplierDelivery"> | number | null
-  isPaidOff?: Prisma.BoolWithAggregatesFilter<"SupplierDelivery"> | boolean
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"SupplierDelivery"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"SupplierDelivery"> | Date | string
-  userId?: Prisma.StringWithAggregatesFilter<"SupplierDelivery"> | string
   supplierId?: Prisma.StringWithAggregatesFilter<"SupplierDelivery"> | string
+  userId?: Prisma.StringWithAggregatesFilter<"SupplierDelivery"> | string
 }
 
 export type SupplierDeliveryCreateInput = {
   id?: string
   price: number
+  isPaidOff?: boolean
   paidByCashier?: number | null
   paidByOwner?: number | null
-  isPaidOff?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
-  user: Prisma.UserCreateNestedOneWithoutSupplierDeliveriesInput
-  supplier: Prisma.SupplierCreateNestedOneWithoutDeliveriesInput
   expenses?: Prisma.ExpenseCreateNestedManyWithoutSupplierDeliveryInput
+  supplier: Prisma.SupplierCreateNestedOneWithoutDeliveriesInput
+  user: Prisma.UserCreateNestedOneWithoutSupplierDeliveriesInput
 }
 
 export type SupplierDeliveryUncheckedCreateInput = {
   id?: string
   price: number
+  isPaidOff?: boolean
   paidByCashier?: number | null
   paidByOwner?: number | null
-  isPaidOff?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
-  userId: string
   supplierId: string
+  userId: string
   expenses?: Prisma.ExpenseUncheckedCreateNestedManyWithoutSupplierDeliveryInput
 }
 
 export type SupplierDeliveryUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   price?: Prisma.FloatFieldUpdateOperationsInput | number
+  isPaidOff?: Prisma.BoolFieldUpdateOperationsInput | boolean
   paidByCashier?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   paidByOwner?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  isPaidOff?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  user?: Prisma.UserUpdateOneRequiredWithoutSupplierDeliveriesNestedInput
-  supplier?: Prisma.SupplierUpdateOneRequiredWithoutDeliveriesNestedInput
   expenses?: Prisma.ExpenseUpdateManyWithoutSupplierDeliveryNestedInput
+  supplier?: Prisma.SupplierUpdateOneRequiredWithoutDeliveriesNestedInput
+  user?: Prisma.UserUpdateOneRequiredWithoutSupplierDeliveriesNestedInput
 }
 
 export type SupplierDeliveryUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   price?: Prisma.FloatFieldUpdateOperationsInput | number
+  isPaidOff?: Prisma.BoolFieldUpdateOperationsInput | boolean
   paidByCashier?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   paidByOwner?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  isPaidOff?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  userId?: Prisma.StringFieldUpdateOperationsInput | string
   supplierId?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
   expenses?: Prisma.ExpenseUncheckedUpdateManyWithoutSupplierDeliveryNestedInput
 }
 
 export type SupplierDeliveryCreateManyInput = {
   id?: string
   price: number
+  isPaidOff?: boolean
   paidByCashier?: number | null
   paidByOwner?: number | null
-  isPaidOff?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
-  userId: string
   supplierId: string
+  userId: string
 }
 
 export type SupplierDeliveryUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   price?: Prisma.FloatFieldUpdateOperationsInput | number
+  isPaidOff?: Prisma.BoolFieldUpdateOperationsInput | boolean
   paidByCashier?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   paidByOwner?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  isPaidOff?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -403,13 +403,13 @@ export type SupplierDeliveryUpdateManyMutationInput = {
 export type SupplierDeliveryUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   price?: Prisma.FloatFieldUpdateOperationsInput | number
+  isPaidOff?: Prisma.BoolFieldUpdateOperationsInput | boolean
   paidByCashier?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   paidByOwner?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  isPaidOff?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  userId?: Prisma.StringFieldUpdateOperationsInput | string
   supplierId?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 export type SupplierDeliveryListRelationFilter = {
@@ -425,13 +425,13 @@ export type SupplierDeliveryOrderByRelationAggregateInput = {
 export type SupplierDeliveryCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   price?: Prisma.SortOrder
+  isPaidOff?: Prisma.SortOrder
   paidByCashier?: Prisma.SortOrder
   paidByOwner?: Prisma.SortOrder
-  isPaidOff?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
-  userId?: Prisma.SortOrder
   supplierId?: Prisma.SortOrder
+  userId?: Prisma.SortOrder
 }
 
 export type SupplierDeliveryAvgOrderByAggregateInput = {
@@ -443,25 +443,25 @@ export type SupplierDeliveryAvgOrderByAggregateInput = {
 export type SupplierDeliveryMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   price?: Prisma.SortOrder
+  isPaidOff?: Prisma.SortOrder
   paidByCashier?: Prisma.SortOrder
   paidByOwner?: Prisma.SortOrder
-  isPaidOff?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
-  userId?: Prisma.SortOrder
   supplierId?: Prisma.SortOrder
+  userId?: Prisma.SortOrder
 }
 
 export type SupplierDeliveryMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   price?: Prisma.SortOrder
+  isPaidOff?: Prisma.SortOrder
   paidByCashier?: Prisma.SortOrder
   paidByOwner?: Prisma.SortOrder
-  isPaidOff?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
-  userId?: Prisma.SortOrder
   supplierId?: Prisma.SortOrder
+  userId?: Prisma.SortOrder
 }
 
 export type SupplierDeliverySumOrderByAggregateInput = {
@@ -578,21 +578,21 @@ export type SupplierDeliveryUpdateOneWithoutExpensesNestedInput = {
 export type SupplierDeliveryCreateWithoutUserInput = {
   id?: string
   price: number
+  isPaidOff?: boolean
   paidByCashier?: number | null
   paidByOwner?: number | null
-  isPaidOff?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
-  supplier: Prisma.SupplierCreateNestedOneWithoutDeliveriesInput
   expenses?: Prisma.ExpenseCreateNestedManyWithoutSupplierDeliveryInput
+  supplier: Prisma.SupplierCreateNestedOneWithoutDeliveriesInput
 }
 
 export type SupplierDeliveryUncheckedCreateWithoutUserInput = {
   id?: string
   price: number
+  isPaidOff?: boolean
   paidByCashier?: number | null
   paidByOwner?: number | null
-  isPaidOff?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   supplierId: string
@@ -631,33 +631,33 @@ export type SupplierDeliveryScalarWhereInput = {
   NOT?: Prisma.SupplierDeliveryScalarWhereInput | Prisma.SupplierDeliveryScalarWhereInput[]
   id?: Prisma.StringFilter<"SupplierDelivery"> | string
   price?: Prisma.FloatFilter<"SupplierDelivery"> | number
+  isPaidOff?: Prisma.BoolFilter<"SupplierDelivery"> | boolean
   paidByCashier?: Prisma.FloatNullableFilter<"SupplierDelivery"> | number | null
   paidByOwner?: Prisma.FloatNullableFilter<"SupplierDelivery"> | number | null
-  isPaidOff?: Prisma.BoolFilter<"SupplierDelivery"> | boolean
   createdAt?: Prisma.DateTimeFilter<"SupplierDelivery"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"SupplierDelivery"> | Date | string
-  userId?: Prisma.StringFilter<"SupplierDelivery"> | string
   supplierId?: Prisma.StringFilter<"SupplierDelivery"> | string
+  userId?: Prisma.StringFilter<"SupplierDelivery"> | string
 }
 
 export type SupplierDeliveryCreateWithoutSupplierInput = {
   id?: string
   price: number
+  isPaidOff?: boolean
   paidByCashier?: number | null
   paidByOwner?: number | null
-  isPaidOff?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
-  user: Prisma.UserCreateNestedOneWithoutSupplierDeliveriesInput
   expenses?: Prisma.ExpenseCreateNestedManyWithoutSupplierDeliveryInput
+  user: Prisma.UserCreateNestedOneWithoutSupplierDeliveriesInput
 }
 
 export type SupplierDeliveryUncheckedCreateWithoutSupplierInput = {
   id?: string
   price: number
+  isPaidOff?: boolean
   paidByCashier?: number | null
   paidByOwner?: number | null
-  isPaidOff?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   userId: string
@@ -693,25 +693,25 @@ export type SupplierDeliveryUpdateManyWithWhereWithoutSupplierInput = {
 export type SupplierDeliveryCreateWithoutExpensesInput = {
   id?: string
   price: number
+  isPaidOff?: boolean
   paidByCashier?: number | null
   paidByOwner?: number | null
-  isPaidOff?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
-  user: Prisma.UserCreateNestedOneWithoutSupplierDeliveriesInput
   supplier: Prisma.SupplierCreateNestedOneWithoutDeliveriesInput
+  user: Prisma.UserCreateNestedOneWithoutSupplierDeliveriesInput
 }
 
 export type SupplierDeliveryUncheckedCreateWithoutExpensesInput = {
   id?: string
   price: number
+  isPaidOff?: boolean
   paidByCashier?: number | null
   paidByOwner?: number | null
-  isPaidOff?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
-  userId: string
   supplierId: string
+  userId: string
 }
 
 export type SupplierDeliveryCreateOrConnectWithoutExpensesInput = {
@@ -733,33 +733,33 @@ export type SupplierDeliveryUpdateToOneWithWhereWithoutExpensesInput = {
 export type SupplierDeliveryUpdateWithoutExpensesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   price?: Prisma.FloatFieldUpdateOperationsInput | number
+  isPaidOff?: Prisma.BoolFieldUpdateOperationsInput | boolean
   paidByCashier?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   paidByOwner?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  isPaidOff?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  user?: Prisma.UserUpdateOneRequiredWithoutSupplierDeliveriesNestedInput
   supplier?: Prisma.SupplierUpdateOneRequiredWithoutDeliveriesNestedInput
+  user?: Prisma.UserUpdateOneRequiredWithoutSupplierDeliveriesNestedInput
 }
 
 export type SupplierDeliveryUncheckedUpdateWithoutExpensesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   price?: Prisma.FloatFieldUpdateOperationsInput | number
+  isPaidOff?: Prisma.BoolFieldUpdateOperationsInput | boolean
   paidByCashier?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   paidByOwner?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  isPaidOff?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  userId?: Prisma.StringFieldUpdateOperationsInput | string
   supplierId?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 export type SupplierDeliveryCreateManyUserInput = {
   id?: string
   price: number
+  isPaidOff?: boolean
   paidByCashier?: number | null
   paidByOwner?: number | null
-  isPaidOff?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   supplierId: string
@@ -768,21 +768,21 @@ export type SupplierDeliveryCreateManyUserInput = {
 export type SupplierDeliveryUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   price?: Prisma.FloatFieldUpdateOperationsInput | number
+  isPaidOff?: Prisma.BoolFieldUpdateOperationsInput | boolean
   paidByCashier?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   paidByOwner?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  isPaidOff?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  supplier?: Prisma.SupplierUpdateOneRequiredWithoutDeliveriesNestedInput
   expenses?: Prisma.ExpenseUpdateManyWithoutSupplierDeliveryNestedInput
+  supplier?: Prisma.SupplierUpdateOneRequiredWithoutDeliveriesNestedInput
 }
 
 export type SupplierDeliveryUncheckedUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   price?: Prisma.FloatFieldUpdateOperationsInput | number
+  isPaidOff?: Prisma.BoolFieldUpdateOperationsInput | boolean
   paidByCashier?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   paidByOwner?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  isPaidOff?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   supplierId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -792,9 +792,9 @@ export type SupplierDeliveryUncheckedUpdateWithoutUserInput = {
 export type SupplierDeliveryUncheckedUpdateManyWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   price?: Prisma.FloatFieldUpdateOperationsInput | number
+  isPaidOff?: Prisma.BoolFieldUpdateOperationsInput | boolean
   paidByCashier?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   paidByOwner?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  isPaidOff?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   supplierId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -803,9 +803,9 @@ export type SupplierDeliveryUncheckedUpdateManyWithoutUserInput = {
 export type SupplierDeliveryCreateManySupplierInput = {
   id?: string
   price: number
+  isPaidOff?: boolean
   paidByCashier?: number | null
   paidByOwner?: number | null
-  isPaidOff?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   userId: string
@@ -814,21 +814,21 @@ export type SupplierDeliveryCreateManySupplierInput = {
 export type SupplierDeliveryUpdateWithoutSupplierInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   price?: Prisma.FloatFieldUpdateOperationsInput | number
+  isPaidOff?: Prisma.BoolFieldUpdateOperationsInput | boolean
   paidByCashier?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   paidByOwner?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  isPaidOff?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  user?: Prisma.UserUpdateOneRequiredWithoutSupplierDeliveriesNestedInput
   expenses?: Prisma.ExpenseUpdateManyWithoutSupplierDeliveryNestedInput
+  user?: Prisma.UserUpdateOneRequiredWithoutSupplierDeliveriesNestedInput
 }
 
 export type SupplierDeliveryUncheckedUpdateWithoutSupplierInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   price?: Prisma.FloatFieldUpdateOperationsInput | number
+  isPaidOff?: Prisma.BoolFieldUpdateOperationsInput | boolean
   paidByCashier?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   paidByOwner?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  isPaidOff?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -838,9 +838,9 @@ export type SupplierDeliveryUncheckedUpdateWithoutSupplierInput = {
 export type SupplierDeliveryUncheckedUpdateManyWithoutSupplierInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   price?: Prisma.FloatFieldUpdateOperationsInput | number
+  isPaidOff?: Prisma.BoolFieldUpdateOperationsInput | boolean
   paidByCashier?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   paidByOwner?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  isPaidOff?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
@@ -880,92 +880,92 @@ export type SupplierDeliveryCountOutputTypeCountExpensesArgs<ExtArgs extends run
 export type SupplierDeliverySelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   price?: boolean
+  isPaidOff?: boolean
   paidByCashier?: boolean
   paidByOwner?: boolean
-  isPaidOff?: boolean
   createdAt?: boolean
   updatedAt?: boolean
-  userId?: boolean
   supplierId?: boolean
-  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
-  supplier?: boolean | Prisma.SupplierDefaultArgs<ExtArgs>
+  userId?: boolean
   expenses?: boolean | Prisma.SupplierDelivery$expensesArgs<ExtArgs>
+  supplier?: boolean | Prisma.SupplierDefaultArgs<ExtArgs>
+  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   _count?: boolean | Prisma.SupplierDeliveryCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["supplierDelivery"]>
 
 export type SupplierDeliverySelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   price?: boolean
+  isPaidOff?: boolean
   paidByCashier?: boolean
   paidByOwner?: boolean
-  isPaidOff?: boolean
   createdAt?: boolean
   updatedAt?: boolean
-  userId?: boolean
   supplierId?: boolean
-  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  userId?: boolean
   supplier?: boolean | Prisma.SupplierDefaultArgs<ExtArgs>
+  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["supplierDelivery"]>
 
 export type SupplierDeliverySelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   price?: boolean
+  isPaidOff?: boolean
   paidByCashier?: boolean
   paidByOwner?: boolean
-  isPaidOff?: boolean
   createdAt?: boolean
   updatedAt?: boolean
-  userId?: boolean
   supplierId?: boolean
-  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  userId?: boolean
   supplier?: boolean | Prisma.SupplierDefaultArgs<ExtArgs>
+  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["supplierDelivery"]>
 
 export type SupplierDeliverySelectScalar = {
   id?: boolean
   price?: boolean
+  isPaidOff?: boolean
   paidByCashier?: boolean
   paidByOwner?: boolean
-  isPaidOff?: boolean
   createdAt?: boolean
   updatedAt?: boolean
-  userId?: boolean
   supplierId?: boolean
+  userId?: boolean
 }
 
-export type SupplierDeliveryOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "price" | "paidByCashier" | "paidByOwner" | "isPaidOff" | "createdAt" | "updatedAt" | "userId" | "supplierId", ExtArgs["result"]["supplierDelivery"]>
+export type SupplierDeliveryOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "price" | "isPaidOff" | "paidByCashier" | "paidByOwner" | "createdAt" | "updatedAt" | "supplierId" | "userId", ExtArgs["result"]["supplierDelivery"]>
 export type SupplierDeliveryInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
-  supplier?: boolean | Prisma.SupplierDefaultArgs<ExtArgs>
   expenses?: boolean | Prisma.SupplierDelivery$expensesArgs<ExtArgs>
+  supplier?: boolean | Prisma.SupplierDefaultArgs<ExtArgs>
+  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   _count?: boolean | Prisma.SupplierDeliveryCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type SupplierDeliveryIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   supplier?: boolean | Prisma.SupplierDefaultArgs<ExtArgs>
+  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }
 export type SupplierDeliveryIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   supplier?: boolean | Prisma.SupplierDefaultArgs<ExtArgs>
+  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }
 
 export type $SupplierDeliveryPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "SupplierDelivery"
   objects: {
-    user: Prisma.$UserPayload<ExtArgs>
-    supplier: Prisma.$SupplierPayload<ExtArgs>
     expenses: Prisma.$ExpensePayload<ExtArgs>[]
+    supplier: Prisma.$SupplierPayload<ExtArgs>
+    user: Prisma.$UserPayload<ExtArgs>
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     price: number
+    isPaidOff: boolean
     paidByCashier: number | null
     paidByOwner: number | null
-    isPaidOff: boolean
     createdAt: Date
     updatedAt: Date
-    userId: string
     supplierId: string
+    userId: string
   }, ExtArgs["result"]["supplierDelivery"]>
   composites: {}
 }
@@ -1360,9 +1360,9 @@ readonly fields: SupplierDeliveryFieldRefs;
  */
 export interface Prisma__SupplierDeliveryClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  user<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-  supplier<T extends Prisma.SupplierDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SupplierDefaultArgs<ExtArgs>>): Prisma.Prisma__SupplierClient<runtime.Types.Result.GetResult<Prisma.$SupplierPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   expenses<T extends Prisma.SupplierDelivery$expensesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SupplierDelivery$expensesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ExpensePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  supplier<T extends Prisma.SupplierDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SupplierDefaultArgs<ExtArgs>>): Prisma.Prisma__SupplierClient<runtime.Types.Result.GetResult<Prisma.$SupplierPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  user<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1394,13 +1394,13 @@ export interface Prisma__SupplierDeliveryClient<T, Null = never, ExtArgs extends
 export interface SupplierDeliveryFieldRefs {
   readonly id: Prisma.FieldRef<"SupplierDelivery", 'String'>
   readonly price: Prisma.FieldRef<"SupplierDelivery", 'Float'>
+  readonly isPaidOff: Prisma.FieldRef<"SupplierDelivery", 'Boolean'>
   readonly paidByCashier: Prisma.FieldRef<"SupplierDelivery", 'Float'>
   readonly paidByOwner: Prisma.FieldRef<"SupplierDelivery", 'Float'>
-  readonly isPaidOff: Prisma.FieldRef<"SupplierDelivery", 'Boolean'>
   readonly createdAt: Prisma.FieldRef<"SupplierDelivery", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"SupplierDelivery", 'DateTime'>
-  readonly userId: Prisma.FieldRef<"SupplierDelivery", 'String'>
   readonly supplierId: Prisma.FieldRef<"SupplierDelivery", 'String'>
+  readonly userId: Prisma.FieldRef<"SupplierDelivery", 'String'>
 }
     
 

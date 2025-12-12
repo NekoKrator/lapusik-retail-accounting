@@ -21,11 +21,7 @@ export function DataTableViewOptions<TData>({
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button
-          className="ml-auto hidden h-8 lg:flex"
-          size="sm"
-          variant="outline"
-        >
+        <Button className="hidden lg:flex" size="sm" variant="outline">
           <Settings2 />
           Стовпці
         </Button>

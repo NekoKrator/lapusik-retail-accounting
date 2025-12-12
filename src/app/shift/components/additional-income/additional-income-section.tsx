@@ -9,7 +9,6 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { TypographyH3 } from "@/components/ui/typography";
 import { formatCurrency } from "@/lib/formatters";
 import type { AdditionalIncomeWithDebtor } from "@/schemas/additional-income-schema";
-import type { RefetchTanstackQuery } from "@/types/types";
 import AdditionalIncomeEmpty from "./additional-income-empty";
 import AdditionalIncomeItem from "./additional-income-item";
 import AdditionalIncomeSkeleton from "./additional-income-skeleton";
@@ -17,7 +16,7 @@ import { CreateAdditionalIncomeForm } from "./create-additional-income-form";
 
 export type AdditionalIncomeSectionProps = {
   additionalIncome: AdditionalIncomeWithDebtor[] | undefined;
-  onFetchAdditionalIncome: RefetchTanstackQuery<AdditionalIncomeWithDebtor[]>;
+  onFetchAdditionalIncome: () => unknown;
   totalAdditionalIncome: number | null;
   isLoadingAdditionalIncome: boolean;
 };

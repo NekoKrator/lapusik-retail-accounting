@@ -392,6 +392,7 @@ export const ModelName = {
   Supplier: 'Supplier',
   SupplierDelivery: 'SupplierDelivery',
   Debtor: 'Debtor',
+  Debt: 'Debt',
   AdditionalIncome: 'AdditionalIncome',
   Expense: 'Expense'
 } as const
@@ -409,7 +410,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "session" | "account" | "verification" | "shift" | "supplier" | "supplierDelivery" | "debtor" | "additionalIncome" | "expense"
+    modelProps: "user" | "session" | "account" | "verification" | "shift" | "supplier" | "supplierDelivery" | "debtor" | "debt" | "additionalIncome" | "expense"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1005,6 +1006,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    Debt: {
+      payload: Prisma.$DebtPayload<ExtArgs>
+      fields: Prisma.DebtFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.DebtFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DebtPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.DebtFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DebtPayload>
+        }
+        findFirst: {
+          args: Prisma.DebtFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DebtPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.DebtFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DebtPayload>
+        }
+        findMany: {
+          args: Prisma.DebtFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DebtPayload>[]
+        }
+        create: {
+          args: Prisma.DebtCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DebtPayload>
+        }
+        createMany: {
+          args: Prisma.DebtCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.DebtCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DebtPayload>[]
+        }
+        delete: {
+          args: Prisma.DebtDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DebtPayload>
+        }
+        update: {
+          args: Prisma.DebtUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DebtPayload>
+        }
+        deleteMany: {
+          args: Prisma.DebtDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.DebtUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.DebtUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DebtPayload>[]
+        }
+        upsert: {
+          args: Prisma.DebtUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DebtPayload>
+        }
+        aggregate: {
+          args: Prisma.DebtAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateDebt>
+        }
+        groupBy: {
+          args: Prisma.DebtGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DebtGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.DebtCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DebtCountAggregateOutputType> | number
+        }
+      }
+    }
     AdditionalIncome: {
       payload: Prisma.$AdditionalIncomePayload<ExtArgs>
       fields: Prisma.AdditionalIncomeFieldRefs
@@ -1261,13 +1336,13 @@ export const ShiftScalarFieldEnum = {
   id: 'id',
   isClosed: 'isClosed',
   openingBalance: 'openingBalance',
-  actualClosingBalance: 'actualClosingBalance',
-  expectedClosingBalance: 'expectedClosingBalance',
   totalAdditionalIncome: 'totalAdditionalIncome',
-  totalCashRegister: 'totalCashRegister',
   totalExpenses: 'totalExpenses',
-  openedAt: 'openedAt',
+  totalCashRegister: 'totalCashRegister',
+  expectedClosingBalance: 'expectedClosingBalance',
+  actualClosingBalance: 'actualClosingBalance',
   closedAt: 'closedAt',
+  openedAt: 'openedAt',
   userId: 'userId'
 } as const
 
@@ -1276,7 +1351,9 @@ export type ShiftScalarFieldEnum = (typeof ShiftScalarFieldEnum)[keyof typeof Sh
 
 export const SupplierScalarFieldEnum = {
   id: 'id',
-  name: 'name'
+  name: 'name',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 } as const
 
 export type SupplierScalarFieldEnum = (typeof SupplierScalarFieldEnum)[keyof typeof SupplierScalarFieldEnum]
@@ -1285,13 +1362,13 @@ export type SupplierScalarFieldEnum = (typeof SupplierScalarFieldEnum)[keyof typ
 export const SupplierDeliveryScalarFieldEnum = {
   id: 'id',
   price: 'price',
+  isPaidOff: 'isPaidOff',
   paidByCashier: 'paidByCashier',
   paidByOwner: 'paidByOwner',
-  isPaidOff: 'isPaidOff',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
-  userId: 'userId',
-  supplierId: 'supplierId'
+  supplierId: 'supplierId',
+  userId: 'userId'
 } as const
 
 export type SupplierDeliveryScalarFieldEnum = (typeof SupplierDeliveryScalarFieldEnum)[keyof typeof SupplierDeliveryScalarFieldEnum]
@@ -1300,15 +1377,25 @@ export type SupplierDeliveryScalarFieldEnum = (typeof SupplierDeliveryScalarFiel
 export const DebtorScalarFieldEnum = {
   id: 'id',
   name: 'name',
-  paid: 'paid',
-  debt: 'debt',
-  isPaidOff: 'isPaidOff',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   userId: 'userId'
 } as const
 
 export type DebtorScalarFieldEnum = (typeof DebtorScalarFieldEnum)[keyof typeof DebtorScalarFieldEnum]
+
+
+export const DebtScalarFieldEnum = {
+  id: 'id',
+  amount: 'amount',
+  paidAmount: 'paidAmount',
+  status: 'status',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  debtorId: 'debtorId'
+} as const
+
+export type DebtScalarFieldEnum = (typeof DebtScalarFieldEnum)[keyof typeof DebtScalarFieldEnum]
 
 
 export const AdditionalIncomeScalarFieldEnum = {
@@ -1414,6 +1501,20 @@ export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, '
  * Reference to a field of type 'Float[]'
  */
 export type ListFloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float[]'>
+    
+
+
+/**
+ * Reference to a field of type 'DebtStatus'
+ */
+export type EnumDebtStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DebtStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'DebtStatus[]'
+ */
+export type ListEnumDebtStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DebtStatus[]'>
     
 
 
@@ -1547,6 +1648,7 @@ export type GlobalOmitConfig = {
   supplier?: Prisma.SupplierOmit
   supplierDelivery?: Prisma.SupplierDeliveryOmit
   debtor?: Prisma.DebtorOmit
+  debt?: Prisma.DebtOmit
   additionalIncome?: Prisma.AdditionalIncomeOmit
   expense?: Prisma.ExpenseOmit
 }

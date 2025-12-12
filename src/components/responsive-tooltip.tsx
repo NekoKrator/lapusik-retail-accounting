@@ -20,10 +20,7 @@ export function ResponsiveTooltip({
     <Tooltip onOpenChange={setOpen} open={open} {...props}>
       <TooltipTrigger asChild>{children}</TooltipTrigger>
       <TooltipContent
-        className={cn(
-          "wrap-break-word max-h-64 max-w-xs overflow-y-auto",
-          className
-        )}
+        className={cn("wrap-break-word max-h-64 max-w-xs", className)}
       >
         {message}
       </TooltipContent>
