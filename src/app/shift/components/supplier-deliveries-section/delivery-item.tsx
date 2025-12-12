@@ -31,7 +31,7 @@ export default function DeliveryItem({ delivery }: DeliveryItemProps) {
   const {
     mutateAsync: writeOffSupplierDelivery,
     isPending: isPendingWriteOff,
-  } = useWriteOffSupplierDelivery(currentShift.id);
+  } = useWriteOffSupplierDelivery({ shiftId: currentShift.id });
 
   const { mutateAsync: updateSupplierDelivery } = useUpdateSupplierDelivery();
 
