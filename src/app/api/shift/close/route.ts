@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "@/lib/get-session";
 import { prisma } from "@/lib/prisma";
 import { validateRequest } from "@/lib/validate-request";
-import { ShiftOpenSchema } from "@/schemas/shift-schema";
+import { ShiftCloseSchema } from "@/schemas/shift-schema";
 import { handlePrismaError } from "@/utils/error-handlers";
 
 export async function PATCH(req: NextRequest) {
@@ -21,7 +21,7 @@ export async function PATCH(req: NextRequest) {
     }
 
     const validate = validateRequest({
-      bodySchema: ShiftOpenSchema,
+      bodySchema: ShiftCloseSchema,
     });
 
     const { error, data } = await validate(req);
