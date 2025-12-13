@@ -25,6 +25,9 @@ export const SupplierStats = z.object({
   id: z.uuid(),
   name: z.string().trim().min(1),
   operationsCount: z.number().min(0).default(0),
+  paidOperationsCount: z.number().min(0).default(0),
+  currentOperationsCount: z.number().min(0).default(0),
+  canceledOperationsCount: z.number().min(0).default(0),
   paidByCashier: z.number().min(0).default(0),
   paidByOwner: z.number().min(0).default(0),
   totalPaid: z.number().min(0).default(0),
@@ -34,13 +37,7 @@ export const SupplierStats = z.object({
 export type SupplierStats = z.infer<typeof SupplierStats>;
 
 const supplierInclude = {
-  deliveries: {
-    select: {
-      paidByCashier: true,
-      paidByOwner: true,
-      price: true,
-    },
-  },
+  deliveries: true,
 } satisfies Prisma.SupplierInclude;
 
 export type SupplierWithDeliveries = Prisma.SupplierGetPayload<{

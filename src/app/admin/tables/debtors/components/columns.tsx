@@ -131,22 +131,7 @@ export const columns: ColumnDef<DebtorStats>[] = [
       );
     },
   },
-  {
-    accessorKey: "operationsCount",
-    meta: {
-      label: "Кількість боргів",
-    },
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Кількість боргів" />
-    ),
-    cell: ({ row }) => (
-      <div className="truncate text-end">{row.getValue("operationsCount")}</div>
-    ),
-    footer: ({ table }) => {
-      const total = calculateTotal(table.options.data, "operationsCount");
-      return <div className="truncate text-end font-bold">{total}</div>;
-    },
-  },
+
   {
     accessorKey: "totalIsActive",
     meta: {
@@ -198,6 +183,25 @@ export const columns: ColumnDef<DebtorStats>[] = [
     ),
     footer: ({ table }) => {
       const total = calculateTotal(table.options.data, "totalIsCanceled");
+      return <div className="truncate text-end font-bold">{total}</div>;
+    },
+  },
+  {
+    accessorKey: "operationsCount",
+    meta: {
+      label: "Загальна кількість боргів",
+    },
+    header: ({ column }) => (
+      <DataTableColumnHeader
+        column={column}
+        title="Загальна кількість боргів"
+      />
+    ),
+    cell: ({ row }) => (
+      <div className="truncate text-end">{row.getValue("operationsCount")}</div>
+    ),
+    footer: ({ table }) => {
+      const total = calculateTotal(table.options.data, "operationsCount");
       return <div className="truncate text-end font-bold">{total}</div>;
     },
   },

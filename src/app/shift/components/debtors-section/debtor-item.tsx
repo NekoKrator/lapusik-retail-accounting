@@ -88,8 +88,8 @@ export default function DebtorItem({ debtor }: DebtorItemProps) {
       <ItemActions className="hidden sm:flex">
         {/* Write Off Debtor */}
         <DialogWithTooltip
-          description={`Боржник: ${debtor.name}`}
-          title="Списати борг"
+          description={`Поточний борг: ${formatCurrency(currentDebt)}`}
+          title={`Списати борг: ${debtor.name}`}
           tooltipContent="Списати борг"
           trigger={
             <Button

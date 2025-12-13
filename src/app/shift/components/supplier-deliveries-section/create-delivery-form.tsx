@@ -10,7 +10,6 @@ import { Field, FieldError, FieldGroup, FieldSet } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Spinner } from "@/components/ui/spinner";
-import { useShiftContext } from "@/context/shift-context";
 import { useCreateSupplierDelivery } from "@/hooks/api/supplier-deliveries/use-create-supplier-delivery";
 import {
   type SupplierDeliveryCreateInput,
@@ -23,10 +22,7 @@ type CreateDeliveryFormProps = {
 };
 
 export function CreateDeliveryForm({ isLoading }: CreateDeliveryFormProps) {
-  const { currentShift } = useShiftContext();
-  const { mutateAsync: createSupplierDelivery } = useCreateSupplierDelivery({
-    shiftId: currentShift.id,
-  });
+  const { mutateAsync: createSupplierDelivery } = useCreateSupplierDelivery();
 
   const {
     formState: { isSubmitting, isSubmitSuccessful },
@@ -58,7 +54,7 @@ export function CreateDeliveryForm({ isLoading }: CreateDeliveryFormProps) {
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <FieldSet>
-        <FieldGroup className="grid grid-cols-1 gap-3 lg:grid-cols-4">
+        <FieldGroup className="grid grid-cols-1 gap-3 lg:grid-cols-3">
           <Controller
             control={control}
             name="supplier"
@@ -84,28 +80,6 @@ export function CreateDeliveryForm({ isLoading }: CreateDeliveryFormProps) {
                   aria-invalid={fieldState.invalid}
                   disabled={isLoading}
                   id="price"
-                  placeholder="0,00"
-                  type="number"
-                  value={field.value ?? ""}
-                />
-                {fieldState.invalid && (
-                  <FieldError errors={[fieldState.error]} />
-                )}{" "}
-              </Field>
-            )}
-          />
-
-          <Controller
-            control={control}
-            name="paidByCashier"
-            render={({ field, fieldState }) => (
-              <Field data-invalid={fieldState.invalid}>
-                <Label htmlFor="paidByCashier">Сума сплати</Label>
-                <Input
-                  {...field}
-                  aria-invalid={fieldState.invalid}
-                  disabled={isLoading}
-                  id="paidByCashier"
                   placeholder="0,00"
                   type="number"
                   value={field.value ?? ""}

@@ -1,8 +1,9 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import type { Expense } from "@/generated/prisma/client";
 import { API_ENDPOINTS } from "@/lib/constants/api-endpoints";
 import { patchData } from "@/lib/requests";
 import type {
-  SupplierDeliveryWithSupplier,
+  SupplierDeliveryWithSupplierAndExpenses,
   SupplierDeliveryWriteOffInput,
 } from "@/schemas/supplier-delivery-schema";
 
@@ -23,13 +24,13 @@ export function useWriteOffSupplierDelivery(
       id: string;
       payload: SupplierDeliveryWriteOffInput;
     }) =>
-      patchData<SupplierDeliveryWithSupplier>(
+      patchData<SupplierDeliveryWithSupplierAndExpenses>(
         `${API_ENDPOINTS.SUPPLIER_DELIVERY}/${id}/write-off`,
         payload,
         params
       ),
     onSuccess: (response) => {
-      queryClient.setQueryData<SupplierDeliveryWithSupplier[]>(
+      queryClient.setQueryData<SupplierDeliveryWithSupplierAndExpenses[]>(
         [API_ENDPOINTS.SUPPLIER_DELIVERY],
         (previous = []) => {
           const listWithoutUpdatedItem = previous.filter(
@@ -41,6 +42,19 @@ export function useWriteOffSupplierDelivery(
           }
 
           return [response, ...listWithoutUpdatedItem];
+        }
+      );
+
+      queryClient.setQueryData<Expense[]>(
+        [API_ENDPOINTS.EXPENSE],
+        (previous = []) => {
+          const expense = response.expenses.at(-1);
+
+          if (expense === undefined) {
+            return previous;
+          }
+
+          return [expense, ...previous];
         }
       );
     },

@@ -40,34 +40,54 @@ export default function SuppliersTable() {
   const suppliersStats = useMemo(
     () =>
       items?.map((s) => {
-        const operationsCount = s.deliveries.length;
-        const paidByCashier = s.deliveries.reduce(
-          (sum, d) => sum + Number(d.paidByCashier),
-          0
+        const stats = s.deliveries.reduce(
+          (acc, d) => {
+            const paidByCashier = Number(d.paidByCashier) || 0;
+            const paidByOwner = Number(d.paidByOwner) || 0;
+            const price = Number(d.price) || 0;
+
+            const debt = price - paidByCashier - paidByOwner;
+            const isPaidOff = d.isPaidOff;
+
+            acc.operationsCount += 1;
+
+            if (isPaidOff) {
+              if (debt > 0) {
+                acc.canceledOperationsCount += 1;
+              } else {
+                acc.paidOperationsCount += 1;
+              }
+            } else {
+              acc.currentOperationsCount += 1;
+              acc.currentDebt += debt;
+            }
+
+            acc.paidByCashier += paidByCashier;
+            acc.paidByOwner += paidByOwner;
+
+            return acc;
+          },
+          {
+            operationsCount: 0,
+            currentOperationsCount: 0,
+            paidOperationsCount: 0,
+            canceledOperationsCount: 0,
+            paidByCashier: 0,
+            paidByOwner: 0,
+            currentDebt: 0,
+          }
         );
-        const paidByOwner = s.deliveries.reduce(
-          (sum, d) => sum + Number(d.paidByOwner),
-          0
-        );
-        const totalPaid = paidByCashier + paidByOwner;
-        const currentDebt = s.deliveries.reduce(
-          (sum, d) =>
-            sum +
-            Number(d.price - Number(d.paidByCashier) - Number(d.paidByOwner)),
-          0
-        );
+
         return {
           id: s.id,
           name: s.name,
-          operationsCount,
-          paidByCashier,
-          paidByOwner,
-          totalPaid,
-          currentDebt,
+          ...stats,
+          totalPaid: stats.paidByCashier + stats.paidByOwner,
         };
       }),
     [items]
   );
+
   return (
     <div className="flex flex-col gap-8">
       <CreateSupplierForm onCreate={createSupplier} />

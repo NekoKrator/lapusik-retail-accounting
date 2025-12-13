@@ -5,6 +5,7 @@ import { BanknoteArrowDown, Trash2 } from "lucide-react";
 import { useMemo } from "react";
 import { toast } from "sonner";
 import { AlertDialogDestructive } from "@/components/alert-dialog-destructive";
+import { DialogWithTooltip } from "@/components/dialog-with-tooltip";
 import { ResponsiveTooltip } from "@/components/responsive-tooltip";
 import { Button } from "@/components/ui/button";
 import {
@@ -14,12 +15,15 @@ import {
   ItemDescription,
   ItemTitle,
 } from "@/components/ui/item";
-import { Spinner } from "@/components/ui/spinner";
 import { useShiftContext } from "@/context/shift-context";
 import { useUpdateSupplierDelivery } from "@/hooks/api/supplier-deliveries/use-update-supplier-delivery";
 import { useWriteOffSupplierDelivery } from "@/hooks/api/supplier-deliveries/use-write-off-supplier-delivery";
 import { formatCurrency } from "@/lib/formatters";
-import type { SupplierDeliveryWithSupplier } from "@/schemas/supplier-delivery-schema";
+import type {
+  SupplierDeliveryWithSupplier,
+  SupplierDeliveryWriteOffInput,
+} from "@/schemas/supplier-delivery-schema";
+import { WriteOffDeliveryForm } from "./write-off-delivery-form";
 
 type DeliveryItemProps = {
   delivery: SupplierDeliveryWithSupplier;
@@ -43,18 +47,20 @@ export default function DeliveryItem({ delivery }: DeliveryItemProps) {
     [delivery.price, delivery.paidByCashier, delivery.paidByOwner]
   );
 
-  const handleWriteOff = async (id: string, debt: number) => {
+  const handleWriteOff = async (payload: SupplierDeliveryWriteOffInput) => {
     await writeOffSupplierDelivery({
-      id,
-      payload: { paidByCashier: debt },
+      id: delivery.id,
+      payload,
     });
-    toast.success("Поставку успішно списано!");
+    toast.success("Поставку успішно списано!", {
+      description: `Створено витрату на ${payload.paidByCashier} ₴.`,
+    });
   };
 
   const handleRemove = async (id: string) => {
     await updateSupplierDelivery({
       id,
-      payload: { paidByOwner: currentDebt, isPaidOff: true },
+      payload: { isPaidOff: true },
     });
     toast.success("Поставку успішно видалено!");
   };
@@ -85,21 +91,25 @@ export default function DeliveryItem({ delivery }: DeliveryItemProps) {
 
       <ItemActions className="hidden sm:flex">
         {/* Write Off Delivery */}
-        <ResponsiveTooltip delayDuration={0} message="Списати поставку">
-          <Button
-            className="h-9 w-9 text-gray-400 hover:bg-blue-50 hover:text-blue-600"
-            disabled={isPendingWriteOff}
-            onClick={() => handleWriteOff(delivery.id, currentDebt)}
-            type="button"
-            variant="ghost"
-          >
-            {isPendingWriteOff ? (
-              <Spinner />
-            ) : (
+        <DialogWithTooltip
+          description={`Поточний борг: ${formatCurrency(currentDebt)}`}
+          title={`Сплатити борг: ${delivery.supplier.name}`}
+          tooltipContent="Сплатити борг"
+          trigger={
+            <Button
+              className="h-9 w-9 text-gray-400 hover:bg-blue-50 hover:text-blue-600"
+              type="button"
+              variant="ghost"
+            >
               <BanknoteArrowDown className="h-4 w-4" />
-            )}
-          </Button>
-        </ResponsiveTooltip>
+            </Button>
+          }
+        >
+          <WriteOffDeliveryForm
+            currentDebt={currentDebt}
+            onWriteOff={handleWriteOff}
+          />
+        </DialogWithTooltip>
 
         {/* Remove  Delivery */}
         <AlertDialogDestructive

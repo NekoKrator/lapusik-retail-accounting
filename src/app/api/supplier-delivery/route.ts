@@ -1,7 +1,6 @@
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import z from "zod";
-import type { ExpenseCategory } from "@/generated/prisma/client";
 import { getServerSession } from "@/lib/get-session";
 import { prisma } from "@/lib/prisma";
 import { validateRequest } from "@/lib/validate-request";
@@ -64,16 +63,11 @@ export async function GET(req: NextRequest) {
   }
 }
 
-const PostQuerySchema = z.object({
-  shiftId: z.string().min(1).optional(),
-});
-
 export async function POST(req: NextRequest) {
   try {
     const session = await getServerSession();
     const validate = validateRequest({
       bodySchema: SupplierDeliveryCreateSchema,
-      querySchema: PostQuerySchema,
     });
 
     const { error, data } = await validate(req);
@@ -81,22 +75,7 @@ export async function POST(req: NextRequest) {
       return error;
     }
 
-    const { body, query } = data;
-
-    const newExpenseCreate =
-      query.shiftId && body.paidByCashier
-        ? {
-            create: {
-              category: "SUPPLIER_PAYMENT" as ExpenseCategory,
-              amount: body.paidByCashier,
-              shift: {
-                connect: {
-                  id: query.shiftId,
-                },
-              },
-            },
-          }
-        : undefined;
+    const { body } = data;
 
     const createdDelivery = await prisma.supplierDelivery.create({
       data: {
@@ -107,17 +86,9 @@ export async function POST(req: NextRequest) {
             id: session?.user.id,
           },
         },
-        expenses: newExpenseCreate,
       },
       include: {
         supplier: true,
-        expenses: {
-          include: {
-            supplierDelivery: {
-              include: { supplier: { select: { name: true } } },
-            },
-          },
-        },
       },
     });
 
