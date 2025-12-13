@@ -34,19 +34,19 @@ export default function AuthClientPage() {
     e.preventDefault();
     setIsLoading(true);
 
-    try {
-      const result = await signIn(username, password);
+    const result = await signIn(username, password);
 
-      if (result?.user) {
-        router.push("/dashboard");
-      }
-    } catch (err) {
-      toast.error("Помилка автентифікації", {
-        description: err instanceof Error ? err.message : "Невідома помилка",
-      });
-    } finally {
-      setIsLoading(false);
+    if (result?.ok) {
+      router.push("/dashboard");
+      return;
     }
+
+    toast.error("Помилка автентифікації", {
+      description: result?.error.message,
+      position: "top-center",
+    });
+
+    setIsLoading(false);
   }
 
   return (

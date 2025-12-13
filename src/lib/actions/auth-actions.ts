@@ -1,29 +1,66 @@
 "use server";
 
+import { APIError } from "better-auth";
 import { headers } from "next/headers";
 import { auth } from "../auth";
 
-// export const signUp = async (email: string, password: string, name: string) => {
-//   const result = await auth.api.signUpEmail({
-//     body: {
-//       email,
-//       password,
-//       name,
-//     },
-//   });
+type SignInSuccess = {
+  token: string;
+  user: {
+    id: string;
+    email: string;
+    emailVerified: boolean;
+    username: string;
+    displayUsername: string;
+    name: string;
+    image?: string | null;
+    createdAt: Date;
+    updatedAt: Date;
+  };
+} | null;
 
-//   return result;
-// };
+type SignInError = {
+  status: string | number;
+  code: string | number;
+  message: string;
+};
 
-export const signIn = async (username: string, password: string) => {
-  const result = await auth.api.signInUsername({
-    body: {
-      username,
-      password,
-    },
-  });
+type SignInResult =
+  | { ok: true; data: SignInSuccess }
+  | { ok: false; error: SignInError };
 
-  return result;
+export const signIn = async (
+  username: string,
+  password: string
+): Promise<SignInResult> => {
+  try {
+    const result = await auth.api.signInUsername({
+      body: {
+        username,
+        password,
+      },
+    });
+    return { ok: true, data: result };
+  } catch (error) {
+    if (error instanceof APIError) {
+      return {
+        ok: false,
+        error: {
+          status: error.status,
+          code: error.statusCode,
+          message: error.message,
+        },
+      };
+    }
+    return {
+      ok: false,
+      error: {
+        status: "UNKNOWN_ERROR",
+        code: 500,
+        message: "Невідома помилка",
+      },
+    };
+  }
 };
 
 export const signOut = async () => {

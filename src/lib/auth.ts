@@ -20,7 +20,7 @@ export const auth = betterAuth({
       const response = (await ctx.context.returned) as APIError;
 
       if (ctx.path.startsWith("/sign-up")) {
-        throw new APIError("BAD_REQUEST", {
+        throw new APIError("METHOD_NOT_ALLOWED", {
           message: "Endpoint not allowed",
         });
       }
