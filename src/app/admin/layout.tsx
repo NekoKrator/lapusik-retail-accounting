@@ -20,7 +20,9 @@ export default async function AdminLayout({
     <TablesProvider>
       <SidebarProvider>
         <SidebarAdmin />
-        <main className="w-screen overflow-hidden">{children}</main>
+        <main className="w-screen overflow-hidden bg-background">
+          <div className="h-full py-4 md:py-6">{children}</div>
+        </main>
       </SidebarProvider>
     </TablesProvider>
   );

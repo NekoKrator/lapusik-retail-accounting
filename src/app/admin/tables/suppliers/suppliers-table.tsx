@@ -1,10 +1,7 @@
 "use client";
 
 import { useQueryClient } from "@tanstack/react-query";
-import { Truck } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { TypographyH3 } from "@/components/ui/typography";
 import { useCreateSupplier } from "@/hooks/api/supplier/use-create-supplier";
 import { useSuppliersPaginated } from "@/hooks/api/supplier/use-suppliers";
 import { API_ENDPOINTS } from "@/lib/constants/api-endpoints";
@@ -16,7 +13,7 @@ import EmptySuppliers from "./components/empty-suppliers";
 export default function SuppliersTable() {
   const queryClient = useQueryClient();
   const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(10);
+  const [limit, setLimit] = useState(50);
   const [totalPages, setTotalPages] = useState(1);
 
   const { data, isFetching, refetch } = useSuppliersPaginated({
@@ -72,33 +69,24 @@ export default function SuppliersTable() {
     [items]
   );
   return (
-    <Card className="h-full w-full rounded-none">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Truck className="text-blue-600" />
-          <TypographyH3>Постачальники</TypographyH3>
-        </CardTitle>
-      </CardHeader>
+    <div className="flex flex-col gap-8">
+      <CreateSupplierForm onCreate={createSupplier} />
 
-      <CardContent className="space-y-6">
-        <CreateSupplierForm onCreate={createSupplier} />
-
-        <PaginatedTable
-          columns={columns}
-          emptyComponent={<EmptySuppliers />}
-          isFetching={isFetching}
-          items={items}
-          onFetch={handleRefresh}
-          onPageChange={setPage}
-          onPageSizeChange={setLimit}
-          pagination={{
-            page,
-            pageSize: limit,
-            totalPages,
-          }}
-          transformItems={() => suppliersStats}
-        />
-      </CardContent>
-    </Card>
+      <PaginatedTable
+        columns={columns}
+        emptyComponent={<EmptySuppliers />}
+        isFetching={isFetching}
+        items={items}
+        onFetch={handleRefresh}
+        onPageChange={setPage}
+        onPageSizeChange={setLimit}
+        pagination={{
+          page,
+          pageSize: limit,
+          totalPages,
+        }}
+        transformItems={() => suppliersStats}
+      />
+    </div>
   );
 }

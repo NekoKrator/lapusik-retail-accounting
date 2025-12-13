@@ -107,27 +107,29 @@ export function DataTable<TData, TValue>({
     <div className="flex flex-col gap-4">
       <div className="flex justify-between">
         <DataTableViewOptions table={table} />
-        <ResponsiveTooltip message="Оновити">
-          <Button
-            disabled={isLoading}
-            onClick={() => onFetch?.()}
-            size="icon-sm"
-            type="button"
-            variant="outline"
-          >
-            <RefreshCw className={isLoading ? "animate-spin" : ""} />
-          </Button>
-        </ResponsiveTooltip>
+        <div className="flex gap-4">
+          <DataTablePagination table={table} />
+          <ResponsiveTooltip message="Оновити">
+            <Button
+              disabled={isLoading}
+              onClick={() => onFetch?.()}
+              size="icon-sm"
+              type="button"
+              variant="outline"
+            >
+              <RefreshCw className={isLoading ? "animate-spin" : ""} />
+            </Button>
+          </ResponsiveTooltip>
+        </div>
       </div>
-
-      <div className="overflow-hidden rounded-md border">
+      <div className="relative max-h-[600px] overflow-auto rounded-md border">
         <Table
-          className="table-fixed"
+          className="table-fixed overflow-auto"
           style={{
             width: table.getCenterTotalSize(),
           }}
         >
-          <TableHeader>
+          <TableHeader className="sticky top-0 bg-background">
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
@@ -191,7 +193,7 @@ export function DataTable<TData, TValue>({
               </TableRow>
             )}
           </TableBody>
-          <TableFooter>
+          <TableFooter className="sticky bottom-0 bg-muted">
             {table.getFooterGroups().map((footerGroup) => (
               <TableRow key={footerGroup.id}>
                 {footerGroup.headers.map((footer) => (
@@ -209,8 +211,6 @@ export function DataTable<TData, TValue>({
           </TableFooter>
         </Table>
       </div>
-
-      <DataTablePagination table={table} />
     </div>
   );
 }

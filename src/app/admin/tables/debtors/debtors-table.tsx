@@ -1,10 +1,7 @@
 "use client";
 
 import { useQueryClient } from "@tanstack/react-query";
-import { Users } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { TypographyH3 } from "@/components/ui/typography";
 import { useDebtorsPaginated } from "@/hooks/api/debtor/use-debtors";
 import { API_ENDPOINTS } from "@/lib/constants/api-endpoints";
 import { PaginatedTable } from "../paginated-table";
@@ -26,7 +23,7 @@ export type DebtorStats = {
 export default function DebtorsTable() {
   const queryClient = useQueryClient();
   const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(10);
+  const [limit, setLimit] = useState(50);
   const [totalPages, setTotalPages] = useState(1);
 
   const { data, isFetching, refetch } = useDebtorsPaginated({
@@ -84,31 +81,20 @@ export default function DebtorsTable() {
   );
 
   return (
-    <Card className="h-full w-full rounded-none">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Users className="text-orange-600" />
-          <TypographyH3>Боржники</TypographyH3>
-        </CardTitle>
-      </CardHeader>
-
-      <CardContent className="space-y-6">
-        <PaginatedTable
-          columns={columns}
-          emptyComponent={<EmptyDebtors />}
-          isFetching={isFetching}
-          items={items}
-          onFetch={handleRefresh}
-          onPageChange={setPage}
-          onPageSizeChange={setLimit}
-          pagination={{
-            page,
-            pageSize: limit,
-            totalPages,
-          }}
-          transformItems={() => debtorsStats}
-        />
-      </CardContent>
-    </Card>
+    <PaginatedTable
+      columns={columns}
+      emptyComponent={<EmptyDebtors />}
+      isFetching={isFetching}
+      items={items}
+      onFetch={handleRefresh}
+      onPageChange={setPage}
+      onPageSizeChange={setLimit}
+      pagination={{
+        page,
+        pageSize: limit,
+        totalPages,
+      }}
+      transformItems={() => debtorsStats}
+    />
   );
 }
