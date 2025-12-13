@@ -25,7 +25,7 @@ export function DataTablePagination<TData>({
   const state = table.getState().pagination;
 
   const pageIndex = state.pageIndex; // 0-based
-  const limit = state.limit;
+  const limit = state.pageSize;
   const pageCount = table.getPageCount(); // totalPages
 
   const canPrev = pageIndex > 0;

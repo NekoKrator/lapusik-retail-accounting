@@ -3,12 +3,11 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { Users } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
-import { DataTable } from "@/components/data-table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
 import { TypographyH3 } from "@/components/ui/typography";
 import { useDebtorsPaginated } from "@/hooks/api/debtor/use-debtors";
 import { API_ENDPOINTS } from "@/lib/constants/api-endpoints";
+import { PaginatedTable } from "../paginated-table";
 import { columns } from "./components/columns";
 import EmptyDebtors from "./components/empty-debtors";
 
@@ -24,7 +23,7 @@ export type DebtorStats = {
   totalIsCanceled: number;
 };
 
-export default function Page() {
+export default function DebtorsTable() {
   const queryClient = useQueryClient();
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
@@ -84,26 +83,6 @@ export default function Page() {
     [items]
   );
 
-  const tableData = useMemo<DebtorStats[]>(
-    () =>
-      isFetching && !data
-        ? Array.from<DebtorStats>({ length: 4 }).fill({} as DebtorStats)
-        : debtorsStats,
-    [isFetching, debtorsStats, data]
-  );
-
-  const tableColumns = useMemo(
-    () =>
-      isFetching
-        ? columns.map((column) => ({
-            ...column,
-            cell: () => <Skeleton className="h-5" />,
-            footer: () => <Skeleton className="h-5" />,
-          }))
-        : columns,
-    [isFetching]
-  );
-
   return (
     <Card className="h-full w-full rounded-none">
       <CardHeader>
@@ -114,19 +93,20 @@ export default function Page() {
       </CardHeader>
 
       <CardContent className="space-y-6">
-        <DataTable<DebtorStats, DebtorStats[]>
-          columns={tableColumns}
-          data={tableData}
+        <PaginatedTable
+          columns={columns}
           emptyComponent={<EmptyDebtors />}
-          isLoading={isFetching}
+          isFetching={isFetching}
+          items={items}
           onFetch={handleRefresh}
           onPageChange={setPage}
           onPageSizeChange={setLimit}
           pagination={{
             page,
-            limit,
+            pageSize: limit,
             totalPages,
           }}
+          transformItems={() => debtorsStats}
         />
       </CardContent>
     </Card>

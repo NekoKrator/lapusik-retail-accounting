@@ -37,7 +37,7 @@ type DataTableProps<TData, TValue> = {
 
   pagination: {
     page: number;
-    limit: number;
+    pageSize: number;
     totalPages: number;
   };
 
@@ -74,12 +74,12 @@ export function DataTable<TData, TValue>({
         typeof updater === "function"
           ? updater({
               pageIndex: pagination.page - 1,
-              limit: pagination.limit,
+              pageSize: pagination.pageSize,
             })
           : updater;
 
       onPageChange(next.pageIndex + 1);
-      onPageSizeChange(next.limit);
+      onPageSizeChange(next.pageSize);
     },
     onSortingChange: setSorting,
     getSortedRowModel: getSortedRowModel(),
@@ -98,7 +98,7 @@ export function DataTable<TData, TValue>({
       rowSelection,
       pagination: {
         pageIndex: pagination.page - 1,
-        limit: pagination.limit,
+        pageSize: pagination.pageSize,
       },
     },
   });

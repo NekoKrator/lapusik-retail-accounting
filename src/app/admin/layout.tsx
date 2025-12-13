@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { SidebarProvider } from "@/components/ui/sidebar";
+import { TablesProvider } from "@/context/tables-context";
 import { getServerSession } from "@/lib/get-session";
 import { SidebarAdmin } from "./components/sidebar-admin";
 
@@ -16,9 +17,11 @@ export default async function AdminLayout({
   }
 
   return (
-    <SidebarProvider>
-      <SidebarAdmin />
-      <main className="w-screen overflow-hidden">{children}</main>
-    </SidebarProvider>
+    <TablesProvider>
+      <SidebarProvider>
+        <SidebarAdmin />
+        <main className="w-screen overflow-hidden">{children}</main>
+      </SidebarProvider>
+    </TablesProvider>
   );
 }

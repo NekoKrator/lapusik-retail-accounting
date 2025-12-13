@@ -2,18 +2,16 @@
 
 import { useQueryClient } from "@tanstack/react-query";
 import { Briefcase } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
-import { DataTable } from "@/components/data-table";
+import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
 import { TypographyH3 } from "@/components/ui/typography";
-import type { Shift } from "@/generated/prisma/client";
 import { useShiftPaginated } from "@/hooks/api/shift/use-shift";
 import { API_ENDPOINTS } from "@/lib/constants/api-endpoints";
+import { PaginatedTable } from "../paginated-table";
 import { columns } from "./components/columns";
 import EmptyShifts from "./components/empty-shifts";
 
-export default function Page() {
+export default function ShiftsTable() {
   const queryClient = useQueryClient();
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
@@ -37,26 +35,6 @@ export default function Page() {
 
   const items = data?.items ?? [];
 
-  const tableData = useMemo<Shift[]>(
-    () =>
-      isFetching && !data
-        ? Array.from<Shift>({ length: 4 }).fill({} as Shift)
-        : items,
-    [isFetching, items, data]
-  );
-
-  const tableColumns = useMemo(
-    () =>
-      isFetching
-        ? columns.map((column) => ({
-            ...column,
-            cell: () => <Skeleton className="h-5" />,
-            footer: () => <Skeleton className="h-5" />,
-          }))
-        : columns,
-    [isFetching]
-  );
-
   return (
     <Card className="h-full w-full rounded-none">
       <CardHeader>
@@ -67,16 +45,17 @@ export default function Page() {
       </CardHeader>
 
       <CardContent className="space-y-6">
-        <DataTable<Shift, Shift[]>
-          columns={tableColumns}
-          data={tableData}
+        <PaginatedTable
+          columns={columns}
           emptyComponent={<EmptyShifts />}
+          isFetching={isFetching}
+          items={items}
           onFetch={handleRefresh}
           onPageChange={setPage}
           onPageSizeChange={setLimit}
           pagination={{
             page,
-            limit,
+            pageSize: limit,
             totalPages,
           }}
         />

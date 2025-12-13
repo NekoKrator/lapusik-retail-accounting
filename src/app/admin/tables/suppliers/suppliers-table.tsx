@@ -3,19 +3,17 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { Truck } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
-import { DataTable } from "@/components/data-table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
 import { TypographyH3 } from "@/components/ui/typography";
 import { useCreateSupplier } from "@/hooks/api/supplier/use-create-supplier";
 import { useSuppliersPaginated } from "@/hooks/api/supplier/use-suppliers";
 import { API_ENDPOINTS } from "@/lib/constants/api-endpoints";
-import type { SupplierStats } from "@/schemas/supplier-schema";
+import { PaginatedTable } from "../paginated-table";
 import { columns } from "./components/columns";
 import { CreateSupplierForm } from "./components/create-supplier-form";
 import EmptySuppliers from "./components/empty-suppliers";
 
-export default function Page() {
+export default function SuppliersTable() {
   const queryClient = useQueryClient();
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
@@ -73,27 +71,6 @@ export default function Page() {
       }),
     [items]
   );
-
-  const tableData = useMemo<SupplierStats[]>(
-    () =>
-      isFetching && !data
-        ? Array.from<SupplierStats>({ length: 4 }).fill({} as SupplierStats)
-        : suppliersStats,
-    [isFetching, suppliersStats, data]
-  );
-
-  const tableColumns = useMemo(
-    () =>
-      isFetching
-        ? columns.map((column) => ({
-            ...column,
-            cell: () => <Skeleton className="h-5" />,
-            footer: () => <Skeleton className="h-5" />,
-          }))
-        : columns,
-    [isFetching]
-  );
-
   return (
     <Card className="h-full w-full rounded-none">
       <CardHeader>
@@ -106,18 +83,20 @@ export default function Page() {
       <CardContent className="space-y-6">
         <CreateSupplierForm onCreate={createSupplier} />
 
-        <DataTable<SupplierStats, SupplierStats[]>
-          columns={tableColumns}
-          data={tableData}
+        <PaginatedTable
+          columns={columns}
           emptyComponent={<EmptySuppliers />}
+          isFetching={isFetching}
+          items={items}
           onFetch={handleRefresh}
           onPageChange={setPage}
           onPageSizeChange={setLimit}
           pagination={{
             page,
-            limit,
+            pageSize: limit,
             totalPages,
           }}
+          transformItems={() => suppliersStats}
         />
       </CardContent>
     </Card>

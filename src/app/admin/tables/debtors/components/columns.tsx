@@ -4,7 +4,7 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { DataTableColumnHeader } from "@/components/data-table-column-header";
 import { Checkbox } from "@/components/ui/checkbox";
 import { formatCurrency } from "@/lib/formatters";
-import type { DebtorStats } from "../page";
+import type { DebtorStats } from "../debtors-table";
 
 // import { ActionsCell } from "./actions-cell";
 
