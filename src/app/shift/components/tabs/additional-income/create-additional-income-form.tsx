@@ -55,7 +55,7 @@ export function CreateAdditionalIncomeForm() {
             name="category"
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid}>
-                <Label htmlFor="category">Джерело*</Label>
+                <Label htmlFor="category">Джерело</Label>
                 <Input
                   {...field}
                   aria-invalid={fieldState.invalid}
@@ -64,7 +64,7 @@ export function CreateAdditionalIncomeForm() {
                 />
                 {fieldState.invalid && (
                   <FieldError errors={[fieldState.error]} />
-                )}{" "}
+                )}
               </Field>
             )}
           />
@@ -85,7 +85,7 @@ export function CreateAdditionalIncomeForm() {
                 />
                 {fieldState.invalid && (
                   <FieldError errors={[fieldState.error]} />
-                )}{" "}
+                )}
               </Field>
             )}
           />
