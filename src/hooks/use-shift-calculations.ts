@@ -24,7 +24,7 @@ export const useShiftCalculations = ({
   totalCashRegister,
 }: UseShiftCalculationsProps) => {
   const totalAdditionalIncome = useMemo(() => {
-    if (!Array.isArray(additionalIncome) || additionalIncome.length === 0) {
+    if (!Array.isArray(additionalIncome)) {
       return null;
     }
 
@@ -32,7 +32,7 @@ export const useShiftCalculations = ({
   }, [additionalIncome]);
 
   const totalExpenses = useMemo(() => {
-    if (!Array.isArray(expenses) || expenses.length === 0) {
+    if (!Array.isArray(expenses)) {
       return null;
     }
 
