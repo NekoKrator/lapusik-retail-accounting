@@ -23,13 +23,13 @@ import type {
   SupplierDeliveryWithSupplier,
   SupplierDeliveryWriteOffInput,
 } from "@/schemas/supplier-delivery-schema";
-import { WriteOffDeliveryForm } from "./write-off-delivery-form";
+import { WriteOffSupplierDeliveryForm } from "./write-off-supplier-delivery-form";
 
 type DeliveryItemProps = {
   delivery: SupplierDeliveryWithSupplier;
 };
 
-export default function DeliveryItem({ delivery }: DeliveryItemProps) {
+export default function SupplierDeliveryItem({ delivery }: DeliveryItemProps) {
   const { currentShift } = useShiftContext();
 
   const {
@@ -52,8 +52,11 @@ export default function DeliveryItem({ delivery }: DeliveryItemProps) {
       id: delivery.id,
       payload,
     });
+    const description = payload.paidByCashier
+      ? `Створено витрату на ${payload.paidByCashier} ₴.`
+      : undefined;
     toast.success("Поставку успішно списано!", {
-      description: `Створено витрату на ${payload.paidByCashier} ₴.`,
+      description,
     });
   };
 
@@ -105,7 +108,7 @@ export default function DeliveryItem({ delivery }: DeliveryItemProps) {
             </Button>
           }
         >
-          <WriteOffDeliveryForm
+          <WriteOffSupplierDeliveryForm
             currentDebt={currentDebt}
             onWriteOff={handleWriteOff}
           />

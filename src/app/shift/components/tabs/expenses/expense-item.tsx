@@ -31,6 +31,8 @@ export default function ExpenseItem({ expense }: ExpenseItemProps) {
     shiftId: currentShift.id,
   });
 
+  console.log(expense.id);
+
   const getCategoryIcon = (category: string) => {
     const cat = expenseCategories.find((c) => c.key === category);
     const IconComponent = cat?.icon || AlertCircle;

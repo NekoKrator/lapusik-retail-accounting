@@ -21,7 +21,9 @@ type CreateDeliveryFormProps = {
   isLoading: boolean;
 };
 
-export function CreateDeliveryForm({ isLoading }: CreateDeliveryFormProps) {
+export function CreateSupplierDeliveryForm({
+  isLoading,
+}: CreateDeliveryFormProps) {
   const { mutateAsync: createSupplierDelivery } = useCreateSupplierDelivery();
 
   const {

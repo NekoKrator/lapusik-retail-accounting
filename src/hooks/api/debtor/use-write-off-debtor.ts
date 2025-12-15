@@ -54,7 +54,11 @@ export function useWriteOffDebtor(params?: WriteOffDebtorSearchParams) {
             return previous;
           }
 
-          return [additionalIncome, ...previous];
+          const listWithoutUpdatedItem = previous.filter(
+            (p) => p.id !== additionalIncome.id
+          );
+
+          return [additionalIncome, ...listWithoutUpdatedItem];
         }
       );
     },

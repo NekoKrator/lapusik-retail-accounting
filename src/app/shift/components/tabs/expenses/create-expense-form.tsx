@@ -9,24 +9,32 @@ import { Button } from "@/components/ui/button";
 import { Field, FieldError, FieldGroup, FieldSet } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Spinner } from "@/components/ui/spinner";
 import { useShiftContext } from "@/context/shift-context";
-import { useCreateAdditionalIncome } from "@/hooks/api/additional-income/use-create-additional-income";
+import { useCreateExpense } from "@/hooks/api/expense/use-create-expense";
+import { expenseCategories } from "@/lib/constants/expense-categories";
 import {
-  type AdditionalIncomeCreateInput,
-  AdditionalIncomeCreateSchema,
-} from "@/schemas/additional-income-schema";
+  type ExpenseCreateInput,
+  ExpenseCreateSchema,
+} from "@/schemas/expense-schema";
 
-export function CreateAdditionalIncomeForm() {
+export function CreateExpenseForm() {
   const {
     formState: { isSubmitting, isSubmitSuccessful },
     reset,
     handleSubmit,
     control,
-  } = useForm<AdditionalIncomeCreateInput>({
-    resolver: zodResolver(AdditionalIncomeCreateSchema),
+  } = useForm<ExpenseCreateInput>({
+    resolver: zodResolver(ExpenseCreateSchema),
     defaultValues: {
-      category: "",
+      category: "OTHER",
     },
   });
 
@@ -37,37 +45,51 @@ export function CreateAdditionalIncomeForm() {
   }, [isSubmitSuccessful, reset]);
 
   const { currentShift } = useShiftContext();
-  const { mutateAsync: createAdditionalIncome } = useCreateAdditionalIncome({
+  const { mutateAsync: createExpense } = useCreateExpense({
     shiftId: currentShift.id,
   });
 
-  const onSubmit = async (payload: AdditionalIncomeCreateInput) => {
-    await createAdditionalIncome(payload);
-    toast.success("Надходження успішно створено!");
+  const onSubmit = async (payload: ExpenseCreateInput) => {
+    await createExpense(payload);
+    toast.success("Витрату успішно створено!");
   };
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <FieldSet>
-        <FieldGroup className="grid grid-cols-1 gap-3 lg:grid-cols-7">
+        <FieldGroup className="grid grid-cols-1 gap-3 lg:grid-cols-3">
           <Controller
             control={control}
             name="category"
             render={({ field, fieldState }) => (
-              <Field
-                className="lg:col-span-3"
-                data-invalid={fieldState.invalid}
-              >
-                <Label htmlFor="category">Джерело*</Label>
-                <Input
-                  {...field}
-                  aria-invalid={fieldState.invalid}
-                  id="category"
-                  placeholder="Джерело"
-                />
+              <Field data-invalid={fieldState.invalid}>
+                <Label htmlFor="category">Категорія*</Label>
+
+                <Select
+                  name={field.name}
+                  onValueChange={field.onChange}
+                  value={field.value}
+                >
+                  <SelectTrigger
+                    aria-invalid={fieldState.invalid}
+                    id="category"
+                  >
+                    <SelectValue placeholder="Обрати категорію..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {expenseCategories.map((category) => (
+                      <SelectItem
+                        key={category.key}
+                        value={String(category.key)}
+                      >
+                        {category.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
                 {fieldState.invalid && (
                   <FieldError errors={[fieldState.error]} />
-                )}{" "}
+                )}
               </Field>
             )}
           />
@@ -76,11 +98,8 @@ export function CreateAdditionalIncomeForm() {
             control={control}
             name="amount"
             render={({ field, fieldState }) => (
-              <Field
-                className="lg:col-span-3"
-                data-invalid={fieldState.invalid}
-              >
-                <Label htmlFor="amount">Сума надходження*</Label>
+              <Field data-invalid={fieldState.invalid}>
+                <Label htmlFor="amount">Сума витрати*</Label>
                 <Input
                   {...field}
                   aria-invalid={fieldState.invalid}
@@ -99,7 +118,7 @@ export function CreateAdditionalIncomeForm() {
           <Field>
             <Label className="text-card">.</Label>
             <Button
-              className="border-indigo-600 text-indigo-600 hover:bg-indigo-600 hover:text-primary-foreground has-[>svg]:px-4 dark:border-indigo-600 dark:hover:bg-indigo-600"
+              className="border-red-600 text-red-600 hover:bg-red-600 hover:text-primary-foreground has-[>svg]:px-4 dark:border-red-600 dark:hover:bg-red-600"
               disabled={isSubmitting}
               type="submit"
               variant="outline"
@@ -109,7 +128,7 @@ export function CreateAdditionalIncomeForm() {
               ) : (
                 <>
                   <Plus />
-                  <p className="lg:hidden">Додати</p>
+                  <p>Додати</p>
                 </>
               )}
             </Button>

@@ -1,7 +1,7 @@
 "use client";
 
-import { Calculator, CheckCircle, Truck, Users } from "lucide-react";
-import { useState } from "react";
+import { Calculator, CheckCircle } from "lucide-react";
+import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { useLocalStorage } from "usehooks-ts";
 import { Button } from "@/components/ui/button";
@@ -11,7 +11,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
 import { TypographyH1, TypographyP } from "@/components/ui/typography";
 import type { Shift } from "@/generated/prisma/client";
@@ -22,33 +21,34 @@ import { useCloseShift } from "@/hooks/api/shift/use-close-shift";
 import { useSupplierDeliveries } from "@/hooks/api/supplier-deliveries/use-supplier-deliveries";
 import { useShiftCalculations } from "@/hooks/use-shift-calculations";
 import type { LocalStorageDraft } from "@/types/types";
-import { AdditionalIncomeSection } from "./additional-income/additional-income-section";
 import { CashRegister } from "./cash-register";
-import DebtorsSection from "./debtors-section/debtors-section";
-import { ExpensesSection } from "./expense-section/expenses-section";
 import { FinalCalculations } from "./final-calculations";
 import { QuickStats } from "./quick-stats/quick-stats";
-import DeliveriesSection from "./supplier-deliveries-section/deliveries-section";
+import { SalesTabs } from "./tabs/sales-tabs";
+import {
+  additionalIncomeTab,
+  debtorsTab,
+  expensesTab,
+  supplierDeliveriesTab,
+} from "./tabs/tabs";
 
 type SalesPageProps = {
   currentShift: Shift;
   lastClosedShift: Shift | null;
 };
 
-export default function SalesPage({ currentShift }: SalesPageProps) {
-  const [showDebtors, setShowDebtors] = useState(false);
-  const [showSuppliersDeliveries, setShowSuppliersDeliveries] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+const clampNumber = (n: unknown, max: number) => {
+  if (typeof n !== "number") {
+    return n;
+  }
+  if (Number.isNaN(n)) {
+    return 0;
+  }
+  return Math.min(Math.max(n, 0), max);
+};
 
-  const clampNumber = (n: unknown, max: number) => {
-    if (typeof n !== "number") {
-      return n;
-    }
-    if (Number.isNaN(n)) {
-      return 0;
-    }
-    return Math.min(Math.max(n, 0), max);
-  };
+export default function SalesPage({ currentShift }: SalesPageProps) {
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [localStorageDraft, setLocalStorageDraft, clearDraft] =
     useLocalStorage<LocalStorageDraft>(
@@ -73,25 +73,29 @@ export default function SalesPage({ currentShift }: SalesPageProps) {
   const closeShift = useCloseShift();
 
   const {
-    isFetching: isLoadingDebtors,
+    isLoading: isLoadingDebtors,
+    isFetching: isFetchingDebtors,
     data: debtors,
     refetch: refetchDebtors,
   } = useDebtors({ status: "ACTIVE" });
 
   const {
-    isFetching: isLoadingDeliveries,
-    data: deliveries,
+    isLoading: isLoadingSupplierDeliveries,
+    isFetching: isFetchingSupplierDeliveries,
+    data: supplierDeliveries,
     refetch: refetchDeliveries,
   } = useSupplierDeliveries({ isPaidOff: "false" });
 
   const {
-    isFetching: isLoadingAdditionalIncome,
+    isLoading: isLoadingAdditionalIncome,
+    isFetching: isFetchingAdditionalIncome,
     data: additionalIncome,
     refetch: refetchAdditionalIncome,
   } = useAdditionalIncome({ shiftId: currentShift.id });
 
   const {
-    isFetching: isLoadingExpenses,
+    isLoading: isLoadingExpenses,
+    isFetching: isFetchingExpenses,
     data: expenses,
     refetch: refetchExpenses,
   } = useExpenses({ shiftId: currentShift.id });
@@ -100,12 +104,16 @@ export default function SalesPage({ currentShift }: SalesPageProps) {
   const {
     totalExpenses,
     totalAdditionalIncome,
+    totalSupplierDeliveries,
+    totalDebtors,
     expectedClosingBalance,
     difference,
   } = useShiftCalculations({
     openingBalance: currentShift.openingBalance,
     additionalIncome,
     expenses,
+    supplierDeliveries,
+    debtors,
     actualClosingBalance: localStorageDraft.actualClosingBalance,
     totalCashRegister: localStorageDraft.totalCashRegister,
   });
@@ -137,6 +145,61 @@ export default function SalesPage({ currentShift }: SalesPageProps) {
     }
   };
 
+  const tabs = useMemo(
+    () => [
+      additionalIncomeTab({
+        data: additionalIncome,
+        total: totalAdditionalIncome ?? 0,
+        isLoading: isLoadingAdditionalIncome,
+        isFetching: isFetchingAdditionalIncome,
+        onRefresh: refetchAdditionalIncome,
+      }),
+      expensesTab({
+        data: expenses,
+        total: totalExpenses ?? 0,
+        isLoading: isLoadingExpenses,
+        isFetching: isFetchingExpenses,
+        onRefresh: refetchExpenses,
+      }),
+      supplierDeliveriesTab({
+        data: supplierDeliveries,
+        total: totalSupplierDeliveries ?? 0,
+        isLoading: isLoadingSupplierDeliveries,
+        isFetching: isFetchingSupplierDeliveries,
+        onRefresh: refetchDeliveries,
+      }),
+      debtorsTab({
+        data: debtors,
+        total: totalDebtors ?? 0,
+        isLoading: isLoadingDebtors,
+        isFetching: isFetchingDebtors,
+        onRefresh: refetchDebtors,
+      }),
+    ],
+    [
+      additionalIncome,
+      debtors,
+      supplierDeliveries,
+      expenses,
+      isFetchingAdditionalIncome,
+      isFetchingDebtors,
+      isFetchingSupplierDeliveries,
+      isFetchingExpenses,
+      isLoadingAdditionalIncome,
+      isLoadingDebtors,
+      isLoadingSupplierDeliveries,
+      isLoadingExpenses,
+      refetchAdditionalIncome,
+      refetchDebtors,
+      refetchDeliveries,
+      refetchExpenses,
+      totalAdditionalIncome,
+      totalDebtors,
+      totalExpenses,
+      totalSupplierDeliveries,
+    ]
+  );
+
   return (
     <div className="min-h-screen p-4">
       <div className="mx-auto max-w-6xl space-y-6">
@@ -166,85 +229,8 @@ export default function SalesPage({ currentShift }: SalesPageProps) {
           totalMorningBalance={currentShift.openingBalance}
         />
 
-        {/* Action Buttons */}
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          <Button
-            className="h-12 rounded-xl shadow-sm"
-            disabled={isLoadingDebtors}
-            onClick={() => setShowDebtors(!showDebtors)}
-            type="button"
-            variant={showDebtors ? "default" : "outline"}
-          >
-            {isLoadingDebtors ? (
-              <>
-                <Skeleton className="h-4 w-4" />
-                <Skeleton className="h-4 w-40" />
-              </>
-            ) : (
-              <>
-                <Users />
-                Боржники (<span>{debtors?.length ?? 0}</span>)
-              </>
-            )}
-          </Button>
-
-          <Button
-            className="h-12 rounded-xl shadow-sm"
-            disabled={isLoadingDeliveries}
-            onClick={() => setShowSuppliersDeliveries(!showSuppliersDeliveries)}
-            type="button"
-            variant={showSuppliersDeliveries ? "default" : "outline"}
-          >
-            {isLoadingDeliveries ? (
-              <>
-                <Skeleton className="h-4 w-4" />
-                <Skeleton className="h-4 w-40" />
-              </>
-            ) : (
-              <>
-                <Truck />
-                Постачальники (<span>{deliveries?.length ?? 0}</span>)
-              </>
-            )}
-          </Button>
-        </div>
-
-        {/* Debtors Section */}
-        {showDebtors && (
-          <DebtorsSection
-            debtors={debtors}
-            isLoadingDebtors={isLoadingDebtors}
-            onFetchDebtor={refetchDebtors}
-          />
-        )}
-
-        {/* Suppliers Deliveries Section */}
-        {showSuppliersDeliveries && (
-          <DeliveriesSection
-            deliveries={deliveries}
-            isLoadingDeliveries={isLoadingDeliveries}
-            onFetchDelivery={refetchDeliveries}
-          />
-        )}
-
-        {/* Additional Income and Expense Section */}
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-          {/* Additional Income Section */}
-          <AdditionalIncomeSection
-            additionalIncome={additionalIncome}
-            isLoadingAdditionalIncome={isLoadingAdditionalIncome}
-            onFetchAdditionalIncome={refetchAdditionalIncome}
-            totalAdditionalIncome={totalAdditionalIncome}
-          />
-
-          {/* Expenses Section */}
-          <ExpensesSection
-            expenses={expenses}
-            isLoadingExpenses={isLoadingExpenses}
-            onFetchExpenses={refetchExpenses}
-            totalExpenses={totalExpenses}
-          />
-        </div>
+        {/* Additional Income, Expenses, Supplier Deliveries and Debtors tabs */}
+        <SalesTabs tabs={tabs} />
 
         {/* Daily Cash Register */}
         <CashRegister

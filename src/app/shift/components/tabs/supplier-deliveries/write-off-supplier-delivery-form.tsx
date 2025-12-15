@@ -18,7 +18,7 @@ type WriteOffDeliveryFormProps = {
   currentDebt: number;
 };
 
-export function WriteOffDeliveryForm({
+export function WriteOffSupplierDeliveryForm({
   onWriteOff,
   currentDebt,
 }: WriteOffDeliveryFormProps) {

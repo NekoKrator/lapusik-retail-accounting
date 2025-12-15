@@ -24,7 +24,7 @@ export function useCreateAdditionalIncome(
       ),
     onSuccess: (response) => {
       queryClient.setQueryData<AdditionalIncomeWithDebtor[]>(
-        [API_ENDPOINTS.ADDITIONAL_INCOME, params],
+        [API_ENDPOINTS.ADDITIONAL_INCOME],
         (previous = []) => [response, ...previous]
       );
     },

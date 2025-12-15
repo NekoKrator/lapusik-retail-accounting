@@ -24,7 +24,7 @@ const resultItemVariants = cva("", {
 });
 
 type ResultItemProps = {
-  value: string;
+  value: string | number;
   label: string;
 };
 

@@ -22,7 +22,7 @@ export function useUpdateDebtor(params?: UpdateDebtorSearchParams) {
       ),
     onSuccess: (response) => {
       queryClient.setQueryData<DebtorWithDebts[]>(
-        [API_ENDPOINTS.DEBTOR, params],
+        [API_ENDPOINTS.DEBTOR],
         (previous = []) => {
           const listWithoutUpdatedItem = previous.filter(
             (p) => p.id !== response.id

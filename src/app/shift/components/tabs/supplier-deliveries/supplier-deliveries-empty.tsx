@@ -7,7 +7,7 @@ import {
   EmptyTitle,
 } from "@/components/ui/empty";
 
-export default function DeliveriesEmpty() {
+export default function SupplierDeliveriesEmpty() {
   return (
     <Empty className="h-[calc(130.6px*2+8px*4+92px)] md:h-[calc(80px*4+8px*4+92px)]">
       <EmptyHeader>

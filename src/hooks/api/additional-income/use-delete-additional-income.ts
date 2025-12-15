@@ -20,7 +20,7 @@ export function useDeleteAdditionalIncome(
       ),
     onSuccess: (response) => {
       queryClient.setQueryData<AdditionalIncome[]>(
-        [API_ENDPOINTS.ADDITIONAL_INCOME, params],
+        [API_ENDPOINTS.ADDITIONAL_INCOME],
         (previous = []) => previous.filter((p) => p.id !== response.id)
       );
     },

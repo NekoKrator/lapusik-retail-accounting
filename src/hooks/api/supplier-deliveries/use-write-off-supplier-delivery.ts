@@ -54,7 +54,11 @@ export function useWriteOffSupplierDelivery(
             return previous;
           }
 
-          return [expense, ...previous];
+          const listWithoutUpdatedItem = previous.filter(
+            (p) => p.id !== expense.id
+          );
+
+          return [expense, ...listWithoutUpdatedItem];
         }
       );
     },

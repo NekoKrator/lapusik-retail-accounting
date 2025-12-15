@@ -11,7 +11,7 @@ import {
 type ResponsiveDialogProps = {
   children: React.ReactNode;
   title: string;
-  description: string;
+  description: React.ReactNode;
   isOpen: boolean;
   setIsOpen: Dispatch<SetStateAction<boolean>>;
 };

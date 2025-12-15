@@ -7,7 +7,7 @@ import {
 } from "@/components/ui/item";
 import { Skeleton } from "@/components/ui/skeleton";
 
-export default function DeliveriesSkeleton() {
+export default function SupplierDeliveriesSkeleton() {
   const skeletonItems = Array.from({ length: 4 }, () => ({
     id: nanoid(),
   }));

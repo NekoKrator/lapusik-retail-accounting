@@ -46,7 +46,11 @@ export function useCreateDebtor(params: CreateDebtorSearchParams) {
             return [expense];
           }
 
-          return [expense, ...previous];
+          const listWithoutUpdatedItem = previous.filter(
+            (p) => p.id !== expense.id
+          );
+
+          return [expense, ...listWithoutUpdatedItem];
         }
       );
     },
