@@ -21,7 +21,12 @@ export function upsertDebtor({
 }) {
   return prisma.$transaction(async (tx) => {
     const debtor = await tx.debtor.upsert({
-      where: { name },
+      where: {
+        userId_name: {
+          userId,
+          name,
+        },
+      },
       update: {},
       create: {
         name,
