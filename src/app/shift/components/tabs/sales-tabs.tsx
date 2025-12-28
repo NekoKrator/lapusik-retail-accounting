@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Spinner } from "@/components/ui/spinner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 type SalesTab = {
@@ -17,7 +18,7 @@ export function SalesTabs({ tabs }: { tabs: SalesTab[] }) {
   const [activeTab, setActiveTab] = useState("");
 
   return (
-    <Tabs className="gap-4" value={activeTab}>
+    <Tabs className="gap-6" value={activeTab}>
       <TabsList className="flex h-full w-full flex-col gap-4 bg-transparent p-0 lg:flex-row">
         {tabs.map(
           ({ key, label, icon: Icon, count, disabled, activeClass }) => (
@@ -32,7 +33,7 @@ export function SalesTabs({ tabs }: { tabs: SalesTab[] }) {
             >
               <Icon />
               {label}
-              <span>{count}</span>
+              {disabled ? <Spinner /> : <span>{count}</span>}
             </TabsTrigger>
           )
         )}

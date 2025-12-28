@@ -1,9 +1,8 @@
 import { format } from "date-fns";
-import { Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { AlertDialogDestructive } from "@/components/alert-dialog-destructive";
-import { ResponsiveTooltip } from "@/components/responsive-tooltip";
-import { Button } from "@/components/ui/button";
+import { DialogDescriptionInfoRow } from "@/components/dialog-description-info-row";
+import { Badge } from "@/components/ui/badge";
 import {
   Item,
   ItemActions,
@@ -11,74 +10,103 @@ import {
   ItemDescription,
   ItemTitle,
 } from "@/components/ui/item";
-import { useShiftContext } from "@/context/shift-context";
 import { useDeleteAdditionalIncome } from "@/hooks/api/additional-income/use-delete-additional-income";
 import { formatCurrency } from "@/lib/formatters";
-import type { AdditionalIncomeWithDebtor } from "@/schemas/additional-income-schema";
+import type { AdditionalIncomeListItem } from "@/modules/additional-income/contracts";
 
 type AdditionalIncomeItemProps = {
-  additionalIncome: AdditionalIncomeWithDebtor;
+  additionalIncome: AdditionalIncomeListItem;
 };
 
 export default function AdditionalIncomeItem({
   additionalIncome,
 }: AdditionalIncomeItemProps) {
-  const { currentShift } = useShiftContext();
-  const { mutateAsync: deleteAdditionalIncome } = useDeleteAdditionalIncome({
-    shiftId: currentShift.id,
-  });
-
-  const debtorName =
-    additionalIncome?.debtor?.name != null ? additionalIncome.debtor.name : "";
-
-  const fullIncomeTitle = debtorName
-    ? `${additionalIncome.category} (${debtorName})`
-    : additionalIncome.category;
+  const { mutateAsync: deleteAdditionalIncome } = useDeleteAdditionalIncome();
 
   const handleDelete = async () => {
     await deleteAdditionalIncome(additionalIncome.id);
     toast.success("Надходження успішно видалено!");
   };
 
+  const { category, amount, createdAt, debtor } = additionalIncome;
+  const formattedCreatedAt = format(createdAt, "HH:mm");
+  const formattedAmount = formatCurrency(amount);
+  const debtorName = debtor?.name;
+
   return (
     <Item className="h-20" variant="outline">
       <ItemContent className="overflow-hidden">
-        <ItemTitle>
-          <ResponsiveTooltip delayDuration={300} message={fullIncomeTitle}>
-            <p className="truncate text-base">{fullIncomeTitle}</p>
-          </ResponsiveTooltip>
+        {/* Category */}
+        <ItemTitle className="text-base">
+          <p className="truncate" title={category}>
+            {category}
+          </p>
         </ItemTitle>
-        <ItemDescription className="line-clamp-1 truncate">
-          {format(additionalIncome.createdAt, "HH:mm")}
+
+        {/* Time and Source */}
+        <ItemDescription className="flex gap-2 truncate opacity-70">
+          <span className="truncate">{formattedCreatedAt}</span>
+          {debtorName && (
+            <Badge
+              className="max-w-48 justify-start text-muted-foreground"
+              title={debtorName}
+              variant="outline"
+            >
+              <span className="truncate">{debtorName}</span>
+            </Badge>
+          )}
         </ItemDescription>
       </ItemContent>
 
+      {/* Amount */}
       <ItemContent>
         <ItemDescription className="font-semibold text-base text-indigo-600">
-          {formatCurrency(additionalIncome.amount)}
+          {formattedAmount}
         </ItemDescription>
       </ItemContent>
 
       <ItemActions className="hidden sm:flex">
         {/* Delete Additional Income Dialog */}
-        <ResponsiveTooltip delayDuration={0} message="Видалити надходження">
-          <AlertDialogDestructive
-            applyButtonName="Видалити надходження"
-            description="Ця дія є безповоротною. Це призведе до остаточного видалення даних про надходження."
-            onDelete={handleDelete}
-            title={`Ви впевнені, що хочете видалити надходження: ${fullIncomeTitle} ${formatCurrency(additionalIncome.amount)}?`}
-            trigger={
-              <Button
-                className="h-9 w-9 text-gray-400 hover:bg-red-50 hover:text-destructive"
-                type="button"
-                variant="ghost"
-              >
-                <Trash2 className="h-4 w-4" />
-              </Button>
-            }
-          />
-        </ResponsiveTooltip>
+        <AlertDialogDestructive
+          applyButtonName="Видалити надходження"
+          description={
+            <div className="flex flex-col gap-4">
+              <AdditionalIncomeDialogDescription
+                amount={formattedAmount}
+                category={category}
+                debtorName={debtorName}
+              />
+              <div className="flex flex-col">
+                <p>
+                  Дані про надходження будуть{" "}
+                  <span className="font-bold">безповоротно</span> видалені.
+                </p>
+              </div>
+            </div>
+          }
+          onDelete={handleDelete}
+          title="Ви впевнені, що хочете видалити надходження?"
+          tooltipMessage="Видалити надходження"
+        />
       </ItemActions>
     </Item>
   );
 }
+
+const AdditionalIncomeDialogDescription = ({
+  category,
+  amount,
+  debtorName,
+}: {
+  category: string;
+  amount: string;
+  debtorName?: string;
+}) => (
+  <div className="flex flex-col text-muted-foreground text-sm">
+    <DialogDescriptionInfoRow label="Джерело" value={category} />
+    <DialogDescriptionInfoRow label="Сума" value={amount} />
+    {debtorName && (
+      <DialogDescriptionInfoRow label="Боржник" value={debtorName} />
+    )}
+  </div>
+);

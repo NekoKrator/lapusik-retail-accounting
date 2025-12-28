@@ -70,7 +70,7 @@ export default function SupplierPicker({
           <ChevronDown className="opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="p-0">
+      <PopoverContent className="w-(--radix-popover-trigger-width) p-0">
         <Command>
           <CommandInput className="h-9" placeholder="Пошук постачальника..." />
           <CommandList>

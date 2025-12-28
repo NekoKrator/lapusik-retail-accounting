@@ -1,16 +1,14 @@
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
-import z from "zod";
-import { prisma } from "@/lib/prisma";
 import { validateRequest } from "@/lib/validate-request";
-import { ExpenseCreateSchema } from "@/schemas/expense-schema";
+import { toListItem } from "@/modules/expense/mappers";
+import { createExpense, findManyExpense } from "@/modules/expense/repository";
+import {
+  CreateQuerySchema,
+  GetQuerySchema,
+} from "@/modules/expense/search-params";
+import { ExpenseCreateSchema } from "@/schemas/expense/expense-schema";
 import { handlePrismaError } from "@/utils/error-handlers";
-
-const GetQuerySchema = z.object({
-  shiftId: z.string().min(1).optional(),
-  page: z.string().min(1).optional(),
-  limit: z.string().min(1).optional(),
-});
 
 export async function GET(req: NextRequest) {
   try {
@@ -27,47 +25,19 @@ export async function GET(req: NextRequest) {
 
     const where = { shiftId: query.shiftId };
 
-    const include = {
-      debtor: true,
-      supplierDelivery: { include: { supplier: { select: { name: true } } } },
-    };
+    const result = await findManyExpense(where);
 
-    if (query.page && query.limit) {
-      const page = Number(query.page);
-      const limit = Number(query.limit);
-
-      const result = await prisma.expense.paginate({
-        page,
-        limit,
-        where,
-        orderBy: { createdAt: "desc" },
-        include,
-      });
-
-      return NextResponse.json(result);
-    }
-
-    const expenses = await prisma.expense.findMany({
-      where,
-      include,
-      orderBy: { createdAt: "desc" },
-    });
-
-    return NextResponse.json(expenses);
+    return NextResponse.json(result.map((i) => toListItem(i)));
   } catch (err) {
     return handlePrismaError(err);
   }
 }
 
-const PostQuerySchema = z.object({
-  shiftId: z.string().min(1, "shiftId обов'язковий"),
-});
-
 export async function POST(req: NextRequest) {
   try {
     const validate = validateRequest({
       bodySchema: ExpenseCreateSchema,
-      querySchema: PostQuerySchema,
+      querySchema: CreateQuerySchema,
     });
 
     const { error, data } = await validate(req);
@@ -77,11 +47,9 @@ export async function POST(req: NextRequest) {
 
     const { body, query } = data;
 
-    const createdExpense = await prisma.expense.create({
-      data: { shift: { connect: { id: query.shiftId } }, ...body },
-    });
+    const createdExpense = await createExpense(query.shiftId, body);
 
-    return NextResponse.json(createdExpense);
+    return NextResponse.json(toListItem(createdExpense));
   } catch (err) {
     return handlePrismaError(err);
   }

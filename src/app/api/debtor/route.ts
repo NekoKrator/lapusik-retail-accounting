@@ -1,19 +1,16 @@
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
-import z from "zod";
-import type { DebtStatus, ExpenseCategory } from "@/generated/prisma/enums";
 import { getServerSession } from "@/lib/get-session";
-import { prisma } from "@/lib/prisma";
 import { validateRequest } from "@/lib/validate-request";
-import { DebtorCreateSchema } from "@/schemas/debtor-schema";
+import { toListItem, toUpsertResult } from "@/modules/debtor/mappers";
+import { findManyDebtor } from "@/modules/debtor/repository";
+import {
+  GetQuerySchema,
+  UpsertQuerySchema,
+} from "@/modules/debtor/search-params";
+import { upsertDebtor } from "@/modules/debtor/service";
+import { DebtorCreateSchema } from "@/schemas/debtor/debtor-schema";
 import { handlePrismaError } from "@/utils/error-handlers";
-
-const GetQuerySchema = z.object({
-  userId: z.string().min(1).optional(),
-  status: z.enum(["ACTIVE", "PAID", "CANCELED"]).optional(),
-  page: z.string().min(1).optional(),
-  limit: z.string().min(1).optional(),
-});
 
 export async function GET(req: NextRequest) {
   try {
@@ -36,47 +33,24 @@ export async function GET(req: NextRequest) {
       debts: { some: debtFilter },
     };
 
-    if (query.page && query.limit) {
-      const page = Number(query.page);
-      const limit = Number(query.limit);
+    const result = await findManyDebtor(where);
 
-      const result = await prisma.debtor.paginate({
-        page,
-        limit,
-        where,
-        orderBy: { createdAt: "desc" },
-        include: {
-          debts: { where: debtFilter },
-        },
-      });
-
-      return NextResponse.json(result);
-    }
-
-    const items = await prisma.debtor.findMany({
-      where,
-      orderBy: { createdAt: "desc" },
-      include: {
-        debts: { where: debtFilter },
-      },
-    });
-
-    return NextResponse.json(items);
+    return NextResponse.json(result.map((i) => toListItem(i)));
   } catch (err) {
     return handlePrismaError(err);
   }
 }
 
-const PostQuerySchema = z.object({
-  shiftId: z.string().min(1).optional(),
-});
-
 export async function POST(req: NextRequest) {
   try {
     const session = await getServerSession();
+    if (!session) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const validate = validateRequest({
       bodySchema: DebtorCreateSchema,
-      querySchema: PostQuerySchema,
+      querySchema: UpsertQuerySchema,
     });
 
     const { error, data } = await validate(req);
@@ -86,46 +60,14 @@ export async function POST(req: NextRequest) {
 
     const { body, query } = data;
 
-    const expenseCreate = query.shiftId
-      ? {
-          create: {
-            category: "DEBTOR" as ExpenseCategory,
-            amount: body.newDebtAmount,
-            shift: { connect: { id: query.shiftId } },
-          },
-        }
-      : undefined;
-
-    const debtCreate = {
-      create: {
-        amount: body.newDebtAmount,
-        status: "ACTIVE" as DebtStatus,
-      },
-    };
-
-    const updateDebtorData = {
-      debts: debtCreate,
-      expenses: expenseCreate,
-    };
-
-    const upserted = await prisma.debtor.upsert({
-      where: { name: body.name },
-      update: updateDebtorData,
-      create: {
-        name: body.name,
-        user: { connect: { id: session?.user.id } },
-        ...updateDebtorData,
-      },
-      include: {
-        debts: true,
-        expenses: {
-          where: { shiftId: query.shiftId },
-          include: { debtor: true },
-        },
-      },
+    const result = await upsertDebtor({
+      userId: session.user.id,
+      name: body.name,
+      amount: body.newDebtAmount,
+      shiftId: query.shiftId,
     });
 
-    return NextResponse.json(upserted, { status: 201 });
+    return NextResponse.json(toUpsertResult(result), { status: 201 });
   } catch (err) {
     return handlePrismaError(err);
   }

@@ -5,6 +5,7 @@ import { createContext, useContext, useState } from "react";
 export type TableKey =
   | "shifts"
   | "suppliers"
+  | "supplier-deliveries"
   | "debtors"
   | "additional-income"
   | "expenses";

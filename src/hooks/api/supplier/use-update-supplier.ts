@@ -1,8 +1,33 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import type { Supplier } from "@/generated/prisma/client";
 import { API_ENDPOINTS } from "@/lib/constants/api-endpoints";
 import { patchData } from "@/lib/requests";
-import type { SupplierUpdateInput } from "@/schemas/supplier-schema";
+import type {
+  SupplierListItem,
+  SupplierUpdateResult,
+} from "@/modules/supplier/contracts";
+import type { SupplierUpdateInput } from "@/schemas/supplier/supplier-schema";
+
+const updateSupplierList = (
+  list: SupplierListItem[],
+  response: SupplierUpdateResult
+): SupplierListItem[] => {
+  const index = list.findIndex((item) => item.id === response.id);
+
+  if (index === -1) {
+    return list;
+  }
+
+  const currentItem = list[index];
+
+  const updated: SupplierListItem = {
+    ...currentItem,
+  };
+
+  const next = [...list];
+  next[index] = updated;
+
+  return next;
+};
 
 export function useUpdateSupplier() {
   const queryClient = useQueryClient();
@@ -14,17 +39,15 @@ export function useUpdateSupplier() {
     }: {
       id: string;
       payload: SupplierUpdateInput;
-    }) => patchData<Supplier>(`${API_ENDPOINTS.SUPPLIER}/${id}`, payload),
-    onSuccess: (response) => {
-      queryClient.setQueryData<Supplier[]>(
+    }) =>
+      patchData<SupplierUpdateResult>(
+        `${API_ENDPOINTS.SUPPLIER}/${id}`,
+        payload
+      ),
+    onSuccess: (res) => {
+      queryClient.setQueryData<SupplierListItem[]>(
         [API_ENDPOINTS.SUPPLIER],
-        (previous = []) => {
-          const listWithoutUpdatedItem = previous.filter(
-            (p) => p.id !== response.id
-          );
-
-          return [response, ...listWithoutUpdatedItem];
-        }
+        (prev = []) => updateSupplierList(prev, res)
       );
     },
   });

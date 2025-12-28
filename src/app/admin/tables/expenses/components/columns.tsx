@@ -2,25 +2,21 @@
 
 import type { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
-import { DataTableColumnHeader } from "@/components/data-table-column-header";
+import { ColumnHeader } from "@/components/data-table/column-header";
 import { Checkbox } from "@/components/ui/checkbox";
 import { expenseCategories } from "@/lib/constants/expense-categories";
 import { formatCurrency } from "@/lib/formatters";
-import type { ExpenseWithInclude } from "@/schemas/expense-schema";
+import type { ExpenseStats } from "@/schemas/expense/expense-schema";
 
-// import { ActionsCell } from "./actions-cell";
-
-const calculateTotal = (
-  data: ExpenseWithInclude[],
-  accessor: keyof ExpenseWithInclude
-) => data.reduce((acc, row) => acc + Number(row[accessor]), 0);
+const calculateTotal = (data: ExpenseStats[], accessor: keyof ExpenseStats) =>
+  data.reduce((acc, row) => acc + Number(row[accessor]), 0);
 
 const getCategoryLabel = (category: string) => {
   const cat = expenseCategories.find((c) => c.key === category);
   return cat?.label || "Інше";
 };
 
-export const columns: ColumnDef<ExpenseWithInclude>[] = [
+export const columns: ColumnDef<ExpenseStats>[] = [
   {
     id: "select",
     maxSize: 32,
@@ -45,27 +41,29 @@ export const columns: ColumnDef<ExpenseWithInclude>[] = [
     enableHiding: false,
   },
   {
+    accessorKey: "displayUsername",
+    meta: {
+      label: "Відділ",
+    },
+    header: ({ column }) => <ColumnHeader column={column} title="Відділ" />,
+    cell: ({ row }) => {
+      const displayUsername = row.original.displayUsername;
+      return <div className="truncate">{displayUsername}</div>;
+    },
+  },
+  {
     accessorKey: "category",
     meta: {
       label: "Категорія",
     },
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Категорія" />
-    ),
+    header: ({ column }) => <ColumnHeader column={column} title="Категорія" />,
     cell: ({ row }) => {
       const category = row.getValue("category") as string;
-      const debtor = row.original.debtor;
-      const supplierDelivery = row.original.supplierDelivery;
-      const name =
-        (debtor ? debtor.name : undefined) ||
-        (supplierDelivery ? supplierDelivery?.supplier.name : undefined);
-
       const categoryName = getCategoryLabel(category);
-      const content = name ? `${categoryName} (${name})` : categoryName;
 
       return (
-        <div className="truncate" title={content}>
-          {content}
+        <div className="truncate" title={categoryName}>
+          {categoryName}
         </div>
       );
     },
@@ -75,9 +73,7 @@ export const columns: ColumnDef<ExpenseWithInclude>[] = [
     meta: {
       label: "Сума",
     },
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Сума" />
-    ),
+    header: ({ column }) => <ColumnHeader column={column} title="Сума" />,
     cell: ({ row }) => (
       <div className="truncate text-end">
         {formatCurrency(row.getValue("amount"))}
@@ -98,7 +94,7 @@ export const columns: ColumnDef<ExpenseWithInclude>[] = [
       label: "Час створення",
     },
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Час створення" />
+      <ColumnHeader column={column} title="Час створення" />
     ),
     cell: ({ row }) => (
       <div className="truncate text-end">
@@ -106,10 +102,9 @@ export const columns: ColumnDef<ExpenseWithInclude>[] = [
       </div>
     ),
   },
-  // {
-  // 	id: "actions",
-  // 	enableHiding: false,
-  // 	maxSize: 51,
-  // 	cell: (props) => <ActionsCell row={props.row} table={props.table} />,
-  // },
+  {
+    id: "__spacer",
+    size: 24,
+    enableResizing: false,
+  },
 ];

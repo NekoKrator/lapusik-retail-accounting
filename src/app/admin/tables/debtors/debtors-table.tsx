@@ -1,24 +1,19 @@
 "use client";
 
 import { useQueryClient } from "@tanstack/react-query";
-import { useEffect, useMemo, useState } from "react";
-import { useDebtorsPaginated } from "@/hooks/api/debtor/use-debtors";
+import { useEffect, useState } from "react";
+import { DataTable } from "@/components/data-table/data-table";
+import { DeleteDialog } from "@/components/data-table/delete-dialog";
+import { useDebtorsStats } from "@/hooks/api/debtor/use-debtors";
+import { useDeleteManyDebtor } from "@/hooks/api/debtor/use-delete-many-debtor";
+import { useTableState } from "@/hooks/use-table-state";
 import { API_ENDPOINTS } from "@/lib/constants/api-endpoints";
-import { PaginatedTable } from "../paginated-table";
+import type { DebtorOrderBy } from "@/schemas/debtor/debtor-order-by-schema";
+import type { DebtorStats } from "@/schemas/debtor/debtor-schema";
+import { buildFilterParams } from "@/types/filter-types";
 import { columns } from "./components/columns";
+import { debtorFilterConfigs } from "./components/debtor-filter-config";
 import EmptyDebtors from "./components/empty-debtors";
-
-export type DebtorStats = {
-  id: string;
-  name: string;
-  operationsCount: number;
-  totalAmount: number;
-  totalPaidAmount: number;
-  totalCurrentDebt: number;
-  totalIsActive: number;
-  totalIsPaid: number;
-  totalIsCanceled: number;
-};
 
 export default function DebtorsTable() {
   const queryClient = useQueryClient();
@@ -26,10 +21,23 @@ export default function DebtorsTable() {
   const [limit, setLimit] = useState(50);
   const [totalPages, setTotalPages] = useState(1);
 
-  const { data, isFetching, refetch } = useDebtorsPaginated({
-    page,
-    limit,
+  const { sorting, filters, onSortingChange, onFilterChange } =
+    useTableState("table:debtors");
+
+  const sort = sorting[0];
+  const order = sort?.desc ? "desc" : "asc";
+
+  const filterParams = buildFilterParams(filters);
+
+  const { data, isFetching, refetch } = useDebtorsStats({
+    page: page.toString(),
+    limit: limit.toString(),
+    orderBy: sort?.id as DebtorOrderBy,
+    order: sort && order,
+    filters: filterParams,
   });
+
+  const { mutateAsync: deleteManyDebtor } = useDeleteManyDebtor();
 
   const handleRefresh = async () => {
     queryClient.removeQueries({ queryKey: [API_ENDPOINTS.DEBTOR] });
@@ -44,57 +52,44 @@ export default function DebtorsTable() {
 
   const items = data?.items ?? [];
 
-  const debtorsStats = useMemo(
-    () =>
-      items?.map((s) => {
-        const initial = {
-          totalAmount: 0,
-          totalPaidAmount: 0,
-          totalCurrentDebt: 0,
-          totalIsActive: 0,
-          totalIsPaid: 0,
-          totalIsCanceled: 0,
-        };
-
-        const totals = s.debts.reduce((acc, d) => {
-          const amount = Number(d.amount);
-          const paidAmount = Number(d.paidAmount);
-
-          acc.totalAmount += amount;
-          acc.totalPaidAmount += paidAmount;
-          acc.totalCurrentDebt += amount - paidAmount;
-          acc.totalIsActive += d.status === "ACTIVE" ? 1 : 0;
-          acc.totalIsPaid += d.status === "PAID" ? 1 : 0;
-          acc.totalIsCanceled += d.status === "CANCELED" ? 1 : 0;
-
-          return acc;
-        }, initial);
-
-        return {
-          id: s.id,
-          name: s.name,
-          operationsCount: s.debts.length,
-          ...totals,
-        };
-      }),
-    [items]
-  );
-
   return (
-    <PaginatedTable
+    <DataTable<DebtorStats, DebtorStats[]>
       columns={columns}
+      data={items}
       emptyComponent={<EmptyDebtors />}
-      isFetching={isFetching}
-      items={items}
+      filterConfigs={debtorFilterConfigs}
+      filters={filters}
+      isLoading={isFetching}
       onFetch={handleRefresh}
+      onFilterChange={onFilterChange}
       onPageChange={setPage}
       onPageSizeChange={setLimit}
+      onSortingChange={onSortingChange}
       pagination={{
         page,
         pageSize: limit,
         totalPages,
       }}
-      transformItems={() => debtorsStats}
+      renderDeleteDialog={({ selectedRowCount, table }) => (
+        <DeleteDialog
+          description={
+            <span className="flex flex-col gap-2">
+              <span>
+                Обрані боржники будуть{" "}
+                <span className="font-bold">безповоротно</span> видалені.
+              </span>
+              <span>
+                Пов'язані борги будуть{" "}
+                <span className="font-bold">безповоротно</span> видалені.
+              </span>
+            </span>
+          }
+          onDelete={deleteManyDebtor}
+          selectedRowCount={selectedRowCount}
+          table={table}
+        />
+      )}
+      sorting={sorting}
     />
   );
 }

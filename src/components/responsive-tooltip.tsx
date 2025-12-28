@@ -1,23 +1,26 @@
-import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 
 type ResponsiveTooltipProps = {
-  message: React.ReactNode;
+  message?: React.ReactNode;
   children?: React.ReactNode;
   className?: string;
+  disabled?: boolean;
 };
 
 export function ResponsiveTooltip({
   message,
   children,
   className,
+  disabled,
   ...props
 }: ResponsiveTooltipProps & React.ComponentProps<typeof Tooltip>) {
-  const [open, setOpen] = useState(false);
+  if (!message || disabled) {
+    return <>{children}</>;
+  }
 
   return (
-    <Tooltip onOpenChange={setOpen} open={open} {...props}>
+    <Tooltip {...props}>
       <TooltipTrigger asChild>{children}</TooltipTrigger>
       <TooltipContent
         className={cn("wrap-break-word max-h-64 max-w-xs", className)}

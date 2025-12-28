@@ -1,25 +1,28 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useQueryClient } from "@tanstack/react-query";
 import { Plus } from "lucide-react";
 import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
+import { toast } from "sonner";
 import type z from "zod";
 import { Button } from "@/components/ui/button";
 import { Field, FieldError, FieldGroup, FieldSet } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Spinner } from "@/components/ui/spinner";
-import type { Supplier } from "@/generated/prisma/client";
+import { useCreateSupplier } from "@/hooks/api/supplier/use-create-supplier";
+import { API_ENDPOINTS } from "@/lib/constants/api-endpoints";
 import {
   type SupplierCreateInput,
   SupplierCreateSchema,
-} from "@/schemas/supplier-schema";
+} from "@/schemas/supplier/supplier-schema";
 
-type CreateSupplierFormProps = {
-  onCreate: (data: SupplierCreateInput) => Promise<Supplier>;
-};
+export function CreateSupplierForm() {
+  const { mutateAsync: createSupplier } = useCreateSupplier();
+  const queryClient = useQueryClient();
 
-export function CreateSupplierForm({ onCreate }: CreateSupplierFormProps) {
   const {
     formState: { isSubmitting, isSubmitSuccessful },
     reset,
@@ -38,20 +41,27 @@ export function CreateSupplierForm({ onCreate }: CreateSupplierFormProps) {
     }
   }, [isSubmitSuccessful, reset]);
 
+  const onSubmit = async (payload: SupplierCreateInput) => {
+    await createSupplier(payload);
+    queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.SUPPLIER] });
+    toast.success("Постачальника успішно створено!");
+  };
+
   return (
-    <form onSubmit={handleSubmit(onCreate)}>
+    <form onSubmit={handleSubmit(onSubmit)}>
       <FieldSet>
-        <FieldGroup className="grid grid-cols-1 gap-3 lg:grid-cols-3">
+        <FieldGroup className="">
           <Controller
             control={control}
             name="name"
             render={({ field, fieldState }) => (
               <Field className="col-span-2" data-invalid={fieldState.invalid}>
+                <Label>Назва*</Label>
                 <Input
                   {...field}
                   aria-invalid={fieldState.invalid}
                   id="name"
-                  placeholder="Назва постачальника"
+                  placeholder="Назва"
                 />
                 {fieldState.invalid && (
                   <FieldError errors={[fieldState.error]} />
@@ -62,7 +72,7 @@ export function CreateSupplierForm({ onCreate }: CreateSupplierFormProps) {
 
           <Field>
             <Button
-              className="relative bg-blue-600 has-[>svg]:px-4"
+              className="has-[>svg]:px-4"
               disabled={isSubmitting}
               type="submit"
             >

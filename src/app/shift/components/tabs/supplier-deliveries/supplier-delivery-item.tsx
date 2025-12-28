@@ -1,12 +1,12 @@
 "use client";
 
 import { format } from "date-fns";
-import { BanknoteArrowDown, Trash2 } from "lucide-react";
-import { useMemo } from "react";
+import { uk } from "date-fns/locale";
+import { BanknoteArrowDown, X } from "lucide-react";
 import { toast } from "sonner";
 import { AlertDialogDestructive } from "@/components/alert-dialog-destructive";
-import { DialogWithTooltip } from "@/components/dialog-with-tooltip";
-import { ResponsiveTooltip } from "@/components/responsive-tooltip";
+import { Dialog } from "@/components/dialog";
+import { DialogDescriptionInfoRow } from "@/components/dialog-description-info-row";
 import { Button } from "@/components/ui/button";
 import {
   Item,
@@ -19,14 +19,12 @@ import { useShiftContext } from "@/context/shift-context";
 import { useUpdateSupplierDelivery } from "@/hooks/api/supplier-deliveries/use-update-supplier-delivery";
 import { useWriteOffSupplierDelivery } from "@/hooks/api/supplier-deliveries/use-write-off-supplier-delivery";
 import { formatCurrency } from "@/lib/formatters";
-import type {
-  SupplierDeliveryWithSupplier,
-  SupplierDeliveryWriteOffInput,
-} from "@/schemas/supplier-delivery-schema";
+import type { SupplierDeliveryListItem } from "@/modules/supplier-delivery/contracts";
+import type { SupplierDeliveryWriteOffInput } from "@/schemas/supplier-delivery/supplier-delivery-schema";
 import { WriteOffSupplierDeliveryForm } from "./write-off-supplier-delivery-form";
 
 type DeliveryItemProps = {
-  delivery: SupplierDeliveryWithSupplier;
+  delivery: SupplierDeliveryListItem;
 };
 
 export default function SupplierDeliveryItem({ delivery }: DeliveryItemProps) {
@@ -37,15 +35,8 @@ export default function SupplierDeliveryItem({ delivery }: DeliveryItemProps) {
     isPending: isPendingWriteOff,
   } = useWriteOffSupplierDelivery({ shiftId: currentShift.id });
 
-  const { mutateAsync: updateSupplierDelivery } = useUpdateSupplierDelivery();
-
-  const currentDebt = useMemo(
-    () =>
-      delivery.price -
-      Number(delivery.paidByCashier) -
-      Number(delivery.paidByOwner),
-    [delivery.price, delivery.paidByCashier, delivery.paidByOwner]
-  );
+  const { mutateAsync: updateSupplierDelivery, isPending: isPendingUpdate } =
+    useUpdateSupplierDelivery();
 
   const handleWriteOff = async (payload: SupplierDeliveryWriteOffInput) => {
     await writeOffSupplierDelivery({
@@ -63,48 +54,79 @@ export default function SupplierDeliveryItem({ delivery }: DeliveryItemProps) {
   const handleRemove = async (id: string) => {
     await updateSupplierDelivery({
       id,
-      payload: { isPaidOff: true },
+      payload: { status: "CANCELED" },
     });
-    toast.success("Поставку успішно видалено!");
+    toast.success("Поставку успішно анульовано!");
   };
+
+  const {
+    invoiceNumber,
+    supplier,
+    price,
+    paidByCashier,
+    paidByOwner,
+    createdAt,
+  } = delivery;
+  const { name } = supplier;
+  const currentDebt = price - paidByCashier - paidByOwner;
+  const formattedCurrentDebt = formatCurrency(currentDebt);
+  const formattedLastDeliveryCreatedAt = format(createdAt, "dd MMMM, HH:mm", {
+    locale: uk,
+  });
 
   return (
     <Item className="h-20" variant="outline">
-      {/* Name and Time */}
       <ItemContent className="overflow-hidden">
+        {/* Name and Invoice Number */}
         <ItemTitle className="text-base">
-          <ResponsiveTooltip
-            delayDuration={300}
-            message={delivery.supplier?.name}
+          <p className="truncate" title={name}>
+            {name}
+          </p>
+          <p
+            className="truncate border-l pl-2 text-muted-foreground/70"
+            title={invoiceNumber}
           >
-            <p className="truncate text-base">{delivery.supplier?.name}</p>
-          </ResponsiveTooltip>
+            {invoiceNumber}
+          </p>
         </ItemTitle>
-        <ItemDescription className="line-clamp-1 truncate">
-          {format(delivery.updatedAt, "dd.MM.yy, HH:mm")}
+
+        {/* Time */}
+        <ItemDescription className="truncate opacity-70">
+          {formattedLastDeliveryCreatedAt}
         </ItemDescription>
       </ItemContent>
 
       {/* Current Debt */}
-      <ItemContent>
+      <ItemContent className="w-32 flex-none text-right">
         <ItemDescription className="font-semibold text-base text-blue-600">
-          {formatCurrency(currentDebt)}
+          {formattedCurrentDebt}
         </ItemDescription>
       </ItemContent>
 
       <ItemActions className="hidden sm:flex">
         {/* Write Off Delivery */}
-        <DialogWithTooltip
-          description={`Поточний борг: ${formatCurrency(currentDebt)}`}
-          title={`Сплатити борг: ${delivery.supplier.name}`}
-          tooltipContent="Сплатити борг"
+        <Dialog
+          description={
+            <SupplierDeliveryDialogDescription
+              currentDebt={formattedCurrentDebt}
+              invoiceNumber={invoiceNumber}
+              supplierName={name}
+            />
+          }
+          title={
+            <div className="flex items-center gap-2">
+              <BanknoteArrowDown className="text-blue-600" /> Погасити борг
+            </div>
+          }
+          tooltipMessage="Погасити борг"
           trigger={
             <Button
               className="h-9 w-9 text-gray-400 hover:bg-blue-50 hover:text-blue-600"
+              disabled={isPendingUpdate}
               type="button"
               variant="ghost"
             >
-              <BanknoteArrowDown className="h-4 w-4" />
+              <BanknoteArrowDown />
             </Button>
           }
         >
@@ -112,14 +134,29 @@ export default function SupplierDeliveryItem({ delivery }: DeliveryItemProps) {
             currentDebt={currentDebt}
             onWriteOff={handleWriteOff}
           />
-        </DialogWithTooltip>
+        </Dialog>
 
         {/* Remove  Delivery */}
         <AlertDialogDestructive
-          applyButtonName="Видалити поставку"
-          description="Дані про поставку будуть безповоротно видалені. Відповідні дані про витрату залишаться."
+          applyButtonName="Анулювати борг"
+          description={
+            <div className="flex flex-col gap-4">
+              <SupplierDeliveryDialogDescription
+                currentDebt={formattedCurrentDebt}
+                invoiceNumber={invoiceNumber}
+                supplierName={name}
+              />
+              <div className="flex flex-col">
+                <p>
+                  Дані про пов'язані витрати{" "}
+                  <span className="font-bold">залишаться</span>.
+                </p>
+              </div>
+            </div>
+          }
           onDelete={() => handleRemove(delivery.id)}
-          title={`Ви впевнені, що хочете видалити поставку: ${delivery.supplier?.name} ${formatCurrency(currentDebt)}?`}
+          title="Ви впевнені, що хочете анулювати борг поставки?"
+          tooltipMessage="Анулювати борг"
           trigger={
             <Button
               className="h-9 w-9 text-gray-400 hover:bg-red-50 hover:text-destructive"
@@ -127,7 +164,7 @@ export default function SupplierDeliveryItem({ delivery }: DeliveryItemProps) {
               type="button"
               variant="ghost"
             >
-              <Trash2 className="h-4 w-4" />
+              <X />
             </Button>
           }
         />
@@ -135,3 +172,22 @@ export default function SupplierDeliveryItem({ delivery }: DeliveryItemProps) {
     </Item>
   );
 }
+
+const SupplierDeliveryDialogDescription = ({
+  supplierName,
+  invoiceNumber,
+  currentDebt,
+}: {
+  supplierName: string;
+  invoiceNumber?: string;
+  currentDebt: string;
+}) => (
+  <div className="flex flex-col text-muted-foreground text-sm">
+    <DialogDescriptionInfoRow label="Постачальник" value={supplierName} />
+    <DialogDescriptionInfoRow
+      label="Номер накладної"
+      value={invoiceNumber ?? "-"}
+    />
+    <DialogDescriptionInfoRow label="Борг" value={currentDebt} />
+  </div>
+);

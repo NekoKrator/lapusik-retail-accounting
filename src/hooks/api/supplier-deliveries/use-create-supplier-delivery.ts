@@ -1,24 +1,22 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { API_ENDPOINTS } from "@/lib/constants/api-endpoints";
 import { postData } from "@/lib/requests";
-import type {
-  SupplierDeliveryCreateInput,
-  SupplierDeliveryWithSupplier,
-} from "@/schemas/supplier-delivery-schema";
+import type { SupplierDeliveryListItem } from "@/modules/supplier-delivery/contracts";
+import type { SupplierDeliveryCreateInput } from "@/schemas/supplier-delivery/supplier-delivery-schema";
 
 export function useCreateSupplierDelivery() {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: (payload: SupplierDeliveryCreateInput) =>
-      postData<SupplierDeliveryWithSupplier>(
+      postData<SupplierDeliveryListItem>(
         API_ENDPOINTS.SUPPLIER_DELIVERY,
         payload
       ),
-    onSuccess: (response) => {
-      queryClient.setQueryData<SupplierDeliveryWithSupplier[]>(
+    onSuccess: (res) => {
+      queryClient.setQueryData<SupplierDeliveryListItem[]>(
         [API_ENDPOINTS.SUPPLIER_DELIVERY],
-        (previous = []) => [response, ...previous]
+        (prev = []) => [res, ...prev]
       );
     },
   });

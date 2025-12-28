@@ -1,20 +1,19 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { API_ENDPOINTS } from "@/lib/constants/api-endpoints";
 import { deleteData } from "@/lib/requests";
-import type { ExpenseWithInclude } from "@/schemas/expense-schema";
+import type {
+  ExpenseDeleteResult,
+  ExpenseListItem,
+} from "@/modules/expense/contracts";
 
-type DeleteExpenseSearchParams = {
-  shiftId: string;
-};
-
-export function useDeleteExpense(params: DeleteExpenseSearchParams) {
+export function useDeleteExpense() {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: (id: string) =>
-      deleteData<ExpenseWithInclude>(`${API_ENDPOINTS.EXPENSE}/${id}`, params),
+      deleteData<ExpenseDeleteResult>(`${API_ENDPOINTS.EXPENSE}/${id}`),
     onSuccess: (response) => {
-      queryClient.setQueryData<ExpenseWithInclude[]>(
+      queryClient.setQueryData<ExpenseListItem[]>(
         [API_ENDPOINTS.EXPENSE],
         (previous = []) => previous.filter((p) => p.id !== response.id)
       );

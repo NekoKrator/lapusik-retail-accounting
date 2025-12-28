@@ -3,7 +3,6 @@ import type { Dispatch, SetStateAction } from "react";
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -11,7 +10,6 @@ import {
 type ResponsiveDialogProps = {
   children: React.ReactNode;
   title: string;
-  description: React.ReactNode;
   isOpen: boolean;
   setIsOpen: Dispatch<SetStateAction<boolean>>;
 };
@@ -19,16 +17,14 @@ type ResponsiveDialogProps = {
 export function ResponsiveDialog({
   children,
   title,
-  description,
   isOpen,
   setIsOpen,
 }: ResponsiveDialogProps) {
   return (
     <Dialog onOpenChange={setIsOpen} open={isOpen}>
-      <DialogContent>
+      <DialogContent aria-describedby={undefined}>
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
-          <DialogDescription>{description}</DialogDescription>
         </DialogHeader>
         {children}
       </DialogContent>

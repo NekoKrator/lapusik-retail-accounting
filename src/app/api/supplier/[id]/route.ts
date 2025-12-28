@@ -1,8 +1,9 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "@/lib/get-session";
-import { prisma } from "@/lib/prisma";
 import { validateRequest } from "@/lib/validate-request";
-import { SupplierUpdateSchema } from "@/schemas/supplier-schema";
+import { toUpdateResult } from "@/modules/supplier/mappers";
+import { updateSupplier } from "@/modules/supplier/repository";
+import { SupplierUpdateSchema } from "@/schemas/supplier/supplier-schema";
 import { handlePrismaError } from "@/utils/error-handlers";
 
 export async function PATCH(
@@ -28,36 +29,9 @@ export async function PATCH(
 
     const { body } = data;
 
-    const updatedSupplier = await prisma.supplier.update({
-      where: { id },
-      data: body,
-      include: { deliveries: true },
-    });
+    const result = await updateSupplier(id, body);
 
-    return NextResponse.json(updatedSupplier);
-  } catch (err) {
-    return handlePrismaError(err);
-  }
-}
-
-export async function DELETE(
-  _req: NextRequest,
-  context: { params: Promise<{ id: string }> }
-) {
-  try {
-    const session = await getServerSession();
-
-    if (session?.user.role !== "admin") {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-    }
-
-    const { id } = await context.params;
-    const deletedSupplier = await prisma.supplier.delete({
-      where: { id },
-      include: { deliveries: true },
-    });
-
-    return NextResponse.json(deletedSupplier);
+    return NextResponse.json(toUpdateResult(result));
   } catch (err) {
     return handlePrismaError(err);
   }

@@ -1,8 +1,9 @@
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
 import { validateRequest } from "@/lib/validate-request";
-import { DebtorUpdateSchema } from "@/schemas/debtor-schema";
+import { toDeleteResult, toUpdateResult } from "@/modules/debtor/mappers";
+import { deleteDebtor, updateDebtor } from "@/modules/debtor/repository";
+import { DebtorUpdateSchema } from "@/schemas/debtor/debtor-schema";
 import { handlePrismaError } from "@/utils/error-handlers";
 
 export async function PATCH(
@@ -22,13 +23,9 @@ export async function PATCH(
 
     const { body } = data;
 
-    const updatedDebtor = await prisma.debtor.update({
-      where: { id },
-      data: body,
-      include: { debts: true },
-    });
+    const result = await updateDebtor(id, body);
 
-    return NextResponse.json(updatedDebtor);
+    return NextResponse.json(toUpdateResult(result));
   } catch (err) {
     return handlePrismaError(err);
   }
@@ -41,11 +38,9 @@ export async function DELETE(
   try {
     const { id } = await context.params;
 
-    const deletedDebtor = await prisma.debtor.delete({
-      where: { id },
-    });
+    const result = await deleteDebtor(id);
 
-    return NextResponse.json(deletedDebtor);
+    return NextResponse.json(toDeleteResult(result));
   } catch (err) {
     return handlePrismaError(err);
   }

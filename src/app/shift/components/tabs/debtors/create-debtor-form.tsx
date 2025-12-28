@@ -11,11 +11,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Spinner } from "@/components/ui/spinner";
 import { useShiftContext } from "@/context/shift-context";
-import { useCreateDebtor } from "@/hooks/api/debtor/use-create-debtor";
+import { useUpsertDebtor } from "@/hooks/api/debtor/use-upsert-debtor";
 import {
   type DebtorCreateInput,
   DebtorCreateSchema,
-} from "@/schemas/debtor-schema";
+} from "@/schemas/debtor/debtor-schema";
 
 type CreateDebtorFormProps = {
   isLoading: boolean;
@@ -42,7 +42,7 @@ export function CreateDebtorForm({ isLoading }: CreateDebtorFormProps) {
   }, [isSubmitSuccessful, reset]);
 
   const { currentShift } = useShiftContext();
-  const { mutateAsync: createDebtor } = useCreateDebtor({
+  const { mutateAsync: createDebtor } = useUpsertDebtor({
     shiftId: currentShift.id,
   });
 
@@ -62,13 +62,13 @@ export function CreateDebtorForm({ isLoading }: CreateDebtorFormProps) {
             name="name"
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid}>
-                <Label htmlFor="name">Ім'я боржника*</Label>
+                <Label htmlFor="name">Ім'я*</Label>
                 <Input
                   {...field}
                   aria-invalid={fieldState.invalid}
-                  disabled={isLoading}
+                  disabled={isLoading || isSubmitting}
                   id="name"
-                  placeholder="Ткаченко Мар'яна Іванівна"
+                  placeholder="Прізвище Ім'я По батькові"
                 />
                 {fieldState.invalid && (
                   <FieldError errors={[fieldState.error]} />
@@ -86,7 +86,7 @@ export function CreateDebtorForm({ isLoading }: CreateDebtorFormProps) {
                 <Input
                   {...field}
                   aria-invalid={fieldState.invalid}
-                  disabled={isLoading}
+                  disabled={isLoading || isSubmitting}
                   id="newDebtAmount"
                   placeholder="0,00"
                   type="number"

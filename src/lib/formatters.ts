@@ -7,3 +7,13 @@ export function formatCurrency(
     currencyDisplay: "narrowSymbol",
   }).format(amount);
 }
+
+export function durationFromSeconds(amount: number) {
+  const hours = Math.floor(amount / 3600);
+  const minutes = Math.floor((amount % 3600) / 60);
+
+  return {
+    hours,
+    minutes,
+  };
+}

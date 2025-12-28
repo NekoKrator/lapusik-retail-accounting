@@ -34,7 +34,6 @@ import {
 
 type SalesPageProps = {
   currentShift: Shift;
-  lastClosedShift: Shift | null;
 };
 
 const clampNumber = (n: unknown, max: number) => {
@@ -54,14 +53,16 @@ export default function SalesPage({ currentShift }: SalesPageProps) {
     useLocalStorage<LocalStorageDraft>(
       "sales-page-draft",
       {
-        actualClosingBalance: null,
         totalCashRegister: null,
+        terminalRegister: null,
+        actualClosingBalance: null,
       },
       {
-        serializer: (value: LocalStorageDraft) =>
+        serializer: (value) =>
           JSON.stringify({
             ...value,
             totalCashRegister: clampNumber(value.totalCashRegister, 9_999_999),
+            terminalRegister: clampNumber(value.terminalRegister, 9_999_999),
             actualClosingBalance: clampNumber(
               value.actualClosingBalance,
               999_999_999
@@ -84,7 +85,7 @@ export default function SalesPage({ currentShift }: SalesPageProps) {
     isFetching: isFetchingSupplierDeliveries,
     data: supplierDeliveries,
     refetch: refetchDeliveries,
-  } = useSupplierDeliveries({ isPaidOff: "false" });
+  } = useSupplierDeliveries({ status: "ACTIVE" });
 
   const {
     isLoading: isLoadingAdditionalIncome,
@@ -114,13 +115,26 @@ export default function SalesPage({ currentShift }: SalesPageProps) {
     expenses,
     supplierDeliveries,
     debtors,
-    actualClosingBalance: localStorageDraft.actualClosingBalance,
-    totalCashRegister: localStorageDraft.totalCashRegister,
+    totalCashRegister: Number(localStorageDraft.totalCashRegister),
+    terminalRegister: Number(localStorageDraft.terminalRegister),
+    actualClosingBalance: Number(localStorageDraft.actualClosingBalance),
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+
+    if (localStorageDraft.totalCashRegister === null) {
+      toast.error("Введіть виторг усього");
+      setIsSubmitting(false);
+      return;
+    }
+
+    if (localStorageDraft.terminalRegister === null) {
+      toast.error("Введіть виторг терміналу");
+      setIsSubmitting(false);
+      return;
+    }
 
     if (localStorageDraft.actualClosingBalance === null) {
       toast.error("Введіть фактичний залишок");
@@ -133,7 +147,8 @@ export default function SalesPage({ currentShift }: SalesPageProps) {
         actualClosingBalance: localStorageDraft.actualClosingBalance,
         expectedClosingBalance: expectedClosingBalance ?? 0,
         totalAdditionalIncome: totalAdditionalIncome ?? 0,
-        totalCashRegister: localStorageDraft.totalCashRegister ?? 0,
+        totalCashRegister: localStorageDraft.totalCashRegister,
+        terminalRegister: localStorageDraft.terminalRegister,
         totalExpenses: totalExpenses ?? 0,
       };
 
@@ -200,6 +215,20 @@ export default function SalesPage({ currentShift }: SalesPageProps) {
     ]
   );
 
+  const isInitialLoading = useMemo(
+    () =>
+      isLoadingAdditionalIncome ||
+      isLoadingDebtors ||
+      isLoadingExpenses ||
+      isLoadingSupplierDeliveries,
+    [
+      isLoadingAdditionalIncome,
+      isLoadingDebtors,
+      isLoadingExpenses,
+      isLoadingSupplierDeliveries,
+    ]
+  );
+
   return (
     <div className="min-h-screen p-4">
       <div className="mx-auto max-w-6xl space-y-6">
@@ -223,8 +252,9 @@ export default function SalesPage({ currentShift }: SalesPageProps) {
         {/* Quick Stats */}
         <QuickStats
           expectedClosingBalance={expectedClosingBalance}
+          isFetching={Boolean(isInitialLoading)}
           totalAdditionalIncome={totalAdditionalIncome}
-          totalCashRegister={Number(localStorageDraft?.totalCashRegister)}
+          totalCashRegister={Number(localStorageDraft.totalCashRegister)}
           totalExpenses={totalExpenses}
           totalMorningBalance={currentShift.openingBalance}
         />
@@ -232,16 +262,17 @@ export default function SalesPage({ currentShift }: SalesPageProps) {
         {/* Additional Income, Expenses, Supplier Deliveries and Debtors tabs */}
         <SalesTabs tabs={tabs} />
 
-        {/* Daily Cash Register */}
-        <CashRegister
-          onTotalCashRegisterChange={setLocalStorageDraft}
-          totalCashRegister={localStorageDraft?.totalCashRegister}
-        />
-
         <form className="space-y-6" onSubmit={handleSubmit}>
+          {/* Daily Cash Register */}
+          <CashRegister
+            onTotalCashRegisterChange={setLocalStorageDraft}
+            terminalRegister={localStorageDraft.terminalRegister}
+            totalCashRegister={localStorageDraft.totalCashRegister}
+          />
+
           {/* Final Calculations */}
           <FinalCalculations
-            actualClosingBalance={localStorageDraft?.actualClosingBalance}
+            actualClosingBalance={localStorageDraft.actualClosingBalance}
             difference={difference}
             expectedClosingBalance={expectedClosingBalance}
             onActualClosingBalanceChange={setLocalStorageDraft}

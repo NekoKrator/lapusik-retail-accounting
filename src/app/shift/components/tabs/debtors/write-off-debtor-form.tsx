@@ -11,7 +11,7 @@ import { Spinner } from "@/components/ui/spinner";
 import {
   type DebtorWriteOffInput,
   DebtorWriteOffSchema,
-} from "@/schemas/debtor-schema";
+} from "@/schemas/debtor/debtor-schema";
 
 type WriteOffDebtorFormProps = {
   onWriteOff: (payload: DebtorWriteOffInput) => Promise<void>;
@@ -46,6 +46,7 @@ export function WriteOffDebtorForm({ onWriteOff }: WriteOffDebtorFormProps) {
                 <Input
                   {...field}
                   aria-invalid={fieldState.invalid}
+                  disabled={isSubmitting}
                   id="writeOffAmount"
                   placeholder="0,00"
                   type="number"
@@ -65,7 +66,7 @@ export function WriteOffDebtorForm({ onWriteOff }: WriteOffDebtorFormProps) {
               type="submit"
             >
               <span className={isSubmitting ? "invisible" : "visible"}>
-                Зберегти
+                Списати борг
               </span>
               {isSubmitting && (
                 <Spinner className="-translate-x-1/2 -translate-y-1/2 absolute top-1/2 left-1/2" />

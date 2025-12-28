@@ -1,27 +1,18 @@
 import { useQuery } from "@tanstack/react-query";
-import type { Shift } from "@/generated/prisma/client";
 import { API_ENDPOINTS } from "@/lib/constants/api-endpoints";
-import { getData, getPaginatedData } from "@/lib/requests";
+import { postData } from "@/lib/requests";
+import type { ShiftStats } from "@/schemas/shift/shift-schema";
+import type { ShiftStatsInput } from "@/schemas/shift/shift-stats-search-payload";
+import type { PaginatedResponse } from "@/types/types";
 
-type ShiftSearchParams = {
-  userId?: string;
-  isClosed?: string;
-  page?: number;
-  limit?: number;
-};
-
-export function useShift(params?: ShiftSearchParams) {
+export function useShiftsStats(payload?: ShiftStatsInput) {
   return useQuery({
-    queryKey: [API_ENDPOINTS.SHIFT],
-    queryFn: () => getData<Shift[]>(API_ENDPOINTS.SHIFT, params),
-    staleTime: 60 * 60 * 1000,
-  });
-}
-
-export function useShiftPaginated(params?: ShiftSearchParams) {
-  return useQuery({
-    queryKey: [API_ENDPOINTS.SHIFT, params],
-    queryFn: () => getPaginatedData<Shift>(API_ENDPOINTS.SHIFT, params),
+    queryKey: [API_ENDPOINTS.SHIFT, payload],
+    queryFn: () =>
+      postData<PaginatedResponse<ShiftStats>>(
+        `${API_ENDPOINTS.SHIFT}/stats`,
+        payload
+      ),
     staleTime: 60 * 60 * 1000,
   });
 }

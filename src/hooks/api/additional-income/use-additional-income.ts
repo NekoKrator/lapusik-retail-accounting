@@ -1,35 +1,30 @@
 import { useQuery } from "@tanstack/react-query";
 import { API_ENDPOINTS } from "@/lib/constants/api-endpoints";
-import { getData, getPaginatedData } from "@/lib/requests";
-import type { AdditionalIncomeWithDebtor } from "@/schemas/additional-income-schema";
+import { getData, postData } from "@/lib/requests";
+import type { AdditionalIncomeListItem } from "@/modules/additional-income/contracts";
+import type { GetSearchParams } from "@/modules/additional-income/search-params";
+import type { AdditionalIncomeStats } from "@/schemas/additional-income/additional-income-schema";
+import type { AdditionalIncomeStatsInput } from "@/schemas/additional-income/additional-income-stats-payload";
+import type { PaginatedResponse } from "@/types/types";
 
-type AdditionalIncomeSearchParams = {
-  shiftId?: string;
-  page?: number;
-  limit?: number;
-};
-
-export function useAdditionalIncome(params?: AdditionalIncomeSearchParams) {
+export function useAdditionalIncome(params?: GetSearchParams) {
   return useQuery({
     queryKey: [API_ENDPOINTS.ADDITIONAL_INCOME],
     queryFn: () =>
-      getData<AdditionalIncomeWithDebtor[]>(
+      getData<AdditionalIncomeListItem[]>(
         API_ENDPOINTS.ADDITIONAL_INCOME,
         params
       ),
-    staleTime: 60 * 60 * 1000,
   });
 }
 
-export function useAdditionalIncomePaginated(
-  params?: AdditionalIncomeSearchParams
-) {
+export function useAdditionalIncomeStats(payload?: AdditionalIncomeStatsInput) {
   return useQuery({
-    queryKey: [API_ENDPOINTS.ADDITIONAL_INCOME, params],
+    queryKey: [API_ENDPOINTS.ADDITIONAL_INCOME, payload],
     queryFn: () =>
-      getPaginatedData<AdditionalIncomeWithDebtor>(
-        API_ENDPOINTS.ADDITIONAL_INCOME,
-        params
+      postData<PaginatedResponse<AdditionalIncomeStats>>(
+        `${API_ENDPOINTS.ADDITIONAL_INCOME}/stats`,
+        payload
       ),
     staleTime: 60 * 60 * 1000,
   });

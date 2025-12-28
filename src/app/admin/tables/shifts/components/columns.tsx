@@ -1,19 +1,59 @@
 "use client";
 
 import type { ColumnDef } from "@tanstack/react-table";
-import { format, formatDuration, intervalToDuration } from "date-fns";
+import { format, formatDuration } from "date-fns";
 import { uk } from "date-fns/locale";
-import { DataTableColumnHeader } from "@/components/data-table-column-header";
+import { CircleCheck, CircleDot } from "lucide-react";
+import { ColumnHeader } from "@/components/data-table/column-header";
+import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
-import type { Shift } from "@/generated/prisma/client";
-import { formatCurrency } from "@/lib/formatters";
+import { durationFromSeconds, formatCurrency } from "@/lib/formatters";
+import type { ShiftStats } from "@/schemas/shift/shift-schema";
 
-// import { ActionsCell } from "./actions-cell";
-
-const calculateTotal = (data: Shift[], accessor: keyof Shift) =>
+const calculateTotal = (data: ShiftStats[], accessor: keyof ShiftStats) =>
   data.reduce((acc, row) => acc + Number(row[accessor]), 0);
 
-export const columns: ColumnDef<Shift>[] = [
+const getShiftSeconds = (
+  row: {
+    isClosed: boolean;
+    shiftDuration: number;
+    openedAt: string | Date;
+  },
+  now: number
+): number => {
+  if (row.isClosed) {
+    return row.shiftDuration;
+  }
+
+  const openedAtMs = new Date(row.openedAt).getTime();
+
+  return (now - openedAtMs) / 1000;
+};
+
+const formatSeconds = (seconds: number): string => {
+  const formatted = formatDuration(durationFromSeconds(seconds), {
+    locale: uk,
+  });
+
+  return formatted === "" ? "< 1 хвилини" : formatted;
+};
+
+const getIsClosedBadge = (isClosed: boolean) =>
+  isClosed
+    ? {
+        key: "closed",
+        label: "Закрита",
+        icon: CircleCheck,
+        colorClass: "text-background fill-green-500 dark:fill-green-400",
+      }
+    : {
+        key: "opened",
+        label: "Відкрита",
+        icon: CircleDot,
+        colorClass: "text-background fill-blue-600 dark:fill-blue-500",
+      };
+
+export const columns: ColumnDef<ShiftStats>[] = [
   {
     id: "select",
     maxSize: 32,
@@ -38,18 +78,33 @@ export const columns: ColumnDef<Shift>[] = [
     enableHiding: false,
   },
   {
+    accessorKey: "displayUsername",
+    meta: {
+      label: "Відділ",
+    },
+    header: ({ column }) => <ColumnHeader column={column} title="Відділ" />,
+    cell: ({ row }) => {
+      const displayUsername = row.original.displayUsername;
+      return <div className="truncate">{displayUsername}</div>;
+    },
+  },
+  {
     accessorKey: "isClosed",
     meta: {
       label: "Статус",
     },
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Статус" />
-    ),
-    cell: ({ row }) => (
-      <div className="truncate">
-        {row.getValue("isClosed") ? "Закрита" : "Відкрита"}
-      </div>
-    ),
+    header: ({ column }) => <ColumnHeader column={column} title="Статус" />,
+    cell: ({ row }) => {
+      const isClosed = row.getValue("isClosed") as boolean;
+      const badge = getIsClosedBadge(isClosed);
+
+      return (
+        <Badge variant="outline">
+          <badge.icon className={badge.colorClass} />
+          {badge.label}
+        </Badge>
+      );
+    },
   },
   {
     accessorKey: "openedAt",
@@ -57,62 +112,16 @@ export const columns: ColumnDef<Shift>[] = [
       label: "Час початку",
     },
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Час початку" />
-    ),
-    cell: ({ row }) => (
-      <div className="truncate text-end">
-        {format(row.getValue("openedAt"), "dd.MM.yy, HH:mm")}
-      </div>
-    ),
-  },
-  {
-    accessorKey: "closedAt",
-    meta: {
-      label: "Час закриття",
-    },
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Час закриття" />
+      <ColumnHeader column={column} title="Час початку" />
     ),
     cell: ({ row }) => {
-      const closedAt = row.getValue("closedAt") as Date;
+      const item = row.getValue("openedAt") as Date;
+
       return (
         <div className="truncate text-end">
-          {closedAt ? format(closedAt, "dd.MM.yy, HH:mm") : "-"}
+          {format(item, "dd.MM.yy, HH:mm")}
         </div>
       );
-    },
-  },
-  {
-    accessorKey: "workTime",
-    meta: {
-      label: "Час зміни",
-    },
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Час зміни" />
-    ),
-    cell: ({ row }) => {
-      const openedAt = new Date(row.getValue("openedAt"));
-      const closedAt = row.getValue("closedAt") as Date;
-
-      let endDuration = new Date();
-      if (closedAt) {
-        endDuration = new Date(closedAt);
-      }
-
-      const duration = intervalToDuration({
-        start: openedAt,
-        end: endDuration,
-      });
-
-      const workTimeDisplay = formatDuration(duration, {
-        format: ["hours", "minutes"],
-        locale: uk,
-      });
-
-      const finalDisplay =
-        workTimeDisplay.trim() === "" ? "0 хвилин" : workTimeDisplay;
-
-      return <div className="truncate text-end">{finalDisplay}</div>;
     },
   },
   {
@@ -120,9 +129,7 @@ export const columns: ColumnDef<Shift>[] = [
     meta: {
       label: "Виторг",
     },
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Виторг" />
-    ),
+    header: ({ column }) => <ColumnHeader column={column} title="Виторг" />,
     cell: ({ row }) => (
       <div className="truncate text-end">
         {formatCurrency(row.getValue("totalCashRegister"))}
@@ -138,12 +145,54 @@ export const columns: ColumnDef<Shift>[] = [
     },
   },
   {
+    accessorKey: "terminalRegister",
+    meta: {
+      label: "Термінал",
+    },
+    header: ({ column }) => <ColumnHeader column={column} title="Термінал" />,
+    cell: ({ row }) => (
+      <div className="truncate text-end">
+        {formatCurrency(row.getValue("terminalRegister"))}
+      </div>
+    ),
+    footer: ({ table }) => {
+      const total = calculateTotal(table.options.data, "terminalRegister");
+      return (
+        <div className="truncate text-end font-bold">
+          {formatCurrency(total)}
+        </div>
+      );
+    },
+  },
+  {
+    accessorKey: "openingBalance",
+    meta: {
+      label: "Ранковий залишок",
+    },
+    header: ({ column }) => (
+      <ColumnHeader column={column} title="Ранковий залишок" />
+    ),
+    cell: ({ row }) => (
+      <div className="truncate text-end">
+        {formatCurrency(row.getValue("openingBalance"))}
+      </div>
+    ),
+    footer: ({ table }) => {
+      const total = calculateTotal(table.options.data, "openingBalance");
+      return (
+        <div className="truncate text-end font-bold">
+          {formatCurrency(total)}
+        </div>
+      );
+    },
+  },
+  {
     accessorKey: "totalAdditionalIncome",
     meta: {
       label: "Додаткові надходження",
     },
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Додаткові надходження" />
+      <ColumnHeader column={column} title="Додаткові надходження" />
     ),
     cell: ({ row }) => (
       <div className="truncate text-end">
@@ -164,9 +213,7 @@ export const columns: ColumnDef<Shift>[] = [
     meta: {
       label: "Витрати",
     },
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Витрати" />
-    ),
+    header: ({ column }) => <ColumnHeader column={column} title="Витрати" />,
     cell: ({ row }) => (
       <div className="truncate text-end">
         {formatCurrency(row.getValue("totalExpenses"))}
@@ -187,7 +234,7 @@ export const columns: ColumnDef<Shift>[] = [
       label: "Розрахунковий залишок",
     },
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Розрахунковий залишок" />
+      <ColumnHeader column={column} title="Розрахунковий залишок" />
     ),
     cell: ({ row }) => (
       <div className="truncate text-end">
@@ -212,7 +259,7 @@ export const columns: ColumnDef<Shift>[] = [
       label: "Фактичний залишок",
     },
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Фактичний залишок" />
+      <ColumnHeader column={column} title="Фактичний залишок" />
     ),
     cell: ({ row }) => (
       <div className="truncate text-end">
@@ -228,10 +275,51 @@ export const columns: ColumnDef<Shift>[] = [
       );
     },
   },
-  // {
-  // 	id: "actions",
-  // 	enableHiding: false,
-  // 	maxSize: 51,
-  // 	cell: (props) => <ActionsCell row={props.row} table={props.table} />,
-  // },
+  {
+    accessorKey: "shiftDuration",
+    meta: { label: "Час зміни" },
+    header: ({ column }) => <ColumnHeader column={column} title="Час зміни" />,
+    cell: ({ row }) => {
+      const now = Date.now();
+      const seconds = getShiftSeconds(row.original, now);
+
+      return <div className="truncate text-end">{formatSeconds(seconds)}</div>;
+    },
+    footer: ({ table }) => {
+      const now = Date.now();
+
+      const totalSeconds = table.options.data.reduce(
+        (sum, row) => sum + getShiftSeconds(row, now),
+        0
+      );
+
+      return (
+        <div className="truncate text-end font-bold">
+          {formatSeconds(totalSeconds)}
+        </div>
+      );
+    },
+  },
+  {
+    accessorKey: "closedAt",
+    meta: {
+      label: "Час закриття",
+    },
+    header: ({ column }) => (
+      <ColumnHeader column={column} title="Час закриття" />
+    ),
+    cell: ({ row }) => {
+      const closedAt = row.getValue("closedAt") as Date;
+      return (
+        <div className="truncate text-end">
+          {closedAt ? format(closedAt, "dd.MM.yy, HH:mm") : "-"}
+        </div>
+      );
+    },
+  },
+  {
+    id: "__spacer",
+    size: 24,
+    enableResizing: false,
+  },
 ];

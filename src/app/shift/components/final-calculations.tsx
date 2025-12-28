@@ -72,7 +72,7 @@ export function FinalCalculations({
             value={actualClosingBalance ?? ""}
           />
 
-          {difference != null && (
+          {difference != null && actualClosingBalance != null && (
             <Alert
               className={`flex justify-center [&>svg]:size-5 ${getDifferenceClasses(difference)}`}
             >

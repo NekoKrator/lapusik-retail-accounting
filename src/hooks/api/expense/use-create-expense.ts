@@ -1,23 +1,18 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { API_ENDPOINTS } from "@/lib/constants/api-endpoints";
 import { postData } from "@/lib/requests";
-import type {
-  ExpenseCreateInput,
-  ExpenseWithInclude,
-} from "@/schemas/expense-schema";
+import type { ExpenseListItem } from "@/modules/expense/contracts";
+import type { CreateSearchParams } from "@/modules/expense/search-params";
+import type { ExpenseCreateInput } from "@/schemas/expense/expense-schema";
 
-type CreateExpenseSearchParams = {
-  shiftId: string;
-};
-
-export function useCreateExpense(params: CreateExpenseSearchParams) {
+export function useCreateExpense(params: CreateSearchParams) {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: (payload: ExpenseCreateInput) =>
-      postData<ExpenseWithInclude>(API_ENDPOINTS.EXPENSE, payload, params),
+      postData<ExpenseListItem>(API_ENDPOINTS.EXPENSE, payload, params),
     onSuccess: (response) => {
-      queryClient.setQueryData<ExpenseWithInclude[]>(
+      queryClient.setQueryData<ExpenseListItem[]>(
         [API_ENDPOINTS.EXPENSE],
         (previous = []) => [response, ...previous]
       );

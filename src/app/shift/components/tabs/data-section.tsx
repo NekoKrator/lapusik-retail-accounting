@@ -54,9 +54,12 @@ export function DataSection<T>({
 
     return (
       <ItemGroup className="gap-2">
-        <ScrollArea className="[&_[data-slot=scroll-area-viewport]>div]:block! h-[calc(80px*2+8px*1)] md:h-[calc(80px*4+8px*3)]">
+        <ScrollArea
+          className={`[&_[data-slot=scroll-area-viewport]>div]:block! h-[calc(80px*2+8px*1)] overscroll-contain md:h-[calc(80px*4+8px*3)] [&>div>div[style]]:left-3! ${!(resultLabel && resultValue) && "h-[calc(80px*2+8px*1)] md:h-[calc(80px*4+8px*4+92px)]"}`}
+          type="always"
+        >
           <div className="space-y-2">{items.map(renderItem)}</div>
-          <ScrollBar orientation="vertical" />
+          <ScrollBar hidden />
         </ScrollArea>
 
         {resultLabel && resultValue && (

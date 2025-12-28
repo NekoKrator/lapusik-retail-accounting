@@ -1,9 +1,15 @@
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
-import { getServerSession } from "@/lib/get-session";
-import { prisma } from "@/lib/prisma";
 import { validateRequest } from "@/lib/validate-request";
-import { SupplierDeliveryUpdateSchema } from "@/schemas/supplier-delivery-schema";
+import {
+  toDeleteResult,
+  toUpdateResult,
+} from "@/modules/supplier-delivery/mappers";
+import {
+  deleteSupplierDelivery,
+  updateSupplierDelivery,
+} from "@/modules/supplier-delivery/repository";
+import { SupplierDeliveryUpdateSchema } from "@/schemas/supplier-delivery/supplier-delivery-schema";
 import { handlePrismaError } from "@/utils/error-handlers";
 
 export async function PATCH(
@@ -23,13 +29,9 @@ export async function PATCH(
 
     const { body } = data;
 
-    const updatedSupplierDelivery = await prisma.supplierDelivery.update({
-      where: { id },
-      data: body,
-      include: { expenses: true },
-    });
+    const result = await updateSupplierDelivery(id, body);
 
-    return NextResponse.json(updatedSupplierDelivery);
+    return NextResponse.json(toUpdateResult(result));
   } catch (err) {
     return handlePrismaError(err);
   }
@@ -40,15 +42,11 @@ export async function DELETE(
   context: { params: Promise<{ id: string }> }
 ) {
   try {
-    const session = await getServerSession();
     const { id } = await context.params;
 
-    const deletedExpenses = await prisma.supplierDelivery.delete({
-      where: { id, userId: session?.user.id },
-      include: { supplier: true, expenses: true },
-    });
+    const result = await deleteSupplierDelivery(id);
 
-    return NextResponse.json(deletedExpenses);
+    return NextResponse.json(toDeleteResult(result));
   } catch (err) {
     return handlePrismaError(err);
   }

@@ -1,6 +1,7 @@
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { toDeleteResult } from "@/modules/expense/mappers";
+import { deleteExpense } from "@/modules/expense/repository";
 import { handlePrismaError } from "@/utils/error-handlers";
 
 export async function DELETE(
@@ -9,11 +10,9 @@ export async function DELETE(
 ) {
   try {
     const { id } = await context.params;
-    const deletedExpense = await prisma.expense.delete({
-      where: { id },
-    });
+    const deletedExpense = await deleteExpense(id);
 
-    return NextResponse.json(deletedExpense);
+    return NextResponse.json(toDeleteResult(deletedExpense));
   } catch (err) {
     return handlePrismaError(err);
   }

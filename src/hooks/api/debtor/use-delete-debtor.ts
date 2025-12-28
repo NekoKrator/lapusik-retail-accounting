@@ -1,22 +1,21 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { API_ENDPOINTS } from "@/lib/constants/api-endpoints";
 import { deleteData } from "@/lib/requests";
-import type { DebtorWithDebts } from "@/schemas/debtor-schema";
+import type {
+  DebtorDeleteResult,
+  DebtorListItem,
+} from "@/modules/debtor/contracts";
 
-type DeleteDebtorSearchParams = {
-  shiftId: string;
-};
-
-export function useDeleteDebtor(params: DeleteDebtorSearchParams) {
+export function useDeleteDebtor() {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: (id: string) =>
-      deleteData<DebtorWithDebts>(`${API_ENDPOINTS.DEBTOR}/${id}`, params),
-    onSuccess: (response) => {
-      queryClient.setQueryData<DebtorWithDebts[]>(
+      deleteData<DebtorDeleteResult>(`${API_ENDPOINTS.DEBTOR}/${id}`),
+    onSuccess: (res) => {
+      queryClient.setQueryData<DebtorListItem[]>(
         [API_ENDPOINTS.DEBTOR],
-        (previous = []) => previous.filter((p) => p.id !== response.id)
+        (prev = []) => prev.filter((i) => i.id !== res.id)
       );
     },
   });

@@ -2,9 +2,16 @@
 
 import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import { useAdditionalIncomePaginated } from "@/hooks/api/additional-income/use-additional-income";
+import { DataTable } from "@/components/data-table/data-table";
+import { DeleteDialog } from "@/components/data-table/delete-dialog";
+import { useAdditionalIncomeStats } from "@/hooks/api/additional-income/use-additional-income";
+import { useDeleteManyAdditionalIncome } from "@/hooks/api/additional-income/use-delete-many-additional-income";
+import { useTableState } from "@/hooks/use-table-state";
 import { API_ENDPOINTS } from "@/lib/constants/api-endpoints";
-import { PaginatedTable } from "../paginated-table";
+import type { AdditionalIncomeOrderBy } from "@/schemas/additional-income/additional-income-order-by-schema";
+import type { AdditionalIncomeStats } from "@/schemas/additional-income/additional-income-schema";
+import { buildFilterParams } from "@/types/filter-types";
+import { additionalIncomeFilterConfigs } from "./components/additional-income-filter-config";
 import { columns } from "./components/columns";
 import EmptyAdditionalIncome from "./components/empty-additional-income";
 
@@ -14,10 +21,25 @@ export default function AdditionalIncomeTable() {
   const [limit, setLimit] = useState(50);
   const [totalPages, setTotalPages] = useState(1);
 
-  const { data, isFetching, refetch } = useAdditionalIncomePaginated({
-    page,
-    limit,
+  const { sorting, filters, onSortingChange, onFilterChange } = useTableState(
+    "table:additional-income"
+  );
+
+  const sort = sorting[0];
+  const order = sort?.desc ? "desc" : "asc";
+
+  const filterParams = buildFilterParams(filters);
+
+  const { data, isFetching, refetch } = useAdditionalIncomeStats({
+    page: page.toString(),
+    limit: limit.toString(),
+    orderBy: sort?.id as AdditionalIncomeOrderBy,
+    order: sort && order,
+    filters: filterParams,
   });
+
+  const { mutateAsync: deleteManyAdditionalIncome } =
+    useDeleteManyAdditionalIncome();
 
   const handleRefresh = async () => {
     queryClient.removeQueries({ queryKey: [API_ENDPOINTS.ADDITIONAL_INCOME] });
@@ -33,19 +55,37 @@ export default function AdditionalIncomeTable() {
   const items = data?.items ?? [];
 
   return (
-    <PaginatedTable
+    <DataTable<AdditionalIncomeStats, AdditionalIncomeStats[]>
       columns={columns}
+      data={items}
       emptyComponent={<EmptyAdditionalIncome />}
-      isFetching={isFetching}
-      items={items}
+      filterConfigs={additionalIncomeFilterConfigs}
+      filters={filters}
+      isLoading={isFetching}
       onFetch={handleRefresh}
+      onFilterChange={onFilterChange}
       onPageChange={setPage}
       onPageSizeChange={setLimit}
+      onSortingChange={onSortingChange}
       pagination={{
         page,
         pageSize: limit,
         totalPages,
       }}
+      renderDeleteDialog={({ selectedRowCount, table }) => (
+        <DeleteDialog
+          description={
+            <span>
+              Обрані надходження будуть{" "}
+              <span className="font-bold">безповоротно</span> видалені.
+            </span>
+          }
+          onDelete={deleteManyAdditionalIncome}
+          selectedRowCount={selectedRowCount}
+          table={table}
+        />
+      )}
+      sorting={sorting}
     />
   );
 }

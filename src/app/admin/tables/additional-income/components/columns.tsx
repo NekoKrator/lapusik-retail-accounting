@@ -2,19 +2,17 @@
 
 import type { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
-import { DataTableColumnHeader } from "@/components/data-table-column-header";
+import { ColumnHeader } from "@/components/data-table/column-header";
 import { Checkbox } from "@/components/ui/checkbox";
 import { formatCurrency } from "@/lib/formatters";
-import type { AdditionalIncomeWithDebtor } from "@/schemas/additional-income-schema";
-
-// import { ActionsCell } from "./actions-cell";
+import type { AdditionalIncomeStats } from "@/schemas/additional-income/additional-income-schema";
 
 const calculateTotal = (
-  data: AdditionalIncomeWithDebtor[],
-  accessor: keyof AdditionalIncomeWithDebtor
+  data: AdditionalIncomeStats[],
+  accessor: keyof AdditionalIncomeStats
 ) => data.reduce((acc, row) => acc + Number(row[accessor]), 0);
 
-export const columns: ColumnDef<AdditionalIncomeWithDebtor>[] = [
+export const columns: ColumnDef<AdditionalIncomeStats>[] = [
   {
     id: "select",
     maxSize: 32,
@@ -39,21 +37,28 @@ export const columns: ColumnDef<AdditionalIncomeWithDebtor>[] = [
     enableHiding: false,
   },
   {
+    accessorKey: "displayUsername",
+    meta: {
+      label: "Відділ",
+    },
+    header: ({ column }) => <ColumnHeader column={column} title="Відділ" />,
+    cell: ({ row }) => {
+      const displayUsername = row.original.displayUsername;
+      return <div className="truncate">{displayUsername}</div>;
+    },
+  },
+  {
     accessorKey: "category",
     meta: {
       label: "Джерело",
     },
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Джерело" />
-    ),
+    header: ({ column }) => <ColumnHeader column={column} title="Джерело" />,
     cell: ({ row }) => {
       const category = row.getValue("category") as string;
-      const debtor = row.original.debtor;
-      const content = debtor ? `${category} (${debtor.name})` : category;
 
       return (
-        <div className="truncate" title={content}>
-          {content}
+        <div className="truncate" title={category}>
+          {category}
         </div>
       );
     },
@@ -63,9 +68,7 @@ export const columns: ColumnDef<AdditionalIncomeWithDebtor>[] = [
     meta: {
       label: "Сума",
     },
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Сума" />
-    ),
+    header: ({ column }) => <ColumnHeader column={column} title="Сума" />,
     cell: ({ row }) => (
       <div className="truncate text-end">
         {formatCurrency(row.getValue("amount"))}
@@ -86,7 +89,7 @@ export const columns: ColumnDef<AdditionalIncomeWithDebtor>[] = [
       label: "Час створення",
     },
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Час створення" />
+      <ColumnHeader column={column} title="Час створення" />
     ),
     cell: ({ row }) => (
       <div className="truncate text-end">
@@ -94,10 +97,9 @@ export const columns: ColumnDef<AdditionalIncomeWithDebtor>[] = [
       </div>
     ),
   },
-  // {
-  // 	id: "actions",
-  // 	enableHiding: false,
-  // 	maxSize: 51,
-  // 	cell: (props) => <ActionsCell row={props.row} table={props.table} />,
-  // },
+  {
+    id: "__spacer",
+    size: 24,
+    enableResizing: false,
+  },
 ];

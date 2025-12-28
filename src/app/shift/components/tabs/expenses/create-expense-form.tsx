@@ -23,9 +23,13 @@ import { expenseCategories } from "@/lib/constants/expense-categories";
 import {
   type ExpenseCreateInput,
   ExpenseCreateSchema,
-} from "@/schemas/expense-schema";
+} from "@/schemas/expense/expense-schema";
 
-export function CreateExpenseForm() {
+type CreateExpenseFormProps = {
+  isLoading: boolean;
+};
+
+export function CreateExpenseForm({ isLoading }: CreateExpenseFormProps) {
   const {
     formState: { isSubmitting, isSubmitSuccessful },
     reset,
@@ -66,6 +70,7 @@ export function CreateExpenseForm() {
                 <Label htmlFor="category">Категорія*</Label>
 
                 <Select
+                  disabled={isLoading || isSubmitting}
                   name={field.name}
                   onValueChange={field.onChange}
                   value={field.value}
@@ -103,6 +108,7 @@ export function CreateExpenseForm() {
                 <Input
                   {...field}
                   aria-invalid={fieldState.invalid}
+                  disabled={isLoading || isSubmitting}
                   id="amount"
                   placeholder="0,00"
                   type="number"
@@ -119,7 +125,7 @@ export function CreateExpenseForm() {
             <Label className="text-card">.</Label>
             <Button
               className="border-red-600 text-red-600 hover:bg-red-600 hover:text-primary-foreground has-[>svg]:px-4 dark:border-red-600 dark:hover:bg-red-600"
-              disabled={isSubmitting}
+              disabled={isLoading || isSubmitting}
               type="submit"
               variant="outline"
             >

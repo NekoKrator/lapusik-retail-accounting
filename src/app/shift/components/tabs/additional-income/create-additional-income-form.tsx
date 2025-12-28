@@ -15,9 +15,15 @@ import { useCreateAdditionalIncome } from "@/hooks/api/additional-income/use-cre
 import {
   type AdditionalIncomeCreateInput,
   AdditionalIncomeCreateSchema,
-} from "@/schemas/additional-income-schema";
+} from "@/schemas/additional-income/additional-income-schema";
 
-export function CreateAdditionalIncomeForm() {
+type CreateAdditionalIncomeFormProps = {
+  isLoading: boolean;
+};
+
+export function CreateAdditionalIncomeForm({
+  isLoading,
+}: CreateAdditionalIncomeFormProps) {
   const {
     formState: { isSubmitting, isSubmitSuccessful },
     reset,
@@ -59,6 +65,7 @@ export function CreateAdditionalIncomeForm() {
                 <Input
                   {...field}
                   aria-invalid={fieldState.invalid}
+                  disabled={isLoading || isSubmitting}
                   id="category"
                   placeholder="Джерело"
                 />
@@ -78,6 +85,7 @@ export function CreateAdditionalIncomeForm() {
                 <Input
                   {...field}
                   aria-invalid={fieldState.invalid}
+                  disabled={isLoading || isSubmitting}
                   id="amount"
                   placeholder="0,00"
                   type="number"
@@ -94,7 +102,7 @@ export function CreateAdditionalIncomeForm() {
             <Label className="text-card">.</Label>
             <Button
               className="border-indigo-600 text-indigo-600 hover:bg-indigo-600 hover:text-primary-foreground has-[>svg]:px-4 dark:border-indigo-600 dark:hover:bg-indigo-600"
-              disabled={isSubmitting}
+              disabled={isLoading || isSubmitting}
               type="submit"
               variant="outline"
             >

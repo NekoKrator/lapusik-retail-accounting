@@ -1,16 +1,17 @@
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
-import z from "zod";
-import { prisma } from "@/lib/prisma";
 import { validateRequest } from "@/lib/validate-request";
-import { AdditionalIncomeCreateSchema } from "@/schemas/additional-income-schema";
+import { toListItem } from "@/modules/additional-income/mappers";
+import {
+  createAdditionalIncome,
+  findManyAdditionalIncome,
+} from "@/modules/additional-income/repository";
+import {
+  CreateQuerySchema,
+  GetQuerySchema,
+} from "@/modules/additional-income/search-params";
+import { AdditionalIncomeCreateSchema } from "@/schemas/additional-income/additional-income-schema";
 import { handlePrismaError } from "@/utils/error-handlers";
-
-const GetQuerySchema = z.object({
-  shiftId: z.string().min(1).optional(),
-  page: z.string().min(1).optional(),
-  limit: z.string().min(1).optional(),
-});
 
 export async function GET(req: NextRequest) {
   try {
@@ -27,42 +28,19 @@ export async function GET(req: NextRequest) {
 
     const where = { shiftId: query.shiftId };
 
-    if (query.page && query.limit) {
-      const page = Number(query.page);
-      const limit = Number(query.limit);
+    const result = await findManyAdditionalIncome(where);
 
-      const result = await prisma.additionalIncome.paginate({
-        page,
-        limit,
-        where,
-        orderBy: { createdAt: "desc" },
-        include: { debtor: true },
-      });
-
-      return NextResponse.json(result);
-    }
-
-    const items = await prisma.additionalIncome.findMany({
-      where,
-      orderBy: { createdAt: "desc" },
-      include: { debtor: true },
-    });
-
-    return NextResponse.json(items);
+    return NextResponse.json(result.map((i) => toListItem(i)));
   } catch (err) {
     return handlePrismaError(err);
   }
 }
 
-const PostQuerySchema = z.object({
-  shiftId: z.string().min(1, "shiftId обов'язковий"),
-});
-
 export async function POST(req: NextRequest) {
   try {
     const validate = validateRequest({
       bodySchema: AdditionalIncomeCreateSchema,
-      querySchema: PostQuerySchema,
+      querySchema: CreateQuerySchema,
     });
 
     const { error, data } = await validate(req);
@@ -72,11 +50,9 @@ export async function POST(req: NextRequest) {
 
     const { body, query } = data;
 
-    const createdAdditionalIncome = await prisma.additionalIncome.create({
-      data: { shift: { connect: { id: query.shiftId } }, ...body },
-    });
+    const result = await createAdditionalIncome(query.shiftId, body);
 
-    return NextResponse.json(createdAdditionalIncome);
+    return NextResponse.json(toListItem(result));
   } catch (err) {
     return handlePrismaError(err);
   }

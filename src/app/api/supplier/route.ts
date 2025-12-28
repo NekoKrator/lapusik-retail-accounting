@@ -1,54 +1,20 @@
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
-import z from "zod";
 import { getServerSession } from "@/lib/get-session";
-import { prisma } from "@/lib/prisma";
 import { validateRequest } from "@/lib/validate-request";
-import { SupplierCreateSchema } from "@/schemas/supplier-schema";
+import { toListItem } from "@/modules/supplier/mappers";
+import {
+  createSupplier,
+  findManySupplier,
+} from "@/modules/supplier/repository";
+import { SupplierCreateSchema } from "@/schemas/supplier/supplier-schema";
 import { handlePrismaError } from "@/utils/error-handlers";
 
-const GetQuerySchema = z.object({
-  include: z.string().min(1).optional(),
-  page: z.string().min(1).optional(),
-  limit: z.string().min(1).optional(),
-});
-
-export async function GET(req: NextRequest) {
+export async function GET(_req: NextRequest) {
   try {
-    const validate = validateRequest({
-      querySchema: GetQuerySchema,
-    });
+    const result = await findManySupplier();
 
-    const { error, data } = await validate(req);
-    if (error) {
-      return error;
-    }
-
-    const { query } = data;
-
-    const includeDeliveries = query.include?.includes("deliveries");
-
-    const include = {
-      deliveries: includeDeliveries,
-    };
-
-    if (query.page && query.limit) {
-      const page = Number(query.page);
-      const limit = Number(query.limit);
-
-      const result = await prisma.supplier.paginate({
-        page,
-        limit,
-        include,
-      });
-
-      return NextResponse.json(result);
-    }
-
-    const suppliers = await prisma.supplier.findMany({
-      include,
-    });
-    return NextResponse.json(suppliers);
+    return NextResponse.json(result.map((item) => toListItem(item)));
   } catch (err) {
     return handlePrismaError(err);
   }
@@ -73,12 +39,9 @@ export async function POST(req: NextRequest) {
 
     const { body } = data;
 
-    const createdSupplier = await prisma.supplier.create({
-      data: body,
-      include: { deliveries: true },
-    });
+    const result = await createSupplier(body);
 
-    return NextResponse.json(createdSupplier, { status: 201 });
+    return NextResponse.json(toListItem(result), { status: 201 });
   } catch (err) {
     return handlePrismaError(err);
   }

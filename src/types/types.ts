@@ -10,8 +10,9 @@ export type ShiftCurrent = {
 };
 
 export type LocalStorageDraft = {
-  actualClosingBalance: number | null;
   totalCashRegister: number | null;
+  terminalRegister: number | null;
+  actualClosingBalance: number | null;
 };
 
 export type RefetchTanstackQuery<T> = (
@@ -24,4 +25,9 @@ export type PaginatedResponse<T> = {
   limit: number;
   total: number;
   totalPages: number;
+};
+
+export type FilterSearchParams = {
+  [key: `filter[${string}]`]: unknown | undefined;
+  [key: `filter[${string}][${string}]`]: unknown | undefined;
 };

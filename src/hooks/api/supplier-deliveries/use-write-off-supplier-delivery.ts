@@ -1,19 +1,44 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import type { Expense } from "@/generated/prisma/client";
 import { API_ENDPOINTS } from "@/lib/constants/api-endpoints";
 import { patchData } from "@/lib/requests";
+import type { ExpenseListItem } from "@/modules/expense/contracts";
 import type {
-  SupplierDeliveryWithSupplierAndExpenses,
-  SupplierDeliveryWriteOffInput,
-} from "@/schemas/supplier-delivery-schema";
+  SupplierDeliveryListItem,
+  SupplierDeliveryWriteOffResult,
+} from "@/modules/supplier-delivery/contracts";
+import type { WriteOffSearchParam } from "@/modules/supplier-delivery/search-params";
+import type { SupplierDeliveryWriteOffInput } from "@/schemas/supplier-delivery/supplier-delivery-schema";
 
-type WriteOffSupplierDeliverySearchParams = {
-  shiftId: string;
+const updateSupplierDeliveryList = (
+  list: SupplierDeliveryListItem[],
+  response: SupplierDeliveryWriteOffResult
+): SupplierDeliveryListItem[] => {
+  const index = list.findIndex((item) => item.id === response.id);
+
+  if (index === -1) {
+    return list;
+  }
+
+  const currentItem = list[index];
+
+  const updated: SupplierDeliveryListItem = {
+    ...currentItem,
+    paidByCashier: response.paidByCashier,
+    paidByOwner: response.paidByOwner,
+    status: response.status,
+  };
+
+  if (updated.status !== "ACTIVE") {
+    return [...list.slice(0, index), ...list.slice(index + 1)];
+  }
+
+  const next = [...list];
+  next[index] = updated;
+
+  return next;
 };
 
-export function useWriteOffSupplierDelivery(
-  params: WriteOffSupplierDeliverySearchParams
-) {
+export function useWriteOffSupplierDelivery(params: WriteOffSearchParam) {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -24,41 +49,27 @@ export function useWriteOffSupplierDelivery(
       id: string;
       payload: SupplierDeliveryWriteOffInput;
     }) =>
-      patchData<SupplierDeliveryWithSupplierAndExpenses>(
+      patchData<SupplierDeliveryWriteOffResult>(
         `${API_ENDPOINTS.SUPPLIER_DELIVERY}/${id}/write-off`,
         payload,
         params
       ),
-    onSuccess: (response) => {
-      queryClient.setQueryData<SupplierDeliveryWithSupplierAndExpenses[]>(
+
+    onSuccess: (res) => {
+      queryClient.setQueryData<SupplierDeliveryListItem[]>(
         [API_ENDPOINTS.SUPPLIER_DELIVERY],
-        (previous = []) => {
-          const listWithoutUpdatedItem = previous.filter(
-            (p) => p.id !== response.id
-          );
-
-          if (response.isPaidOff) {
-            return listWithoutUpdatedItem;
-          }
-
-          return [response, ...listWithoutUpdatedItem];
-        }
+        (prev = []) => updateSupplierDeliveryList(prev, res)
       );
 
-      queryClient.setQueryData<Expense[]>(
+      queryClient.setQueryData<ExpenseListItem[]>(
         [API_ENDPOINTS.EXPENSE],
-        (previous = []) => {
-          const expense = response.expenses.at(-1);
-
-          if (expense === undefined) {
-            return previous;
+        (prev = []) => {
+          const { expense } = res;
+          if (!expense) {
+            return prev;
           }
 
-          const listWithoutUpdatedItem = previous.filter(
-            (p) => p.id !== expense.id
-          );
-
-          return [expense, ...listWithoutUpdatedItem];
+          return [expense, ...prev.filter(({ id }) => id !== expense.id)];
         }
       );
     },

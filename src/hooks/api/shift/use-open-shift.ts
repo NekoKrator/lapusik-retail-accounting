@@ -2,7 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import type { Shift } from "@/generated/prisma/client";
 import { API_ENDPOINTS } from "@/lib/constants/api-endpoints";
 import { postData } from "@/lib/requests";
-import type { ShiftOpenInput } from "@/schemas/shift-schema";
+import type { ShiftOpenInput } from "@/schemas/shift/shift-schema";
 import type { ShiftCurrent } from "@/types/types";
 
 export function useOpenShift() {

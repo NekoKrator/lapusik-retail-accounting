@@ -19,10 +19,7 @@ export default function ShiftPage() {
         currentShift={shift.currentShift}
         lastClosedShift={shift.lastClosedShift}
       >
-        <SalesPage
-          currentShift={shift.currentShift}
-          lastClosedShift={shift.lastClosedShift}
-        />
+        <SalesPage currentShift={shift.currentShift} />
       </ShiftProvider>
     );
   }

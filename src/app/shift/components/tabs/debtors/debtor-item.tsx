@@ -1,12 +1,12 @@
 "use client";
 
 import { format } from "date-fns";
-import { BanknoteArrowDown, Trash2 } from "lucide-react";
-import { useMemo } from "react";
+import { uk } from "date-fns/locale";
+import { BanknoteArrowDown, X } from "lucide-react";
 import { toast } from "sonner";
 import { AlertDialogDestructive } from "@/components/alert-dialog-destructive";
-import { DialogWithTooltip } from "@/components/dialog-with-tooltip";
-import { ResponsiveTooltip } from "@/components/responsive-tooltip";
+import { Dialog } from "@/components/dialog";
+import { DialogDescriptionInfoRow } from "@/components/dialog-description-info-row";
 import { Button } from "@/components/ui/button";
 import {
   Item,
@@ -15,29 +15,40 @@ import {
   ItemDescription,
   ItemTitle,
 } from "@/components/ui/item";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { useShiftContext } from "@/context/shift-context";
-import { useUpdateDebtor } from "@/hooks/api/debtor/use-update-debtor";
+import { useCancelDebts } from "@/hooks/api/debt/use-cancel-debts";
 import { useWriteOffDebtor } from "@/hooks/api/debtor/use-write-off-debtor";
 import { formatCurrency } from "@/lib/formatters";
-import type { DebtorWithDebts } from "@/schemas/debtor-schema";
+import type { DebtListItem } from "@/modules/debt/contracts";
+import type { DebtorListItem } from "@/modules/debtor/contracts";
 import { WriteOffDebtorForm } from "./write-off-debtor-form";
 
 type DebtorItemProps = {
-  debtor: DebtorWithDebts;
+  debtor: DebtorListItem;
 };
 
 export default function DebtorItem({ debtor }: DebtorItemProps) {
   const { currentShift } = useShiftContext();
 
-  const { mutateAsync: writeOffDebtor } = useWriteOffDebtor({
-    shiftId: currentShift.id,
-  });
-  const { mutateAsync: updateDebtor } = useUpdateDebtor();
-
-  const currentDebt = useMemo(
-    () => debtor.debts.reduce((s, d) => s + d.amount - d.paidAmount, 0),
-    [debtor.debts]
+  const { id: debtorId, name, debts } = debtor;
+  const currentDebt = debts.reduce(
+    (acc, item) => acc + item.amount - item.paidAmount,
+    0
   );
+  const formattedCurrentDebt = formatCurrency(currentDebt);
+  const lastDebtDate = debts.at(-1)?.createdAt;
+  const formattedLastDebtCreatedAt = lastDebtDate
+    ? format(lastDebtDate, "dd MMMM, HH:mm", { locale: uk })
+    : "Боргів не знайдено";
+
+  const { mutateAsync: writeOffDebtor, isPending: isPendingWriteOff } =
+    useWriteOffDebtor({
+      shiftId: currentShift.id,
+    });
+
+  const { mutateAsync: cancelDebts, isPending: isPendingCancel } =
+    useCancelDebts({ debtorId });
 
   const handleWriteOff = async (payload: { writeOffAmount: number }) => {
     await writeOffDebtor({
@@ -49,51 +60,54 @@ export default function DebtorItem({ debtor }: DebtorItemProps) {
     });
   };
 
-  const handleRemove = async (id: string) => {
-    await updateDebtor({
-      id,
-      payload: {
-        debts: {
-          updateMany: {
-            where: { status: "ACTIVE" },
-            data: { status: "CANCELED" },
-          },
-        },
-      },
-    });
-    toast.success("Боржника успішно видалено!");
+  const handleCancel = async () => {
+    await cancelDebts();
+    toast.success("Борги успішно анульовано!");
   };
 
   return (
     <Item className="h-20" variant="outline">
-      {/* Name and Time */}
       <ItemContent className="overflow-hidden">
+        {/* Name */}
         <ItemTitle>
-          <ResponsiveTooltip delayDuration={300} message={debtor.name}>
-            <p className="truncate text-base">{debtor.name}</p>
-          </ResponsiveTooltip>
+          <p className="truncate text-base" title={name}>
+            {name}
+          </p>
         </ItemTitle>
-        <ItemDescription className="line-clamp-1 truncate">
-          {format(debtor.createdAt, "dd.MM.yy, HH:mm")}
+
+        {/* Last Debt Created At */}
+        <ItemDescription className="truncate opacity-70">
+          {formattedLastDebtCreatedAt}
         </ItemDescription>
       </ItemContent>
 
       {/* Current Debt */}
       <ItemContent>
         <ItemDescription className="font-semibold text-base text-orange-600">
-          {formatCurrency(currentDebt)}
+          {formattedCurrentDebt}
         </ItemDescription>
       </ItemContent>
 
       <ItemActions className="hidden sm:flex">
-        {/* Write Off Debtor */}
-        <DialogWithTooltip
-          description={`Поточний борг: ${formatCurrency(currentDebt)}`}
-          title={`Списати борг: ${debtor.name}`}
-          tooltipContent="Списати борг"
+        {/* Write Off Debt */}
+        <Dialog
+          description={
+            <DebtorDialogDescription
+              currentDebt={formattedCurrentDebt}
+              debtorName={name}
+              debts={debts}
+            />
+          }
+          title={
+            <div className="flex items-center gap-4">
+              <BanknoteArrowDown className="text-orange-600" /> Списати борг
+            </div>
+          }
+          tooltipMessage="Списати борг"
           trigger={
             <Button
               className="h-9 w-9 text-gray-400 hover:bg-orange-50 hover:text-orange-600"
+              disabled={isPendingCancel}
               type="button"
               variant="ghost"
             >
@@ -102,21 +116,37 @@ export default function DebtorItem({ debtor }: DebtorItemProps) {
           }
         >
           <WriteOffDebtorForm onWriteOff={handleWriteOff} />
-        </DialogWithTooltip>
+        </Dialog>
 
         {/* Remove Debtor */}
         <AlertDialogDestructive
-          applyButtonName="Видалити борг"
-          description="Дані про поточний борг будуть безповоротно видалені. Відповідні дані про витрати та надходження залишаться."
-          onDelete={() => handleRemove(debtor.id)}
-          title={`Ви впевнені, що хочете видалити боржника: ${debtor.name}?`}
+          applyButtonName="Анулювати борги"
+          description={
+            <div className="flex flex-col gap-4">
+              <DebtorDialogDescription
+                currentDebt={formattedCurrentDebt}
+                debtorName={name}
+                debts={debts}
+              />
+              <div className="flex flex-col">
+                <p>
+                  Дані про пов'язані витрати та надходження{" "}
+                  <span className="font-bold">залишаться</span>.
+                </p>
+              </div>
+            </div>
+          }
+          onDelete={handleCancel}
+          title="Ви впевнені, що хочете анулювати борги?"
+          tooltipMessage="Анулювати борги"
           trigger={
             <Button
               className="h-9 w-9 text-gray-400 hover:bg-red-50 hover:text-destructive"
+              disabled={isPendingWriteOff}
               type="button"
               variant="ghost"
             >
-              <Trash2 className="h-4 w-4" />
+              <X />
             </Button>
           }
         />
@@ -124,3 +154,42 @@ export default function DebtorItem({ debtor }: DebtorItemProps) {
     </Item>
   );
 }
+
+const DebtorDialogDescription = ({
+  debtorName,
+  currentDebt,
+  debts,
+}: {
+  debtorName: string;
+  currentDebt: string;
+  debts: DebtListItem[];
+}) => (
+  <div className="flex flex-col gap-2 text-muted-foreground text-sm">
+    <div>
+      <DialogDescriptionInfoRow label="Боржник" value={debtorName} />
+      <DialogDescriptionInfoRow label="Борг" value={currentDebt} />
+    </div>
+
+    <div className="rounded-md border p-1">
+      <ScrollArea className="h-20" type="always">
+        {debts
+          .filter((item) => item.status === "ACTIVE")
+          .map((item) => {
+            const createdAt = format(item.createdAt, "dd MMMM, HH:mm", {
+              locale: uk,
+            });
+            const curDebt = item.amount - item.paidAmount;
+            const formattedCurDebt = formatCurrency(curDebt);
+            return (
+              <DialogDescriptionInfoRow
+                className="pr-3 pl-2"
+                key={item.id}
+                label={createdAt}
+                value={formattedCurDebt}
+              />
+            );
+          })}
+      </ScrollArea>
+    </div>
+  </div>
+);

@@ -1,23 +1,17 @@
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { getServerSession } from "@/lib/get-session";
-import { prisma } from "@/lib/prisma";
 import { validateRequest } from "@/lib/validate-request";
-import { ShiftCloseSchema } from "@/schemas/shift-schema";
+import { toCloseResult } from "@/modules/shift/mappers";
+import { closeShift } from "@/modules/shift/service";
+import { ShiftCloseSchema } from "@/schemas/shift/shift-schema";
 import { handlePrismaError } from "@/utils/error-handlers";
 
 export async function PATCH(req: NextRequest) {
   try {
     const session = await getServerSession();
-    const shift = await prisma.shift.findFirst({
-      where: { userId: session?.user.id, isClosed: false },
-    });
-
-    if (!shift) {
-      return NextResponse.json(
-        { error: "Розпочату зміну не знайдено" },
-        { status: 400 }
-      );
+    if (!session) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const validate = validateRequest({
@@ -31,16 +25,9 @@ export async function PATCH(req: NextRequest) {
 
     const { body } = data;
 
-    const updatedShift = await prisma.shift.update({
-      where: { id: shift.id },
-      data: {
-        closedAt: new Date(),
-        isClosed: true,
-        ...body,
-      },
-    });
+    const result = await closeShift(session.user.id, body);
 
-    return NextResponse.json(updatedShift);
+    return NextResponse.json(toCloseResult(result));
   } catch (err) {
     return handlePrismaError(err);
   }

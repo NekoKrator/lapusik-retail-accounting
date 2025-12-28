@@ -1,18 +1,24 @@
-import { useMemo } from "react";
-import type { AdditionalIncomeWithDebtor } from "@/schemas/additional-income-schema";
-import type { DebtorWithDebts } from "@/schemas/debtor-schema";
-import type { ExpenseWithInclude } from "@/schemas/expense-schema";
-import type { SupplierDeliveryWithSupplier } from "@/schemas/supplier-delivery-schema";
+import type { AdditionalIncomeListItem } from "@/modules/additional-income/contracts";
+import type { DebtorListItem } from "@/modules/debtor/contracts";
+import type { ExpenseListItem } from "@/modules/expense/contracts";
+import type { SupplierDeliveryListItem } from "@/modules/supplier-delivery/contracts";
 
 type UseShiftCalculationsProps = {
   openingBalance: number;
-  additionalIncome: AdditionalIncomeWithDebtor[] | undefined;
-  expenses: ExpenseWithInclude[] | undefined;
-  supplierDeliveries: SupplierDeliveryWithSupplier[] | undefined;
-  debtors: DebtorWithDebts[] | undefined;
-  actualClosingBalance: number | null;
-  totalCashRegister: number | null;
+  additionalIncome?: AdditionalIncomeListItem[];
+  expenses?: ExpenseListItem[];
+  supplierDeliveries?: SupplierDeliveryListItem[];
+  debtors?: DebtorListItem[];
+  totalCashRegister: number;
+  terminalRegister: number;
+  actualClosingBalance: number;
 };
+
+function sumBy<T>(arr: T[] | undefined, selector: (item: T) => number) {
+  return Array.isArray(arr)
+    ? arr.reduce((acc, item) => acc + selector(item), 0)
+    : 0;
+}
 
 export const useShiftCalculations = ({
   openingBalance,
@@ -22,71 +28,29 @@ export const useShiftCalculations = ({
   debtors,
   actualClosingBalance,
   totalCashRegister,
+  terminalRegister,
 }: UseShiftCalculationsProps) => {
-  const totalAdditionalIncome = useMemo(() => {
-    if (!Array.isArray(additionalIncome)) {
-      return null;
-    }
+  const totalAdditionalIncome = sumBy(additionalIncome, (item) => item.amount);
 
-    return additionalIncome.reduce((sum, item) => sum + item.amount, 0);
-  }, [additionalIncome]);
+  const totalExpenses = sumBy(expenses, (item) => item.amount);
 
-  const totalExpenses = useMemo(() => {
-    if (!Array.isArray(expenses)) {
-      return null;
-    }
-
-    return expenses.reduce((sum, item) => sum + item.amount, 0);
-  }, [expenses]);
-
-  const totalSupplierDeliveries = useMemo(() => {
-    if (!Array.isArray(supplierDeliveries) || supplierDeliveries.length === 0) {
-      return null;
-    }
-
-    return supplierDeliveries.reduce(
-      (sum, d) =>
-        sum + d.price - Number(d.paidByCashier) - Number(d.paidByOwner),
-      0
-    );
-  }, [supplierDeliveries]);
-
-  const totalDebtors = useMemo(() => {
-    if (!Array.isArray(debtors) || debtors.length === 0) {
-      return null;
-    }
-
-    return debtors.reduce(
-      (s, debtor) =>
-        s +
-        debtor.debts.reduce(
-          (sum, debt) => sum + debt.amount - debt.paidAmount,
-          0
-        ),
-      0
-    );
-  }, [debtors]);
-
-  const expectedClosingBalance = useMemo(() => {
-    if (totalAdditionalIncome == null || totalExpenses == null) {
-      return null;
-    }
-
-    return (
-      openingBalance +
-      totalAdditionalIncome +
-      Number(totalCashRegister) -
-      totalExpenses
-    );
-  }, [openingBalance, totalAdditionalIncome, totalCashRegister, totalExpenses]);
-
-  const difference = useMemo(
-    () =>
-      actualClosingBalance !== null
-        ? Number(expectedClosingBalance) - actualClosingBalance
-        : null,
-    [expectedClosingBalance, actualClosingBalance]
+  const totalSupplierDeliveries = sumBy(
+    supplierDeliveries,
+    (item) => item.price - item.paidByCashier - item.paidByOwner
   );
+
+  const totalDebtors = sumBy(debtors, (item) =>
+    sumBy(item.debts, (i) => i.amount - i.paidAmount)
+  );
+
+  const expectedClosingBalance =
+    openingBalance +
+    totalAdditionalIncome +
+    totalCashRegister -
+    terminalRegister -
+    totalExpenses;
+
+  const difference = expectedClosingBalance - actualClosingBalance;
 
   return {
     totalExpenses,

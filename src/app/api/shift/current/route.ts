@@ -1,22 +1,19 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "@/lib/get-session";
-import { prisma } from "@/lib/prisma";
+import { toCurrentShiftResult } from "@/modules/shift/mappers";
+import { getCurrentShift } from "@/modules/shift/service";
 import { handlePrismaError } from "@/utils/error-handlers";
 
 export async function GET(_req: NextRequest) {
   try {
     const session = await getServerSession();
-    const currentShift = await prisma.shift.findFirst({
-      where: { userId: session?.user.id, isClosed: false },
-      orderBy: { openedAt: "desc" },
-    });
+    if (!session) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
 
-    const lastClosedShift = await prisma.shift.findFirst({
-      where: { userId: session?.user.id, isClosed: true },
-      orderBy: { closedAt: "desc" },
-    });
+    const result = await getCurrentShift(session.user.id);
 
-    return NextResponse.json({ currentShift, lastClosedShift });
+    return NextResponse.json(toCurrentShiftResult(result));
   } catch (err) {
     return handlePrismaError(err);
   }

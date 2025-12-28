@@ -14,7 +14,7 @@ import { useCreateSupplierDelivery } from "@/hooks/api/supplier-deliveries/use-c
 import {
   type SupplierDeliveryCreateInput,
   SupplierDeliveryCreateSchema,
-} from "@/schemas/supplier-delivery-schema";
+} from "@/schemas/supplier-delivery/supplier-delivery-schema";
 import SupplierPicker from "./supplier-picker";
 
 type CreateDeliveryFormProps = {
@@ -33,6 +33,9 @@ export function CreateSupplierDeliveryForm({
     control,
   } = useForm<SupplierDeliveryCreateInput>({
     resolver: zodResolver(SupplierDeliveryCreateSchema),
+    defaultValues: {
+      invoiceNumber: "",
+    },
   });
 
   useEffect(() => {
@@ -56,17 +59,40 @@ export function CreateSupplierDeliveryForm({
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
       <FieldSet>
-        <FieldGroup className="grid grid-cols-1 gap-3 lg:grid-cols-3">
+        <FieldGroup className="grid grid-cols-1 gap-3 lg:grid-cols-4">
           <Controller
             control={control}
             name="supplier"
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid}>
                 <Label htmlFor="supplier">Постачальник*</Label>
-                <SupplierPicker {...field} disabled={isLoading} />
+                <SupplierPicker
+                  {...field}
+                  disabled={isLoading || isSubmitting}
+                />
                 {fieldState.invalid && (
                   <FieldError errors={[fieldState.error]} />
-                )}{" "}
+                )}
+              </Field>
+            )}
+          />
+
+          <Controller
+            control={control}
+            name="invoiceNumber"
+            render={({ field, fieldState }) => (
+              <Field data-invalid={fieldState.invalid}>
+                <Label htmlFor="invoiceNumber">Номер накладної</Label>
+                <Input
+                  {...field}
+                  aria-invalid={fieldState.invalid}
+                  disabled={isLoading || isSubmitting}
+                  id="invoiceNumber"
+                  placeholder="Номер накладної"
+                />
+                {fieldState.invalid && (
+                  <FieldError errors={[fieldState.error]} />
+                )}
               </Field>
             )}
           />
@@ -76,11 +102,11 @@ export function CreateSupplierDeliveryForm({
             name="price"
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid}>
-                <Label htmlFor="price">Ціна поставки*</Label>
+                <Label htmlFor="price">Ціна*</Label>
                 <Input
                   {...field}
                   aria-invalid={fieldState.invalid}
-                  disabled={isLoading}
+                  disabled={isLoading || isSubmitting}
                   id="price"
                   placeholder="0,00"
                   type="number"
@@ -88,7 +114,7 @@ export function CreateSupplierDeliveryForm({
                 />
                 {fieldState.invalid && (
                   <FieldError errors={[fieldState.error]} />
-                )}{" "}
+                )}
               </Field>
             )}
           />

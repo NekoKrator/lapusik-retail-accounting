@@ -17,7 +17,7 @@ export default function UnauthorizedPage() {
 
   return (
     <div className="flex min-h-screen items-center justify-center p-4">
-      <Card className="w-full max-w-sm p-8">
+      <Card className="w-full max-w-md p-8">
         <CardHeader>
           <CardTitle>
             <TypographyH1>Доступ заборонено</TypographyH1>

@@ -5,6 +5,7 @@ import {
   Briefcase,
   ChevronRight,
   type LucideProps,
+  Package,
   Sheet,
   TrendingDown,
   Truck,
@@ -34,6 +35,7 @@ const items: {
 }[] = [
   { title: "Робочі зміни", key: "shifts", icon: Briefcase },
   { title: "Постачальники", key: "suppliers", icon: Truck },
+  { title: "Поставки", key: "supplier-deliveries", icon: Package },
   { title: "Боржники", key: "debtors", icon: Users },
   { title: "Надходження", key: "additional-income", icon: BanknoteArrowUp },
   { title: "Витрати", key: "expenses", icon: TrendingDown },

@@ -1,10 +1,10 @@
 "use client";
 
 import type { ColumnDef } from "@tanstack/react-table";
-import { DataTableColumnHeader } from "@/components/data-table-column-header";
+import { ColumnHeader } from "@/components/data-table/column-header";
 import { Checkbox } from "@/components/ui/checkbox";
 import { formatCurrency } from "@/lib/formatters";
-import type { SupplierStats } from "@/schemas/supplier-schema";
+import type { SupplierStats } from "@/schemas/supplier/supplier-schema";
 import { ActionsCell } from "./actions-cell";
 
 const calculateTotal = (data: SupplierStats[], accessor: keyof SupplierStats) =>
@@ -38,11 +38,8 @@ export const columns: ColumnDef<SupplierStats>[] = [
     accessorKey: "name",
     meta: {
       label: "Назва",
-      isGrow: true,
     },
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Назва" />
-    ),
+    header: ({ column }) => <ColumnHeader column={column} title="Назва" />,
     cell: ({ row }) => {
       const content = row.getValue("name") as string;
 
@@ -54,54 +51,17 @@ export const columns: ColumnDef<SupplierStats>[] = [
     },
   },
   {
-    accessorKey: "currentDebt",
+    accessorKey: "totalCurrentDebt",
     meta: {
       label: "Борг",
-      isGrow: true,
     },
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Борг" />
-    ),
+    header: ({ column }) => <ColumnHeader column={column} title="Борг" />,
     cell: ({ row }) => {
-      const amount = Number.parseFloat(row.getValue("currentDebt"));
-      return (
-        <div
-          className={`truncate text-end ${
-            amount > 0 ? "text-red-600" : "text-green-600"
-          }`}
-        >
-          {formatCurrency(amount)}
-        </div>
-      );
-    },
-    footer: ({ table }) => {
-      const total = calculateTotal(table.options.data, "currentDebt");
-      return (
-        <div
-          className={`truncate text-end font-bold ${
-            total > 0 ? "text-red-600" : "text-green-600"
-          }`}
-        >
-          {formatCurrency(total)}
-        </div>
-      );
-    },
-  },
-  {
-    accessorKey: "paidByCashier",
-    meta: {
-      label: "Сплачено касиром",
-      isGrow: true,
-    },
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Сплачено касиром" />
-    ),
-    cell: ({ row }) => {
-      const amount = Number.parseFloat(row.getValue("paidByCashier"));
+      const amount = Number.parseFloat(row.getValue("totalCurrentDebt"));
       return <div className="truncate text-end">{formatCurrency(amount)}</div>;
     },
     footer: ({ table }) => {
-      const total = calculateTotal(table.options.data, "paidByCashier");
+      const total = calculateTotal(table.options.data, "totalCurrentDebt");
       return (
         <div className="truncate text-end font-bold">
           {formatCurrency(total)}
@@ -110,20 +70,40 @@ export const columns: ColumnDef<SupplierStats>[] = [
     },
   },
   {
-    accessorKey: "paidByOwner",
+    accessorKey: "totalPaidByCashier",
     meta: {
-      label: "Сплачено власником",
-      isGrow: true,
+      label: "Сплачено касиром",
     },
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Сплачено власником" />
+      <ColumnHeader column={column} title="Сплачено касиром" />
     ),
     cell: ({ row }) => {
-      const amount = Number.parseFloat(row.getValue("paidByOwner"));
+      const amount = Number.parseFloat(row.getValue("totalPaidByCashier"));
       return <div className="truncate text-end">{formatCurrency(amount)}</div>;
     },
     footer: ({ table }) => {
-      const total = calculateTotal(table.options.data, "paidByOwner");
+      const total = calculateTotal(table.options.data, "totalPaidByCashier");
+      return (
+        <div className="truncate text-end font-bold">
+          {formatCurrency(total)}
+        </div>
+      );
+    },
+  },
+  {
+    accessorKey: "totalPaidByOwner",
+    meta: {
+      label: "Сплачено власником",
+    },
+    header: ({ column }) => (
+      <ColumnHeader column={column} title="Сплачено власником" />
+    ),
+    cell: ({ row }) => {
+      const amount = Number.parseFloat(row.getValue("totalPaidByOwner"));
+      return <div className="truncate text-end">{formatCurrency(amount)}</div>;
+    },
+    footer: ({ table }) => {
+      const total = calculateTotal(table.options.data, "totalPaidByOwner");
       return (
         <div className="truncate text-end font-bold">
           {formatCurrency(total)}
@@ -134,11 +114,10 @@ export const columns: ColumnDef<SupplierStats>[] = [
   {
     accessorKey: "totalPaid",
     meta: {
-      label: "Усього",
-      isGrow: true,
+      label: "Усього сплачено",
     },
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Усього сплачено" />
+      <ColumnHeader column={column} title="Усього сплачено" />
     ),
     cell: ({ row }) => {
       const amount = Number.parseFloat(row.getValue("totalPaid"));
@@ -154,98 +133,84 @@ export const columns: ColumnDef<SupplierStats>[] = [
     },
   },
   {
-    accessorKey: "currentOperationsCount",
+    accessorKey: "activeDeliveriesCount",
     meta: {
-      label: "Кількість наявних боргів",
-      isGrow: true,
+      label: "Поточні борги",
     },
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Кількість наявних боргів" />
+      <ColumnHeader column={column} title="Поточні борги" />
     ),
     cell: ({ row }) => (
       <div className="truncate text-end">
-        {row.getValue("currentOperationsCount")}
+        {row.getValue("activeDeliveriesCount")}
+      </div>
+    ),
+    footer: ({ table }) => {
+      const total = calculateTotal(table.options.data, "activeDeliveriesCount");
+      return <div className="truncate text-end font-bold">{total}</div>;
+    },
+  },
+  {
+    accessorKey: "paidDeliveriesCount",
+    meta: {
+      label: "Погашені борги",
+    },
+    header: ({ column }) => (
+      <ColumnHeader column={column} title="Погашені борги" />
+    ),
+    cell: ({ row }) => (
+      <div className="truncate text-end">
+        {row.getValue("paidDeliveriesCount")}
+      </div>
+    ),
+    footer: ({ table }) => {
+      const total = calculateTotal(table.options.data, "paidDeliveriesCount");
+      return <div className="truncate text-end font-bold">{total}</div>;
+    },
+  },
+  {
+    accessorKey: "canceledDeliveriesCount",
+    meta: {
+      label: "Скасовані борги",
+    },
+    header: ({ column }) => (
+      <ColumnHeader column={column} title="Скасовані борги" />
+    ),
+    cell: ({ row }) => (
+      <div className="truncate text-end">
+        {row.getValue("canceledDeliveriesCount")}
       </div>
     ),
     footer: ({ table }) => {
       const total = calculateTotal(
         table.options.data,
-        "currentOperationsCount"
+        "canceledDeliveriesCount"
       );
       return <div className="truncate text-end font-bold">{total}</div>;
     },
   },
   {
-    accessorKey: "paidOperationsCount",
+    accessorKey: "totalDeliveriesCount",
     meta: {
-      label: "Кількість сплачених боргів",
-      isGrow: true,
+      label: "Кількість поставок",
     },
     header: ({ column }) => (
-      <DataTableColumnHeader
-        column={column}
-        title="Кількість сплачених боргів"
-      />
+      <ColumnHeader column={column} title="Кількість поставок" />
     ),
     cell: ({ row }) => (
       <div className="truncate text-end">
-        {row.getValue("paidOperationsCount")}
+        {row.getValue("totalDeliveriesCount")}
       </div>
     ),
     footer: ({ table }) => {
-      const total = calculateTotal(table.options.data, "paidOperationsCount");
-      return <div className="truncate text-end font-bold">{total}</div>;
-    },
-  },
-  {
-    accessorKey: "canceledOperationsCount",
-    meta: {
-      label: "Кількість скасованих боргів",
-      isGrow: true,
-    },
-    header: ({ column }) => (
-      <DataTableColumnHeader
-        column={column}
-        title="Кількість скасованих боргів"
-      />
-    ),
-    cell: ({ row }) => (
-      <div className="truncate text-end">
-        {row.getValue("canceledOperationsCount")}
-      </div>
-    ),
-    footer: ({ table }) => {
-      const total = calculateTotal(
-        table.options.data,
-        "canceledOperationsCount"
-      );
-      return <div className="truncate text-end font-bold">{total}</div>;
-    },
-  },
-  {
-    accessorKey: "operationsCount",
-    meta: {
-      label: "Загальна кількість боргів",
-      isGrow: true,
-    },
-    header: ({ column }) => (
-      <DataTableColumnHeader
-        column={column}
-        title="Загальна кількість боргів"
-      />
-    ),
-    cell: ({ row }) => (
-      <div className="truncate text-end">{row.getValue("operationsCount")}</div>
-    ),
-    footer: ({ table }) => {
-      const total = calculateTotal(table.options.data, "operationsCount");
+      const total = calculateTotal(table.options.data, "totalDeliveriesCount");
       return <div className="truncate text-end font-bold">{total}</div>;
     },
   },
   {
     id: "actions",
     enableHiding: false,
-    maxSize: 48,
+    size: 24,
     cell: ({ row }) => <ActionsCell row={row} />,
   },
 ];

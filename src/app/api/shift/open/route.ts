@@ -1,23 +1,17 @@
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { getServerSession } from "@/lib/get-session";
-import { prisma } from "@/lib/prisma";
 import { validateRequest } from "@/lib/validate-request";
-import { ShiftOpenSchema } from "@/schemas/shift-schema";
+import { toOpenResult } from "@/modules/shift/mappers";
+import { openShift } from "@/modules/shift/service";
+import { ShiftOpenSchema } from "@/schemas/shift/shift-schema";
 import { handlePrismaError } from "@/utils/error-handlers";
 
 export async function POST(req: NextRequest) {
   try {
     const session = await getServerSession();
-    const existingShift = await prisma.shift.findFirst({
-      where: { userId: session?.user.id, isClosed: false },
-    });
-
-    if (existingShift) {
-      return NextResponse.json(
-        { error: "У користувача вже є розпочата зміна" },
-        { status: 400 }
-      );
+    if (!session) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const validate = validateRequest({
@@ -31,11 +25,9 @@ export async function POST(req: NextRequest) {
 
     const { body } = data;
 
-    const result = await prisma.shift.create({
-      data: { ...body, user: { connect: { id: session?.user.id } } },
-    });
+    const result = await openShift(session.user.id, body.openingBalance);
 
-    return NextResponse.json(result, { status: 201 });
+    return NextResponse.json(toOpenResult(result), { status: 201 });
   } catch (err) {
     return handlePrismaError(err);
   }

@@ -1,28 +1,27 @@
 import { useQuery } from "@tanstack/react-query";
 import { API_ENDPOINTS } from "@/lib/constants/api-endpoints";
-import { getData, getPaginatedData } from "@/lib/requests";
-import type { SupplierWithDeliveries } from "@/schemas/supplier-schema";
+import { getData, postData } from "@/lib/requests";
+import type { SupplierListItem } from "@/modules/supplier/contracts";
+import type { SupplierStats } from "@/schemas/supplier/supplier-schema";
+import type { SupplierStatsInput } from "@/schemas/supplier/supplier-stats-search-payload";
+import type { PaginatedResponse } from "@/types/types";
 
-type SupplierSearchParams = {
-  include?: string;
-  page?: number;
-  limit?: number;
-};
-
-export function useSuppliers(params?: SupplierSearchParams) {
+export function useSuppliers() {
   return useQuery({
     queryKey: [API_ENDPOINTS.SUPPLIER],
-    queryFn: () =>
-      getData<SupplierWithDeliveries[]>(API_ENDPOINTS.SUPPLIER, params),
+    queryFn: () => getData<SupplierListItem[]>(API_ENDPOINTS.SUPPLIER),
     staleTime: 60 * 60 * 1000,
   });
 }
 
-export function useSuppliersPaginated(params?: SupplierSearchParams) {
+export function useSuppliersStats(payload?: SupplierStatsInput) {
   return useQuery({
-    queryKey: [API_ENDPOINTS.SUPPLIER, params],
+    queryKey: [API_ENDPOINTS.SUPPLIER, payload],
     queryFn: () =>
-      getPaginatedData<SupplierWithDeliveries>(API_ENDPOINTS.SUPPLIER, params),
+      postData<PaginatedResponse<SupplierStats>>(
+        `${API_ENDPOINTS.SUPPLIER}/stats`,
+        payload
+      ),
     staleTime: 60 * 60 * 1000,
   });
 }

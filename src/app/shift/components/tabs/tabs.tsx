@@ -1,10 +1,10 @@
 import { BanknoteArrowUp, TrendingDown, Truck, Users } from "lucide-react";
 import { memo } from "react";
 import { formatCurrency } from "@/lib/formatters";
-import type { AdditionalIncomeWithDebtor } from "@/schemas/additional-income-schema";
-import type { DebtorWithDebts } from "@/schemas/debtor-schema";
-import type { ExpenseWithInclude } from "@/schemas/expense-schema";
-import type { SupplierDeliveryWithSupplier } from "@/schemas/supplier-delivery-schema";
+import type { AdditionalIncomeListItem } from "@/modules/additional-income/contracts";
+import type { DebtorListItem } from "@/modules/debtor/contracts";
+import type { ExpenseListItem } from "@/modules/expense/contracts";
+import type { SupplierDeliveryListItem } from "@/modules/supplier-delivery/contracts";
 import AdditionalIncomeEmpty from "./additional-income/additional-income-empty";
 import AdditionalIncomeItem from "./additional-income/additional-income-item";
 import AdditionalIncomeSkeleton from "./additional-income/additional-income-skeleton";
@@ -37,12 +37,13 @@ export function additionalIncomeTab({
   isLoading,
   isFetching,
   onRefresh,
-}: TabProps<AdditionalIncomeWithDebtor>) {
+}: TabProps<AdditionalIncomeListItem>) {
   return {
     key: "additional-income",
     label: "Додаткові надходження",
     icon: BanknoteArrowUp,
-    activeClass: "data-[state=active]:bg-indigo-600",
+    activeClass:
+      "data-[state=active]:bg-indigo-600 dark:data-[state=active]:bg-indigo-600",
     count: data?.length ?? 0,
     disabled: isLoading,
 
@@ -63,7 +64,7 @@ const AdditionalIncomeTabContent = memo(function tab({
   isFetching,
   onRefresh,
 }: {
-  data?: AdditionalIncomeWithDebtor[];
+  data?: AdditionalIncomeListItem[];
   total: number;
   isFetching: boolean;
   onRefresh: () => void;
@@ -75,7 +76,7 @@ const AdditionalIncomeTabContent = memo(function tab({
       isLoading={isFetching}
       items={data}
       onRefresh={onRefresh}
-      renderCreateForm={<CreateAdditionalIncomeForm />}
+      renderCreateForm={<CreateAdditionalIncomeForm isLoading={isFetching} />}
       renderItem={(d) => (
         <AdditionalIncomeItem additionalIncome={d} key={d.id} />
       )}
@@ -94,12 +95,13 @@ export function expensesTab({
   isLoading,
   isFetching,
   onRefresh,
-}: TabProps<ExpenseWithInclude>) {
+}: TabProps<ExpenseListItem>) {
   return {
     key: "expenses",
     label: "Витрати",
     icon: TrendingDown,
-    activeClass: "data-[state=active]:bg-red-600",
+    activeClass:
+      "data-[state=active]:bg-red-600 dark:data-[state=active]:bg-red-600",
     count: data?.length ?? 0,
     disabled: isLoading,
 
@@ -120,19 +122,19 @@ const ExpenseTabContent = memo(function tab({
   isFetching,
   onRefresh,
 }: {
-  data?: ExpenseWithInclude[];
+  data?: ExpenseListItem[];
   total: number;
   isFetching: boolean;
   onRefresh: () => void;
 }) {
   return (
-    <DataSection<ExpenseWithInclude>
+    <DataSection<ExpenseListItem>
       emptyState={<ExpenseEmpty />}
       icon={<TrendingDown className="h-7 w-7 text-red-600" />}
       isLoading={isFetching}
       items={data}
       onRefresh={onRefresh}
-      renderCreateForm={<CreateExpenseForm />}
+      renderCreateForm={<CreateExpenseForm isLoading={isFetching} />}
       renderItem={(d) => <ExpenseItem expense={d} key={d.id} />}
       resultLabel="Сума витрат"
       resultValue={formatCurrency(total)}
@@ -145,16 +147,17 @@ const ExpenseTabContent = memo(function tab({
 
 export function supplierDeliveriesTab({
   data,
-  total,
+  total: _total,
   isLoading,
   isFetching,
   onRefresh,
-}: TabProps<SupplierDeliveryWithSupplier>) {
+}: TabProps<SupplierDeliveryListItem>) {
   return {
     key: "deliveries",
     label: "Поставки",
     icon: Truck,
-    activeClass: "data-[state=active]:bg-blue-600",
+    activeClass:
+      "data-[state=active]:bg-blue-600 dark:data-[state=active]:bg-blue-600",
     count: data?.length ?? 0,
     disabled: isLoading,
 
@@ -163,7 +166,7 @@ export function supplierDeliveriesTab({
         data={data}
         isFetching={isFetching}
         onRefresh={onRefresh}
-        total={total}
+        total={_total}
       />
     ),
   };
@@ -171,17 +174,17 @@ export function supplierDeliveriesTab({
 
 const SupplierDeliveriesTabContent = memo(function tab({
   data,
-  total,
+  total: _total,
   isFetching,
   onRefresh,
 }: {
-  data?: SupplierDeliveryWithSupplier[];
+  data?: SupplierDeliveryListItem[];
   total: number;
   isFetching: boolean;
   onRefresh: () => void;
 }) {
   return (
-    <DataSection<SupplierDeliveryWithSupplier>
+    <DataSection<SupplierDeliveryListItem>
       emptyState={<SupplierDeliveriesEmpty />}
       icon={<Truck className="h-7 w-7 text-blue-600" />}
       isLoading={isFetching}
@@ -189,9 +192,6 @@ const SupplierDeliveriesTabContent = memo(function tab({
       onRefresh={onRefresh}
       renderCreateForm={<CreateSupplierDeliveryForm isLoading={isFetching} />}
       renderItem={(d) => <SupplierDeliveryItem delivery={d} key={d.id} />}
-      resultLabel="Сума боргів поставок"
-      resultValue={formatCurrency(total)}
-      resultVariant="blue"
       skeleton={<SupplierDeliveriesSkeleton />}
       title="Облік поставок"
     />
@@ -204,12 +204,13 @@ export function debtorsTab({
   isLoading,
   isFetching,
   onRefresh,
-}: TabProps<DebtorWithDebts>) {
+}: TabProps<DebtorListItem>) {
   return {
     key: "debtors",
     label: "Боржники",
     icon: Users,
-    activeClass: "data-[state=active]:bg-orange-600",
+    activeClass:
+      "data-[state=active]:bg-orange-600 dark:data-[state=active]:bg-orange-600",
     count: data?.length ?? 0,
     disabled: isLoading,
 
@@ -230,13 +231,13 @@ const DebtorsTabContent = memo(function tab({
   isFetching,
   onRefresh,
 }: {
-  data?: DebtorWithDebts[];
+  data?: DebtorListItem[];
   total: number;
   isFetching: boolean;
   onRefresh: () => void;
 }) {
   return (
-    <DataSection<DebtorWithDebts>
+    <DataSection<DebtorListItem>
       emptyState={<DebtorsEmpty />}
       icon={<Users className="h-7 w-7 text-orange-600" />}
       isLoading={isFetching}

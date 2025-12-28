@@ -1,6 +1,8 @@
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useQueryClient } from "@tanstack/react-query";
 import type { Dispatch, SetStateAction } from "react";
 import { Controller, useForm } from "react-hook-form";
+import { toast } from "sonner";
 import type z from "zod";
 import { Button } from "@/components/ui/button";
 import {
@@ -12,17 +14,18 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
-import type { Supplier } from "@/generated/prisma/client";
+import { API_ENDPOINTS } from "@/lib/constants/api-endpoints";
+import type { SupplierUpdateResult } from "@/modules/supplier/contracts";
 import {
   type SupplierStats,
   type SupplierUpdateInput,
   SupplierUpdateSchema,
-} from "@/schemas/supplier-schema";
+} from "@/schemas/supplier/supplier-schema";
 
 type EditSupplierFormProps = {
   initialData: SupplierStats;
   setIsOpen: Dispatch<SetStateAction<boolean>>;
-  onUpdate: (payload: SupplierUpdateInput) => Promise<Supplier>;
+  onUpdate: (payload: SupplierUpdateInput) => Promise<SupplierUpdateResult>;
 };
 
 export function EditSupplierForm({
@@ -30,6 +33,8 @@ export function EditSupplierForm({
   setIsOpen,
   onUpdate,
 }: EditSupplierFormProps) {
+  const queryClient = useQueryClient();
+
   const form = useForm<z.infer<typeof SupplierUpdateSchema>>({
     resolver: zodResolver(SupplierUpdateSchema),
     defaultValues: {
@@ -41,6 +46,8 @@ export function EditSupplierForm({
   const onSubmit = async (data: z.infer<typeof SupplierUpdateSchema>) => {
     try {
       await onUpdate(data);
+      queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.SUPPLIER] });
+      toast.success("Постачальника успішно оновлено!");
       setIsOpen(false);
     } catch (error) {
       console.log(error);

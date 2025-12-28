@@ -6,23 +6,18 @@ import { cn } from "@/lib/utils";
 
 function Table({ className, ...props }: React.ComponentProps<"table">) {
   return (
-    <div
-      className="relative w-full overflow-x-auto"
-      data-slot="table-container"
-    >
-      <table
-        className={cn("w-full caption-bottom text-sm", className)}
-        data-slot="table"
-        {...props}
-      />
-    </div>
+		<table
+			className={cn("w-full caption-bottom text-sm", className)}
+			data-slot="table"
+			{...props}
+		/>
   );
 }
 
 function TableHeader({ className, ...props }: React.ComponentProps<"thead">) {
   return (
     <thead
-      className={cn("[&_tr]:border-b", className)}
+      className={cn("[&_tr]:border-b-0", className)}
       data-slot="table-header"
       {...props}
     />
@@ -43,7 +38,7 @@ function TableFooter({ className, ...props }: React.ComponentProps<"tfoot">) {
   return (
     <tfoot
       className={cn(
-        "border-t bg-muted/50 font-medium [&>tr]:last:border-b-0",
+        "bg-muted/50 font-medium [&>tr]:last:border-b-0",
         className
       )}
       data-slot="table-footer"

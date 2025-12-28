@@ -11,7 +11,7 @@ import { Spinner } from "@/components/ui/spinner";
 import {
   type SupplierDeliveryWriteOffInput,
   SupplierDeliveryWriteOffSchema,
-} from "@/schemas/supplier-delivery-schema";
+} from "@/schemas/supplier-delivery/supplier-delivery-schema";
 
 type WriteOffDeliveryFormProps = {
   onWriteOff: (payload: SupplierDeliveryWriteOffInput) => Promise<void>;
@@ -46,10 +46,11 @@ export function WriteOffSupplierDeliveryForm({
             name="paidByCashier"
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid}>
-                <Label htmlFor="paidByCashier">Сплачено касиром</Label>
+                <Label htmlFor="paidByCashier">Сума сплати касиром</Label>
                 <Input
                   {...field}
                   aria-invalid={fieldState.invalid}
+                  disabled={isSubmitting}
                   id="paidByCashier"
                   placeholder="0,00"
                   type="number"
@@ -67,10 +68,11 @@ export function WriteOffSupplierDeliveryForm({
             name="paidByOwner"
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid}>
-                <Label htmlFor="paidByOwner">Сплачено власником</Label>
+                <Label htmlFor="paidByOwner">Сума сплати власником</Label>
                 <Input
                   {...field}
                   aria-invalid={fieldState.invalid}
+                  disabled={isSubmitting}
                   id="paidByOwner"
                   placeholder="0,00"
                   type="number"
@@ -85,12 +87,12 @@ export function WriteOffSupplierDeliveryForm({
 
           <Field className="justify-end" orientation="horizontal">
             <Button
-              className="relative bg-orange-600 hover:bg-orange-700 has-[>svg]:px-4"
+              className="relative bg-blue-600 hover:bg-blue-700 has-[>svg]:px-4"
               disabled={isSubmitting}
               type="submit"
             >
               <span className={isSubmitting ? "invisible" : "visible"}>
-                Зберегти
+                Погасити борг
               </span>
               {isSubmitting && (
                 <Spinner className="-translate-x-1/2 -translate-y-1/2 absolute top-1/2 left-1/2" />

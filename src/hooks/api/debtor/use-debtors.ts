@@ -1,28 +1,27 @@
 import { useQuery } from "@tanstack/react-query";
 import { API_ENDPOINTS } from "@/lib/constants/api-endpoints";
-import { getData, getPaginatedData } from "@/lib/requests";
-import type { DebtorWithDebts } from "@/schemas/debtor-schema";
+import { getData, postData } from "@/lib/requests";
+import type { DebtorListItem } from "@/modules/debtor/contracts";
+import type { GetSearchParams } from "@/modules/debtor/search-params";
+import type { DebtorStats } from "@/schemas/debtor/debtor-schema";
+import type { DebtorStatsInput } from "@/schemas/debtor/debtor-stats-search-payload";
+import type { PaginatedResponse } from "@/types/types";
 
-type DebtorSearchParams = {
-  userId?: string;
-  status?: string;
-  page?: number;
-  limit?: number;
-};
-
-export function useDebtors(params?: DebtorSearchParams) {
+export function useDebtors(params?: GetSearchParams) {
   return useQuery({
     queryKey: [API_ENDPOINTS.DEBTOR],
-    queryFn: () => getData<DebtorWithDebts[]>(API_ENDPOINTS.DEBTOR, params),
-    staleTime: 60 * 60 * 1000,
+    queryFn: () => getData<DebtorListItem[]>(API_ENDPOINTS.DEBTOR, params),
   });
 }
 
-export function useDebtorsPaginated(params?: DebtorSearchParams) {
+export function useDebtorsStats(payload?: DebtorStatsInput) {
   return useQuery({
-    queryKey: [API_ENDPOINTS.DEBTOR, params],
+    queryKey: [API_ENDPOINTS.DEBTOR, payload],
     queryFn: () =>
-      getPaginatedData<DebtorWithDebts>(API_ENDPOINTS.DEBTOR, params),
+      postData<PaginatedResponse<DebtorStats>>(
+        `${API_ENDPOINTS.DEBTOR}/stats`,
+        payload
+      ),
     staleTime: 60 * 60 * 1000,
   });
 }

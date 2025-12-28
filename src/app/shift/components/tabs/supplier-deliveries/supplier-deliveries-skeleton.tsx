@@ -8,7 +8,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function SupplierDeliveriesSkeleton() {
-  const skeletonItems = Array.from({ length: 4 }, () => ({
+  const skeletonItems = Array.from({ length: 5 }, () => ({
     id: nanoid(),
   }));
 
@@ -29,12 +29,12 @@ export default function SupplierDeliveriesSkeleton() {
           </ItemActions>
         </Item>
       ))}
-      <Item className="h-23" variant="outline">
+      {/* <Item className="h-23" variant="outline">
         <ItemContent className="items-center">
           <Skeleton className="h-8 w-1/5" />
           <Skeleton className="h-5 w-1/6" />
         </ItemContent>
-      </Item>
+      </Item> */}
     </ItemGroup>
   );
 }

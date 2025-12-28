@@ -1,6 +1,6 @@
 "use client";
 
-import { TriangleAlertIcon } from "lucide-react";
+import { Trash2 } from "lucide-react";
 import { useState } from "react";
 import {
   AlertDialog,
@@ -14,13 +14,15 @@ import {
 } from "./ui/alert-dialog";
 import { Button } from "./ui/button";
 import { Spinner } from "./ui/spinner";
+import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 
 type ResponsiveAlertDialogProps = {
-  title: string;
-  description: string;
+  title: React.ReactNode;
+  description: React.ReactNode;
   applyButtonName: string;
   onDelete: () => Promise<unknown>;
-  trigger: React.ReactNode;
+  tooltipMessage?: string;
+  trigger?: React.ReactNode;
 };
 
 export function AlertDialogDestructive({
@@ -28,36 +30,48 @@ export function AlertDialogDestructive({
   description,
   applyButtonName,
   onDelete,
+  tooltipMessage,
   trigger,
-}: ResponsiveAlertDialogProps) {
+  ...props
+}: ResponsiveAlertDialogProps & React.ComponentProps<typeof AlertDialog>) {
   const [isLoading, setIsLoading] = useState(false);
+  const [isTooltipAllowed, setIsTooltipAllowed] = useState(true);
 
   const handleDelete = async () => {
     setIsLoading(true);
     try {
       await onDelete();
     } catch (error) {
-      console.log(error);
+      console.error(error);
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <AlertDialog>
-      <AlertDialogTrigger asChild>{trigger}</AlertDialogTrigger>
-      <AlertDialogContent>
-        <AlertDialogHeader className="overflow-hidden">
-          <div className="mx-auto mb-2 flex size-12 items-center justify-center rounded-full bg-destructive/10">
-            <TriangleAlertIcon className="size-6 text-destructive" />
-          </div>
-          <AlertDialogTitle
-            className="line-clamp-3 overflow-hidden text-ellipsis"
-            title={title}
-          >
-            {title}
-          </AlertDialogTitle>
-          <AlertDialogDescription>{description}</AlertDialogDescription>
+    <AlertDialog onOpenChange={() => setIsTooltipAllowed(false)} {...props}>
+      <Tooltip defaultOpen={false}>
+        <TooltipTrigger asChild onMouseEnter={() => setIsTooltipAllowed(true)}>
+          <AlertDialogTrigger asChild>
+            {trigger ?? (
+              <Button
+                className="h-9 w-9 text-muted-foreground/70 hover:bg-red-50 hover:text-destructive"
+                type="button"
+                variant="ghost"
+              >
+                <Trash2 />
+              </Button>
+            )}
+          </AlertDialogTrigger>
+        </TooltipTrigger>
+        {tooltipMessage && isTooltipAllowed && (
+          <TooltipContent>{tooltipMessage}</TooltipContent>
+        )}
+      </Tooltip>
+      <AlertDialogContent className="gap-16">
+        <AlertDialogHeader>
+          <AlertDialogTitle>{title}</AlertDialogTitle>
+          <AlertDialogDescription asChild>{description}</AlertDialogDescription>
         </AlertDialogHeader>
 
         <AlertDialogFooter>
