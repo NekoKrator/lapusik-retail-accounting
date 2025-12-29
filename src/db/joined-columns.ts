@@ -43,3 +43,13 @@ export const supplierDeliveryJoinedColumns = {
 		u."displayUsername"
 	`,
 };
+
+export const debtorJoinedColumns = {
+  name: Prisma.sql`
+		d.name
+	`,
+
+  displayUsername: Prisma.sql`
+		u."displayUsername"
+	`,
+};

@@ -1,6 +1,7 @@
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { debtorComputedColumns } from "@/db/computed-columns";
+import { debtorJoinedColumns } from "@/db/joined-columns";
 import {
   buildHavingSQL,
   buildOrderBySQL,
@@ -43,7 +44,7 @@ export async function POST(req: NextRequest) {
 
     /* ---------------- WHERE ---------------- */
 
-    const whereSQL = buildWhereSQL(where);
+    const whereSQL = buildWhereSQL(where, debtorJoinedColumns);
 
     /* ---------------- HAVING ---------------- */
 
@@ -54,7 +55,7 @@ export async function POST(req: NextRequest) {
     const orderBy = buildOrderBySQL(
       body.orderBy ?? "name",
       body.order ?? "asc",
-      debtorComputedColumns,
+      { ...debtorJoinedColumns, ...debtorComputedColumns },
       "d"
     );
 
@@ -65,6 +66,7 @@ export async function POST(req: NextRequest) {
 			FROM (
 				SELECT d.id
 				FROM "debtor" d
+				LEFT JOIN "user" u ON u.id = d."userId"
 				LEFT JOIN "debt" dt ON dt."debtorId" = d.id
 				${whereSQL}
 				GROUP BY d.id
@@ -86,11 +88,13 @@ export async function POST(req: NextRequest) {
 				${debtorComputedColumns.totalDebtsCount} AS "totalDebtsCount",
 				${debtorComputedColumns.activeDebtsCount} AS "activeDebtsCount",
 				${debtorComputedColumns.canceledDebtsCount} AS "canceledDebtsCount",
-				${debtorComputedColumns.paidDebtsCount} AS "paidDebtsCount"
+				${debtorComputedColumns.paidDebtsCount} AS "paidDebtsCount",
+				u."displayUsername"
 			FROM "debtor" d
+			LEFT JOIN "user" u ON u.id = d."userId"
 			LEFT JOIN "debt" dt ON dt."debtorId" = d.id
 			${whereSQL}
-    	GROUP BY d.id
+    	GROUP BY d.id, u."displayUsername"
 			${havingSQL}
 
 			ORDER BY ${orderBy}

@@ -11,6 +11,9 @@ export const DebtorOrderByEnum = z.enum([
   "paidDebtsCount",
   "canceledDebtsCount",
   "totalDebtsCount",
+
+  // connected
+  "displayUsername",
 ]);
 
 export type DebtorOrderBy = z.input<typeof DebtorOrderByEnum>;

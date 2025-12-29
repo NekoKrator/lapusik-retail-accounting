@@ -9,6 +9,8 @@ export type DebtorStats = Omit<Debtor, "createdAt" | "updatedAt" | "userId"> & {
   paidDebtsCount: number;
   canceledDebtsCount: number;
   totalDebtsCount: number;
+
+  displayUsername: string;
 };
 
 export const DebtorCreateSchema = z.object({

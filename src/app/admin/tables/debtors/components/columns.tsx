@@ -34,6 +34,17 @@ export const columns: ColumnDef<DebtorStats>[] = [
     enableHiding: false,
   },
   {
+    accessorKey: "displayUsername",
+    meta: {
+      label: "Відділ",
+    },
+    header: ({ column }) => <ColumnHeader column={column} title="Відділ" />,
+    cell: ({ row }) => {
+      const displayUsername = row.original.displayUsername;
+      return <div className="truncate">{displayUsername}</div>;
+    },
+  },
+  {
     accessorKey: "name",
     meta: {
       label: "Ім'я",

@@ -122,8 +122,8 @@ export function FiltersDialog({
         </DialogHeader>
 
         <div className="flex justify-between gap-2">
-          <ScrollArea className="h-[calc(52px*3+8px*2)] w-full" type="always">
-            <div className="flex flex-col gap-2">
+          <ScrollArea className="h-[calc(52px*3+12px*2)] w-full" type="always">
+            <div className="flex flex-col gap-2 py-2">
               {rows.map((row) => (
                 <FilterRow
                   configs={configs}

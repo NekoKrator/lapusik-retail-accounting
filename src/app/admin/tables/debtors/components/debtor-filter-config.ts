@@ -2,6 +2,21 @@ import type { FilterConfig } from "@/types/filter-types";
 
 export const debtorFilterConfigs: FilterConfig[] = [
   {
+    key: "displayUsername",
+    label: "Відділ",
+    type: "enum",
+    options: [
+      {
+        value: "1 Відділ - Палацова 2",
+        label: "1 Відділ - Палацова 2",
+      },
+      {
+        value: "2 Відділ - Єдності 80",
+        label: "2 Відділ - Єдності 80",
+      },
+    ],
+  },
+  {
     key: "name",
     label: "Ім'я",
     type: "text",

@@ -9,4 +9,7 @@ export const DebtorFilterSchema = [
   "paidDebtsCount",
   "canceledDebtsCount",
   "totalDebtsCount",
+
+  // connected
+  "displayUsername",
 ];
