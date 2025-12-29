@@ -22,7 +22,7 @@ export default function SupplierDeliveriesTable() {
   const [totalPages, setTotalPages] = useState(1);
 
   const { sorting, filters, onSortingChange, onFilterChange } = useTableState(
-    "table:supplier-deliveries"
+    "supplier-deliveries"
   );
 
   const sort = sorting[0];

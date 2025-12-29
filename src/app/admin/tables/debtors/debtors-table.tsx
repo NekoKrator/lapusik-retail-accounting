@@ -22,7 +22,7 @@ export default function DebtorsTable() {
   const [totalPages, setTotalPages] = useState(1);
 
   const { sorting, filters, onSortingChange, onFilterChange } =
-    useTableState("table:debtors");
+    useTableState("debtors");
 
   const sort = sorting[0];
   const order = sort?.desc ? "desc" : "asc";

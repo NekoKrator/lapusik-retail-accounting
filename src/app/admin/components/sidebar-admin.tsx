@@ -1,4 +1,6 @@
-import { ChartBar } from "lucide-react";
+"use client";
+
+import { ChartBar, Sheet } from "lucide-react";
 import { CustomSidebarTrigger } from "@/components/custom-sidebar-trigger";
 import {
   Sidebar,
@@ -11,7 +13,6 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import TablesMenuItem from "./tables-menu-item";
 
 // Menu items.
 const items = [
@@ -19,6 +20,11 @@ const items = [
     title: "Статистика",
     url: "/admin/stats",
     icon: ChartBar,
+  },
+  {
+    title: "Таблиці",
+    url: "/admin/tables",
+    icon: Sheet,
   },
 ];
 
@@ -41,7 +47,6 @@ export function SidebarAdmin() {
                 </SidebarMenuItem>
               ))}
             </SidebarMenu>
-            <TablesMenuItem />
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>

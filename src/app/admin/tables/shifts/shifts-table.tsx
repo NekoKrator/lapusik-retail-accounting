@@ -22,7 +22,7 @@ export default function ShiftsTable() {
   const [totalPages, setTotalPages] = useState(1);
 
   const { sorting, filters, onSortingChange, onFilterChange } =
-    useTableState("table:shifts");
+    useTableState("shifts");
 
   const sort = sorting[0];
   const order = sort?.desc ? "desc" : "asc";

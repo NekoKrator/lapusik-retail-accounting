@@ -26,7 +26,7 @@ export default function SuppliersTable() {
   const [totalPages, setTotalPages] = useState(1);
 
   const { sorting, filters, onSortingChange, onFilterChange } =
-    useTableState("table:suppliers");
+    useTableState("suppliers");
 
   const sort = sorting[0];
   const order = sort?.desc ? "desc" : "asc";
