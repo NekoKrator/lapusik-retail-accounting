@@ -37,16 +37,6 @@ export const shiftFilterConfigs: FilterConfig[] = [
     type: "date",
   },
   {
-    key: "totalCashRegister",
-    label: "Виторг",
-    type: "number",
-  },
-  {
-    key: "terminalRegister",
-    label: "Термінал",
-    type: "number",
-  },
-  {
     key: "openingBalance",
     label: "Ранковий залишок",
     type: "number",
@@ -57,13 +47,23 @@ export const shiftFilterConfigs: FilterConfig[] = [
     type: "number",
   },
   {
-    key: "totalExpenses",
-    label: "Витрати",
+    key: "totalCashRegister",
+    label: "Виторг",
+    type: "number",
+  },
+  {
+    key: "terminalRegister",
+    label: "Термінал",
     type: "number",
   },
   {
     key: "expectedClosingBalance",
     label: "Розрахунковий залишок",
+    type: "number",
+  },
+  {
+    key: "totalExpenses",
+    label: "Витрати",
     type: "number",
   },
   {

@@ -23,9 +23,11 @@ export default function Page() {
     );
   }
 
-  const filteredData = rawData.items.sort(
-    (a, b) => a.openedAt.getTime() - b.openedAt.getTime()
-  );
+  const filteredData = rawData.items.map((i) => ({
+    ...i,
+    openedAt: new Date(i.openedAt),
+    closedAt: i.closedAt ? new Date(i.closedAt) : new Date(),
+  }));
 
   return <StatsPage data={filteredData} />;
 }

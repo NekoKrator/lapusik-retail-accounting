@@ -114,7 +114,7 @@ export function DataTable<TData extends WithId, TValue>({
     onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: setRowSelection,
     defaultColumn: {
-      size: 200,
+      size: 150,
       minSize: 100,
     },
     state: {

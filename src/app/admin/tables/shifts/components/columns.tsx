@@ -125,46 +125,6 @@ export const columns: ColumnDef<ShiftStats>[] = [
     },
   },
   {
-    accessorKey: "totalCashRegister",
-    meta: {
-      label: "Виторг",
-    },
-    header: ({ column }) => <ColumnHeader column={column} title="Виторг" />,
-    cell: ({ row }) => (
-      <div className="truncate text-end">
-        {formatCurrency(row.getValue("totalCashRegister"))}
-      </div>
-    ),
-    footer: ({ table }) => {
-      const total = calculateTotal(table.options.data, "totalCashRegister");
-      return (
-        <div className="truncate text-end font-bold">
-          {formatCurrency(total)}
-        </div>
-      );
-    },
-  },
-  {
-    accessorKey: "terminalRegister",
-    meta: {
-      label: "Термінал",
-    },
-    header: ({ column }) => <ColumnHeader column={column} title="Термінал" />,
-    cell: ({ row }) => (
-      <div className="truncate text-end">
-        {formatCurrency(row.getValue("terminalRegister"))}
-      </div>
-    ),
-    footer: ({ table }) => {
-      const total = calculateTotal(table.options.data, "terminalRegister");
-      return (
-        <div className="truncate text-end font-bold">
-          {formatCurrency(total)}
-        </div>
-      );
-    },
-  },
-  {
     accessorKey: "openingBalance",
     meta: {
       label: "Ранковий залишок",
@@ -209,18 +169,38 @@ export const columns: ColumnDef<ShiftStats>[] = [
     },
   },
   {
-    accessorKey: "totalExpenses",
+    accessorKey: "totalCashRegister",
     meta: {
-      label: "Витрати",
+      label: "Виторг",
     },
-    header: ({ column }) => <ColumnHeader column={column} title="Витрати" />,
+    header: ({ column }) => <ColumnHeader column={column} title="Виторг" />,
     cell: ({ row }) => (
       <div className="truncate text-end">
-        {formatCurrency(row.getValue("totalExpenses"))}
+        {formatCurrency(row.getValue("totalCashRegister"))}
       </div>
     ),
     footer: ({ table }) => {
-      const total = calculateTotal(table.options.data, "totalExpenses");
+      const total = calculateTotal(table.options.data, "totalCashRegister");
+      return (
+        <div className="truncate text-end font-bold">
+          {formatCurrency(total)}
+        </div>
+      );
+    },
+  },
+  {
+    accessorKey: "terminalRegister",
+    meta: {
+      label: "Термінал",
+    },
+    header: ({ column }) => <ColumnHeader column={column} title="Термінал" />,
+    cell: ({ row }) => (
+      <div className="truncate text-end">
+        {formatCurrency(row.getValue("terminalRegister"))}
+      </div>
+    ),
+    footer: ({ table }) => {
+      const total = calculateTotal(table.options.data, "terminalRegister");
       return (
         <div className="truncate text-end font-bold">
           {formatCurrency(total)}
@@ -246,6 +226,26 @@ export const columns: ColumnDef<ShiftStats>[] = [
         table.options.data,
         "expectedClosingBalance"
       );
+      return (
+        <div className="truncate text-end font-bold">
+          {formatCurrency(total)}
+        </div>
+      );
+    },
+  },
+  {
+    accessorKey: "totalExpenses",
+    meta: {
+      label: "Витрати",
+    },
+    header: ({ column }) => <ColumnHeader column={column} title="Витрати" />,
+    cell: ({ row }) => (
+      <div className="truncate text-end">
+        {formatCurrency(row.getValue("totalExpenses"))}
+      </div>
+    ),
+    footer: ({ table }) => {
+      const total = calculateTotal(table.options.data, "totalExpenses");
       return (
         <div className="truncate text-end font-bold">
           {formatCurrency(total)}
