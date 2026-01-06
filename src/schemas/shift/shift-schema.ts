@@ -1,14 +1,6 @@
 import { z } from "zod";
 import type { Prisma, Shift } from "@/generated/prisma/client";
 
-const shiftInclude = {
-  user: { select: { displayUsername: true } },
-} satisfies Prisma.ShiftInclude;
-
-export type ShiftWithUserDisplayUsername = Prisma.ShiftGetPayload<{
-  include: typeof shiftInclude;
-}>;
-
 export type ShiftStats = Omit<Shift, "userId"> & {
   displayUsername: string;
   shiftDuration: number;

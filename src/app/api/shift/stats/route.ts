@@ -38,8 +38,8 @@ export async function POST(req: NextRequest) {
       ? splitFilters(body.filters, shiftComputedColumns)
       : { where: [], having: [] };
 
-    const page = Math.max(Number(body.page) || 1, 1);
-    const limit = Math.max(Number(body.limit) || 10, 1);
+    const page = Number(body.page);
+    const limit = Number(body.limit);
     const offset = (page - 1) * limit;
 
     /* ---------------- WHERE ---------------- */
